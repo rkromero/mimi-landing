@@ -5,6 +5,8 @@ import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCorners }
 import { arrayMove } from '@dnd-kit/sortable'
 import { KanbanColumn } from '@/components/KanbanColumn'
 import { LeadCard } from '@/components/LeadCard'
+import { MobileCRM } from '@/components/MobileCRM'
+import { useMobile } from '@/hooks/use-mobile'
 import { Button } from '@/components/ui/button'
 import { RefreshCw, BarChart3, Users, TrendingUp } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -68,6 +70,7 @@ const COLUMNAS = [
 ]
 
 export default function CRMPage() {
+  const isMobile = useMobile()
   const [leads, setLeads] = useState<LeadsPorEtapa>({
     entrante: [],
     'primer-llamado': [],
@@ -297,6 +300,20 @@ Equipo MIMI`)
   const totalValue = Object.values(leads).flat().reduce((sum, lead) => sum + (lead.valor || 0), 0)
   const conversionRate = totalLeads > 0 ? ((leads.ganado.length / totalLeads) * 100).toFixed(1) : '0'
 
+  // Renderizado condicional: móvil vs desktop
+  if (isMobile) {
+    return (
+      <MobileCRM
+        leads={leads}
+        onCall={handleCall}
+        onWhatsApp={handleWhatsApp}
+        onEmail={handleEmail}
+        onRefresh={cargarLeads}
+        loading={loading}
+      />
+    )
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -308,6 +325,7 @@ Equipo MIMI`)
     )
   }
 
+  // Vista desktop (sin cambios)
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
