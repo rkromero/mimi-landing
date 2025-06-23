@@ -193,12 +193,6 @@ export default function MimiLanding() {
               >
                 FAQ
               </a>
-              <Link
-                href="/crm"
-                className="text-blue-600 hover:text-blue-700 text-sm font-medium transition-colors duration-200 bg-blue-50 px-3 py-1 rounded-full"
-              >
-                🎯 CRM
-              </Link>
               <Button
                 size="sm"
                 className="bg-[#E65C37] hover:bg-[#E65C37]/90 text-white px-3 py-1 text-xs font-semibold h-7"
