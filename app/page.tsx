@@ -147,11 +147,13 @@ export default function MimiLanding() {
           <div className="flex items-center justify-between h-full">
             {/* Logo */}
             <div className="flex justify-center lg:justify-start">
-              <OptimizedLogo 
-                className="h-5 w-auto filter hue-rotate-12 saturate-110"
-                priority={true}
+              <Image
+                src="/images/mimi-logo-new.png"
+                alt="MIMI Alfajores - Distribuidores Premium Argentina"
                 width={70}
                 height={28}
+                className="h-8 w-auto"
+                priority={true}
               />
             </div>
             

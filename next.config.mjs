@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Configuración mínima y segura
-  images: {
-    unoptimized: true,
-  },
+  // images: {
+  //   unoptimized: true,
+  // },
   
   // Configuración de servidor externo para Prisma
   serverExternalPackages: ['@prisma/client', 'prisma'],
