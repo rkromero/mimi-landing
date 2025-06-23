@@ -139,56 +139,208 @@ export default function MimiLanding() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-yellow-200 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+    <div className="min-h-screen bg-white">
+      {/* Header with Logo and Navigation */}
+      <header className="bg-orange-50 py-1 px-4 border-b border-gray-100 sticky top-0 z-40 backdrop-blur-sm h-16">
+        <div className="container mx-auto max-w-7xl h-full">
+          <div className="flex items-center justify-between h-full">
+            {/* Logo */}
+            <div className="flex justify-center lg:justify-start">
               <Image 
                 src="/images/mimi-logo-new.png" 
-                alt="MIMI Alfajores" 
-                width={70} 
-                height={28} 
-                className="h-5 w-auto"
-                priority
+                alt="MIMI - Alfajores Premium Argentinos"
+                width={100}
+                height={40}
+                className="h-24 w-auto max-h-24"
+                priority={true}
+                style={{
+                  filter:
+                    "brightness(0) saturate(100%) invert(45%) sepia(89%) saturate(1000%) hue-rotate(346deg) brightness(95%) contrast(95%)",
+                  width: "auto",
+                  height: "auto",
+                }}
               />
             </div>
             
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
-              <a href="#beneficios" className="text-gray-700 hover:text-yellow-600 transition-colors">Beneficios</a>
-              <a href="#productos" className="text-gray-700 hover:text-yellow-600 transition-colors">Productos</a>
-              <a href="#testimonios" className="text-gray-700 hover:text-yellow-600 transition-colors">Testimonios</a>
-              <a href="#contacto" className="bg-yellow-500 text-white px-6 py-2 rounded-full hover:bg-yellow-600 transition-colors">
-                Únete Ahora
+            {/* Navigation Menu - Desktop */}
+            <nav className="hidden lg:flex items-center space-x-4">
+              <a
+                href="#beneficios"
+                className="text-gray-700 hover:text-[#E65C37] text-sm font-medium transition-colors duration-200"
+                onClick={handleSmoothScroll}
+              >
+                Beneficios
               </a>
+              <a
+                href="#productos"
+                className="text-gray-700 hover:text-[#E65C37] text-sm font-medium transition-colors duration-200"
+                onClick={handleSmoothScroll}
+              >
+                Productos
+              </a>
+              <a
+                href="#testimonios"
+                className="text-gray-700 hover:text-[#E65C37] text-sm font-medium transition-colors duration-200"
+                onClick={handleSmoothScroll}
+              >
+                Testimonios
+              </a>
+              <a
+                href="#contacto"
+                className="text-gray-700 hover:text-[#E65C37] text-sm font-medium transition-colors duration-200"
+                onClick={handleSmoothScroll}
+              >
+                Contacto
+              </a>
+              <a
+                href="#faq"
+                className="text-gray-700 hover:text-[#E65C37] text-sm font-medium transition-colors duration-200"
+                onClick={handleSmoothScroll}
+              >
+                FAQ
+              </a>
+              <Button
+                size="sm"
+                className="bg-[#E65C37] hover:bg-[#E65C37]/90 text-white px-3 py-1 text-xs font-semibold h-7"
+                onClick={(e) => {
+                  e.preventDefault()
+                  const contactForm = document.getElementById("contacto")
+                  if (contactForm) {
+                    window.scrollTo({
+                      top: contactForm.offsetTop - 100,
+                      behavior: "smooth",
+                    })
+                  }
+                }}
+              >
+                <MessageCircle className="mr-1 h-3 w-3" />
+                Contactar
+              </Button>
             </nav>
 
-            {/* Mobile menu button */}
+            {/* Mobile Menu Button */}
             <button
+              className="lg:hidden p-1 text-gray-700 hover:text-[#E65C37] transition-colors duration-200"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 rounded-md hover:bg-gray-100 transition-colors"
+              aria-label="Toggle mobile menu"
             >
-              <Menu className="w-6 h-6" />
+              {isMobileMenuOpen ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
             </button>
           </div>
         </div>
+      </header>
 
-        {/* Mobile Navigation */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden bg-white border-t border-yellow-200 py-4">
-            <nav className="container mx-auto px-4 flex flex-col space-y-4">
-              <a href="#beneficios" className="text-gray-700 hover:text-yellow-600 transition-colors">Beneficios</a>
-              <a href="#productos" className="text-gray-700 hover:text-yellow-600 transition-colors">Productos</a>
-              <a href="#testimonios" className="text-gray-700 hover:text-yellow-600 transition-colors">Testimonios</a>
-              <a href="#contacto" className="bg-yellow-500 text-white px-6 py-2 rounded-full hover:bg-yellow-600 transition-colors text-center">
-                Únete Ahora
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-50"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          {/* Menu Panel */}
+          <div className="lg:hidden fixed top-0 left-0 w-80 h-full bg-white shadow-2xl z-[60] transform transition-transform duration-300">
+            {/* Header */}
+            <div className="flex items-center justify-center p-2 bg-orange-50 border-b">
+              <Image
+                src="/images/mimi-logo-new.png"
+                alt="MIMI"
+                width={60}
+                height={24}
+                className="h-5 w-auto"
+                style={{
+                  filter: "brightness(0) saturate(100%) invert(45%) sepia(89%) saturate(1000%) hue-rotate(346deg) brightness(95%) contrast(95%)",
+                  width: "auto",
+                  height: "auto",
+                }}
+              />
+            </div>
+
+            {/* Menu Items */}
+            <nav className="p-4 space-y-2">
+              <a
+                href="#beneficios"
+                className="block px-4 py-3 text-gray-700 hover:text-[#E65C37] hover:bg-orange-50 rounded-lg font-medium transition-colors"
+                onClick={(e) => {
+                  handleSmoothScroll(e)
+                  setIsMobileMenuOpen(false)
+                }}
+              >
+                Beneficios
+              </a>
+              <a
+                href="#productos"
+                className="block px-4 py-3 text-gray-700 hover:text-[#E65C37] hover:bg-orange-50 rounded-lg font-medium transition-colors"
+                onClick={(e) => {
+                  handleSmoothScroll(e)
+                  setIsMobileMenuOpen(false)
+                }}
+              >
+                Productos
+              </a>
+              <a
+                href="#testimonios"
+                className="block px-4 py-3 text-gray-700 hover:text-[#E65C37] hover:bg-orange-50 rounded-lg font-medium transition-colors"
+                onClick={(e) => {
+                  handleSmoothScroll(e)
+                  setIsMobileMenuOpen(false)
+                }}
+              >
+                Testimonios
+              </a>
+              <a
+                href="#contacto"
+                className="block px-4 py-3 text-gray-700 hover:text-[#E65C37] hover:bg-orange-50 rounded-lg font-medium transition-colors"
+                onClick={(e) => {
+                  handleSmoothScroll(e)
+                  setIsMobileMenuOpen(false)
+                }}
+              >
+                Contacto
+              </a>
+              <a
+                href="#faq"
+                className="block px-4 py-3 text-gray-700 hover:text-[#E65C37] hover:bg-orange-50 rounded-lg font-medium transition-colors"
+                onClick={(e) => {
+                  handleSmoothScroll(e)
+                  setIsMobileMenuOpen(false)
+                }}
+              >
+                FAQ
               </a>
             </nav>
+
+            {/* CTA Button */}
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gray-50 border-t">
+              <Button
+                className="w-full bg-[#E65C37] hover:bg-[#E65C37]/90 text-white font-semibold py-3"
+                onClick={(e) => {
+                  e.preventDefault()
+                  const contactForm = document.getElementById("contacto")
+                  if (contactForm) {
+                    window.scrollTo({
+                      top: contactForm.offsetTop - 100,
+                      behavior: "smooth",
+                    })
+                  }
+                  setIsMobileMenuOpen(false)
+                }}
+              >
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Contactar
+              </Button>
+            </div>
           </div>
-        )}
-      </header>
+        </>
+      )}
 
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-white via-orange-50 to-cyan-50 py-6 px-4 overflow-hidden">
