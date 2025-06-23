@@ -67,33 +67,7 @@ export default function RootLayout({
           `}
         </Script>
         
-        {/* Service Worker Registration */}
-        <Script id="service-worker-registration" strategy="afterInteractive">
-          {`
-            if ('serviceWorker' in navigator) {
-              window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js')
-                  .then(function(registration) {
-                    console.log('🔧 Service Worker registrado exitosamente:', registration.scope);
-                    
-                    // Escuchar actualizaciones
-                    registration.addEventListener('updatefound', () => {
-                      const newWorker = registration.installing;
-                      newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                          console.log('🔄 Nueva versión disponible, actualizando...');
-                          newWorker.postMessage({ type: 'SKIP_WAITING' });
-                        }
-                      });
-                    });
-                  })
-                  .catch(function(error) {
-                    console.log('❌ Error al registrar Service Worker:', error);
-                  });
-              });
-            }
-          `}
-        </Script>
+
       </head>
       <body suppressHydrationWarning={true}>{children}</body>
     </html>
