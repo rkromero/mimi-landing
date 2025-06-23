@@ -295,7 +295,7 @@ export default function CRMPage() {
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 h-[calc(100vh-300px)]">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 h-[calc(100vh-280px)]">
             {COLUMNAS.map((columna) => (
               <div key={columna.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
                 <KanbanColumn

@@ -92,117 +92,110 @@ export function LeadCard({ lead, onCall, onWhatsApp, onEmail }: LeadCardProps) {
       style={style}
       {...attributes}
       {...listeners}
-      className={`mb-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow ${
+      className={`mb-2 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow ${
         isDragging ? 'shadow-lg' : ''
       }`}
     >
-      <CardHeader className="pb-2">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <User className="h-4 w-4 text-gray-600" />
-              <h3 className="font-semibold text-sm">{lead.nombre}</h3>
-            </div>
-            <div className="flex items-center gap-2 mb-2">
-              <Building className="h-4 w-4 text-gray-600" />
-              <p className="text-sm text-gray-600">{lead.negocio}</p>
-            </div>
+      <CardContent className="p-3">
+        {/* Header con nombre y valor */}
+        <div className="flex items-start justify-between mb-2">
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-sm text-gray-900 truncate">{lead.nombre}</h3>
+            <p className="text-xs text-gray-600 truncate">{lead.negocio}</p>
           </div>
           {lead.valor && (
-            <div className="flex items-center gap-1 text-green-600">
-              <DollarSign className="h-4 w-4" />
-              <span className="text-sm font-medium">
+            <div className="flex items-center gap-1 text-green-600 ml-2">
+              <DollarSign className="h-3 w-3" />
+              <span className="text-xs font-medium">
                 ${lead.valor.toLocaleString()}
               </span>
             </div>
           )}
         </div>
-      </CardHeader>
 
-      <CardContent className="pt-0">
-        <div className="space-y-2">
-          {/* Ubicación y Cantidad */}
-          <div className="flex items-center gap-4 text-xs text-gray-600">
-            <div className="flex items-center gap-1">
-              <MapPin className="h-3 w-3" />
-              <span>{lead.ubicacion}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Package className="h-3 w-3" />
-              <span>{getCantidadText(lead.cantidad)}</span>
-            </div>
+        {/* Info compacta */}
+        <div className="space-y-1 mb-2">
+          <div className="flex items-center gap-2 text-xs text-gray-600">
+            <MapPin className="h-3 w-3 flex-shrink-0" />
+            <span className="truncate">{lead.ubicacion}</span>
           </div>
-
-          {/* Etapa original */}
-          <Badge variant="secondary" className={`text-xs ${getEtapaColor(lead.etapa)}`}>
-            {lead.etapa === 'listo-primer-pedido' && '🎯 Listo para comprar'}
-            {lead.etapa === 'empezar-pronto' && '⚡ Empezar pronto'}
-            {lead.etapa === 'busco-mejor-proveedor' && '🔍 Busca proveedor'}
-            {lead.etapa === 'buscando-opciones' && '👀 Explorando'}
-          </Badge>
-
-          {/* Comentarios */}
-          {lead.comentarios && (
-            <p className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
-              "{lead.comentarios}"
-            </p>
-          )}
-
-          {/* Notas del CRM */}
-          {lead.notas && (
-            <p className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
-              📝 {lead.notas}
-            </p>
-          )}
-
-          {/* Fecha */}
-          <div className="flex items-center gap-1 text-xs text-gray-500">
-            <Calendar className="h-3 w-3" />
-            <span>{formatDate(lead.createdAt)}</span>
-          </div>
-
-          {/* Botones de acción */}
-          <div className="flex gap-1 pt-2">
-            <Button
-              size="sm"
-              variant="outline"
-              className="flex-1 text-xs h-8"
-              onClick={(e) => {
-                e.stopPropagation()
-                onCall?.(lead)
-              }}
-            >
-              <Phone className="h-3 w-3 mr-1" />
-              Llamar
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="flex-1 text-xs h-8 text-green-600 hover:text-green-700"
-              onClick={(e) => {
-                e.stopPropagation()
-                onWhatsApp?.(lead)
-              }}
-            >
-              <MessageCircle className="h-3 w-3 mr-1" />
-              WhatsApp
-            </Button>
-            {lead.email && (
-              <Button
-                size="sm"
-                variant="outline"
-                className="flex-1 text-xs h-8 text-blue-600 hover:text-blue-700"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onEmail?.(lead)
-                }}
-              >
-                <Mail className="h-3 w-3 mr-1" />
-                Email
-              </Button>
-            )}
+          <div className="flex items-center gap-2 text-xs text-gray-600">
+            <Package className="h-3 w-3 flex-shrink-0" />
+            <span>{getCantidadText(lead.cantidad)}</span>
           </div>
         </div>
+
+        {/* Etapa original */}
+        <Badge variant="secondary" className={`text-xs mb-2 ${getEtapaColor(lead.etapa)}`}>
+          {lead.etapa === 'listo-primer-pedido' && '🎯 Listo'}
+          {lead.etapa === 'empezar-pronto' && '⚡ Pronto'}
+          {lead.etapa === 'busco-mejor-proveedor' && '🔍 Busca'}
+          {lead.etapa === 'buscando-opciones' && '👀 Explora'}
+        </Badge>
+
+        {/* Comentarios compactos */}
+        {lead.comentarios && (
+          <p className="text-xs text-gray-600 bg-gray-50 p-1 rounded mb-2 line-clamp-2">
+            "{lead.comentarios.length > 50 ? lead.comentarios.substring(0, 50) + '...' : lead.comentarios}"
+          </p>
+        )}
+
+        {/* Notas del CRM compactas */}
+        {lead.notas && (
+          <p className="text-xs text-blue-600 bg-blue-50 p-1 rounded mb-2 line-clamp-1">
+            📝 {lead.notas.length > 30 ? lead.notas.substring(0, 30) + '...' : lead.notas}
+          </p>
+        )}
+
+        {/* Fecha compacta */}
+        <div className="flex items-center gap-1 text-xs text-gray-500 mb-2">
+          <Calendar className="h-3 w-3" />
+          <span>{formatDate(lead.createdAt)}</span>
+        </div>
+
+        {/* Botones de acción compactos */}
+        <div className="grid grid-cols-2 gap-1">
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-xs h-7 px-2"
+            onClick={(e) => {
+              e.stopPropagation()
+              onCall?.(lead)
+            }}
+          >
+            <Phone className="h-3 w-3 mr-1" />
+            Llamar
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-xs h-7 px-2 text-green-600 hover:text-green-700"
+            onClick={(e) => {
+              e.stopPropagation()
+              onWhatsApp?.(lead)
+            }}
+          >
+            <MessageCircle className="h-3 w-3 mr-1" />
+            WhatsApp
+          </Button>
+        </div>
+        
+        {/* Email button si existe */}
+        {lead.email && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="w-full text-xs h-7 px-2 text-blue-600 hover:text-blue-700 mt-1"
+            onClick={(e) => {
+              e.stopPropagation()
+              onEmail?.(lead)
+            }}
+          >
+            <Mail className="h-3 w-3 mr-1" />
+            Email
+          </Button>
+        )}
       </CardContent>
     </Card>
   )

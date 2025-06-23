@@ -52,19 +52,19 @@ export function KanbanColumn({
   return (
     <div className="flex flex-col h-full">
       {/* Header de la columna */}
-      <div className={`${color} rounded-t-lg p-4 text-white`}>
+      <div className={`${color} rounded-t-lg p-3 text-white`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-lg">{icon}</span>
-            <h3 className="font-semibold text-sm">{title}</h3>
+            <span className="text-base">{icon}</span>
+            <h3 className="font-semibold text-xs">{title}</h3>
           </div>
-          <Badge variant="secondary" className="bg-white/20 text-white">
+          <Badge variant="secondary" className="bg-white/20 text-white text-xs">
             {leads.length}
           </Badge>
         </div>
         {totalValue > 0 && (
-          <div className="mt-2 text-xs opacity-90">
-            Valor total: ${totalValue.toLocaleString()}
+          <div className="mt-1 text-xs opacity-90">
+            ${totalValue.toLocaleString()}
           </div>
         )}
       </div>
@@ -72,7 +72,7 @@ export function KanbanColumn({
       {/* Área de drop */}
       <div
         ref={setNodeRef}
-        className={`flex-1 p-4 bg-gray-50 min-h-[500px] transition-colors ${
+        className={`flex-1 p-3 bg-gray-50 min-h-[400px] max-h-[600px] overflow-y-auto transition-colors ${
           isOver ? 'bg-blue-50 border-2 border-blue-300 border-dashed' : ''
         }`}
       >
