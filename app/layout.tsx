@@ -12,6 +12,21 @@ export const metadata: Metadata = {
     type: 'website',
   },
   generator: 'v0.dev',
+  // Optimizaciones adicionales
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'google-site-verification-code', // Agregar cuando tengas el código
+  },
 }
 
 // Google Ads ID desde variables de entorno
@@ -26,6 +41,19 @@ export default function RootLayout({
   return (
     <html lang="es">
       <head>
+        {/* PWA Manifest */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#E65C37" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="MIMI Distribuidores" />
+        <link rel="apple-touch-icon" href="/images/mimi-logo-new.png" />
+        
+        {/* Preload de recursos críticos */}
+        <link rel="preload" href="/images/mimi-logo-new.png" as="image" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        
         {/* Google tag (gtag.js) - Usando variables de entorno */}
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`}
@@ -64,6 +92,34 @@ export default function RootLayout({
               CONVERSION_LABEL: '${CONVERSION_LABEL}',
               gtag_report_conversion: typeof gtag_report_conversion
             });
+          `}
+        </Script>
+        
+        {/* Service Worker Registration */}
+        <Script id="service-worker-registration" strategy="afterInteractive">
+          {`
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                  .then(function(registration) {
+                    console.log('🔧 Service Worker registrado exitosamente:', registration.scope);
+                    
+                    // Escuchar actualizaciones
+                    registration.addEventListener('updatefound', () => {
+                      const newWorker = registration.installing;
+                      newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                          console.log('🔄 Nueva versión disponible, actualizando...');
+                          newWorker.postMessage({ type: 'SKIP_WAITING' });
+                        }
+                      });
+                    });
+                  })
+                  .catch(function(error) {
+                    console.log('❌ Error al registrar Service Worker:', error);
+                  });
+              });
+            }
           `}
         </Script>
       </head>

@@ -30,6 +30,7 @@ import Link from "next/link"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useEffect, useState } from "react"
 import { useGoogleAds } from "@/hooks/use-google-ads"
+import OptimizedLogo from "@/components/OptimizedLogo"
 
 export default function MimiLanding() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -146,19 +147,11 @@ export default function MimiLanding() {
           <div className="flex items-center justify-between h-full">
             {/* Logo */}
             <div className="flex justify-center lg:justify-start">
-              <Image 
-                src="/images/mimi-logo-new.png" 
-                alt="MIMI - Alfajores Premium Argentinos"
-                width={100}
-                height={40}
-                className="h-24 w-auto max-h-24"
+              <OptimizedLogo 
+                className="h-5 w-auto filter hue-rotate-12 saturate-110"
                 priority={true}
-                style={{
-                  filter:
-                    "brightness(0) saturate(100%) invert(45%) sepia(89%) saturate(1000%) hue-rotate(346deg) brightness(95%) contrast(95%)",
-                  width: "auto",
-                  height: "auto",
-                }}
+                width={70}
+                height={28}
               />
             </div>
             
@@ -420,6 +413,9 @@ export default function MimiLanding() {
                     width={300}
                     height={400}
                     className="rounded-2xl shadow-2xl"
+                    loading="lazy"
+                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 300px"
+                    quality={85}
                   />
                   <div className="absolute -bottom-4 left-4 bg-white rounded-full px-4 py-2 shadow-lg">
                     <span className="text-sm font-semibold text-[#E65C37]">Chocolate Blanco</span>
@@ -432,6 +428,9 @@ export default function MimiLanding() {
                     width={300}
                     height={400}
                     className="rounded-2xl shadow-2xl"
+                    loading="lazy"
+                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 300px"
+                    quality={85}
                   />
                   <div className="absolute -bottom-4 right-4 bg-white rounded-full px-4 py-2 shadow-lg">
                     <span className="text-sm font-semibold text-[#66CCDA]">Chocolate Negro</span>
@@ -562,6 +561,11 @@ export default function MimiLanding() {
                   width={400}
                   height={400}
                   className="mx-auto rounded-3xl shadow-2xl group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                  sizes="(max-width: 768px) 90vw, (max-width: 1200px) 45vw, 400px"
+                  quality={90}
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
                 />
                 <div className="absolute -top-4 -right-4 bg-[#E65C37] text-white rounded-full px-4 py-2 font-semibold">
                   ¡El mejor chocolate blanco!
@@ -590,6 +594,11 @@ export default function MimiLanding() {
                   width={400}
                   height={400}
                   className="mx-auto rounded-3xl shadow-2xl group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                  sizes="(max-width: 768px) 90vw, (max-width: 1200px) 45vw, 400px"
+                  quality={90}
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
                 />
                 <div className="absolute -top-4 -right-4 bg-[#E65C37] text-white rounded-full px-4 py-2 font-semibold">
                 ¡El mas vendido!
