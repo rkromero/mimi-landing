@@ -203,19 +203,43 @@ export default function CRMPage() {
 
   // Manejar acciones de contacto
   const handleCall = (lead: Lead) => {
+    console.log('🚀 handleCall ejecutándose para:', lead.nombre)
+    console.log('🚀 Número original:', lead.whatsapp)
+    
     try {
       const phoneNumber = lead.whatsapp.replace(/\D/g, '')
+      console.log('🚀 Número limpio:', phoneNumber)
+      
       if (phoneNumber) {
         // Agregar código de país si no lo tiene
         const fullNumber = phoneNumber.startsWith('54') ? phoneNumber : `54${phoneNumber}`
-        window.open(`tel:+${fullNumber}`)
+        console.log('🚀 Número final:', fullNumber)
+        console.log('🚀 Intentando abrir tel:', `tel:+${fullNumber}`)
+        
+        // Intentar múltiples métodos
+        const telUrl = `tel:+${fullNumber}`
+        
+        // Método 1: window.open
+        const result = window.open(telUrl)
+        console.log('🚀 Resultado window.open:', result)
+        
+        // Método 2: crear link y clickear (fallback)
+        if (!result) {
+          console.log('🚀 Probando método alternativo...')
+          const link = document.createElement('a')
+          link.href = telUrl
+          link.click()
+        }
+        
         console.log(`📞 Llamando a ${lead.nombre}: +${fullNumber}`)
+        alert(`Intentando llamar a ${lead.nombre} al +${fullNumber}`)
       } else {
+        console.error('❌ Número de teléfono vacío')
         alert('Número de teléfono no válido')
       }
     } catch (error) {
-      console.error('Error al realizar llamada:', error)
-      alert('Error al realizar la llamada')
+      console.error('❌ Error al realizar llamada:', error)
+      alert('Error al realizar la llamada: ' + (error instanceof Error ? error.message : String(error)))
     }
   }
 

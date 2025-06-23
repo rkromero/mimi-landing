@@ -162,7 +162,15 @@ export function LeadCard({ lead, onCall, onWhatsApp, onEmail }: LeadCardProps) {
              onClick={(e) => {
                e.stopPropagation()
                e.preventDefault()
-               onCall?.(lead)
+               console.log('🔍 Botón Llamar clickeado:', lead.nombre)
+               console.log('🔍 Función onCall disponible:', !!onCall)
+               console.log('🔍 Número WhatsApp:', lead.whatsapp)
+               if (onCall) {
+                 onCall(lead)
+               } else {
+                 console.error('❌ Función onCall no está definida')
+                 alert('Error: Función de llamada no está configurada')
+               }
              }}
              title={`Llamar a ${lead.nombre}`}
            >
