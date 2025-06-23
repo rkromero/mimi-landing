@@ -570,10 +570,10 @@ export default function MimiLanding() {
               </p>
               <div className="flex justify-center gap-4">
                 <Badge variant="outline" className="border-[#E65C37] text-[#E65C37]">
-                  Sin TACC
+                  Blanco
                 </Badge>
                 <Badge variant="outline" className="border-[#66CCDA] text-[#66CCDA]">
-                  Premium
+                  60 gr
                 </Badge>
               </div>
             </div>
@@ -598,10 +598,10 @@ export default function MimiLanding() {
               </p>
               <div className="flex justify-center gap-4">
                 <Badge variant="outline" className="border-[#E65C37] text-[#E65C37]">
-                  70% Cacao
+                  Chocolate Semi-amargo
                 </Badge>
                 <Badge variant="outline" className="border-[#66CCDA] text-[#66CCDA]">
-                  Artesanal
+                  60 gramos
                 </Badge>
               </div>
             </div>

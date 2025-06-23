@@ -19,10 +19,13 @@ model ContactForm {
   negocio           String
   ubicacion         String
   cantidad          String?
-  etapa             String
+  etapa             String   // etapa original del formulario
+  etapaCrm          String   @default("entrante") // etapa del CRM: entrante, primer-llamado, seguimiento, ganado, perdido
   whatsapp          String
   email             String?
   comentarios       String?
+  notas             String?  // notas del CRM
+  valor             Float?   // valor estimado del lead
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
