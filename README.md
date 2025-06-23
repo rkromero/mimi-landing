@@ -97,8 +97,32 @@ El proyecto usa PostgreSQL con Prisma ORM. El esquema incluye:
 ## 📝 Variables de Entorno
 
 ```env
+# Database
 DATABASE_URL="postgresql://username:password@host:port/database"
+
+# Email Configuration (Resend)
+RESEND_API_KEY="re_xxxxxxxxxx"
+EMAIL_FROM="MIMI Landing <noreply@tudominio.com>"
+EMAIL_TO="tu@email.com,otro@email.com"
 ```
+
+### 📧 Configuración de Email con Resend
+
+1. **Registrarse en Resend**: Ve a [resend.com](https://resend.com) y crea una cuenta gratuita
+2. **Obtener API Key**: En el dashboard, ve a "API Keys" y crea una nueva clave
+3. **Configurar dominio** (opcional): Para usar tu propio dominio, configúralo en Resend
+4. **Variables de entorno**:
+   - `RESEND_API_KEY`: Tu clave de API de Resend
+   - `EMAIL_FROM`: Email del remitente (usar dominio verificado)
+   - `EMAIL_TO`: Email(s) donde recibir los formularios (separados por coma)
+
+### ✨ Características del Email
+
+- **HTML responsivo** con diseño profesional
+- **Botón de llamada directa** (`tel:` link)
+- **Priorización visual** según etapa del cliente
+- **Enlaces directos** a WhatsApp y email
+- **Información completa** del formulario
 
 ## 🔧 Scripts Disponibles
 
