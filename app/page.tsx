@@ -23,13 +23,18 @@ import {
   Facebook,
   Award,
   DollarSign,
+  Menu,
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useEffect, useState } from "react"
+import { useGoogleAds } from "@/hooks/use-google-ads"
 
 export default function MimiLanding() {
+  // Google Ads tracking
+  const { trackLeadSubmission, trackInteraction, isGtagAvailable } = useGoogleAds()
+  
   // Estado para el menú móvil
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   
@@ -46,6 +51,7 @@ export default function MimiLanding() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitMessage, setSubmitMessage] = useState('')
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
   // Función para manejar cambios en el formulario
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -80,6 +86,9 @@ export default function MimiLanding() {
       })
 
       if (response.ok) {
+        // Trackear conversión de Google Ads
+        trackLeadSubmission(formData)
+        
         setSubmitMessage('¡Formulario enviado exitosamente! Te contactaremos pronto.')
         setFormData({
           nombre: '',
@@ -131,6 +140,27 @@ export default function MimiLanding() {
       })
     }
   }, [])
+
+  // Función de prueba para Google Ads (TEMPORAL)
+  const testGoogleAds = () => {
+    console.log('🧪 Testing Google Ads...')
+    console.log('GTM Available:', isGtagAvailable())
+    console.log('Window gtag:', typeof window?.gtag)
+    console.log('Window dataLayer:', window?.dataLayer)
+    console.log('Environment variables:', {
+      GOOGLE_ADS_ID: process.env.NEXT_PUBLIC_GOOGLE_ADS_ID,
+      CONVERSION_LABEL: process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL
+    })
+    
+    if (isGtagAvailable()) {
+      trackLeadSubmission({
+        negocio: 'TEST',
+        ubicacion: 'TEST',
+        cantidad: 'TEST',
+        etapa: 'TEST'
+      })
+    }
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -210,6 +240,13 @@ export default function MimiLanding() {
                 <MessageCircle className="mr-1 h-3 w-3" />
                 Contactar
               </Button>
+              {/* Botón de prueba TEMPORAL */}
+              <button 
+                onClick={testGoogleAds}
+                className="bg-red-500 text-white px-4 py-1 rounded text-sm hover:bg-red-600 transition-colors"
+              >
+                🧪 Test GA
+              </button>
             </nav>
 
             {/* Mobile Menu Button */}
@@ -230,115 +267,121 @@ export default function MimiLanding() {
             </button>
           </div>
         </div>
+      </header>
 
-
-              </header>
-
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <>
-            {/* Backdrop */}
-            <div 
-              className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-50"
-              onClick={() => setIsMobileMenuOpen(false)}
-            />
-            {/* Menu Panel */}
-            <div className="lg:hidden fixed top-0 left-0 w-80 h-full bg-white shadow-2xl z-[60] transform transition-transform duration-300">
-              {/* Header */}
-              <div className="flex items-center justify-center p-2 bg-orange-50 border-b">
-                <Image
-                  src="/images/mimi-logo-new.png"
-                  alt="MIMI"
-                  width={60}
-                  height={24}
-                  className="h-5 w-auto"
-                  style={{
-                    filter: "brightness(0) saturate(100%) invert(45%) sepia(89%) saturate(1000%) hue-rotate(346deg) brightness(95%) contrast(95%)",
-                    width: "auto",
-                    height: "auto",
-                  }}
-                />
-              </div>
-
-              {/* Menu Items */}
-              <nav className="p-4 space-y-2">
-                <a
-                  href="#beneficios"
-                  className="block px-4 py-3 text-gray-700 hover:text-[#E65C37] hover:bg-orange-50 rounded-lg font-medium transition-colors"
-                  onClick={(e) => {
-                    handleSmoothScroll(e)
-                    setIsMobileMenuOpen(false)
-                  }}
-                >
-                  Beneficios
-                </a>
-                <a
-                  href="#productos"
-                  className="block px-4 py-3 text-gray-700 hover:text-[#E65C37] hover:bg-orange-50 rounded-lg font-medium transition-colors"
-                  onClick={(e) => {
-                    handleSmoothScroll(e)
-                    setIsMobileMenuOpen(false)
-                  }}
-                >
-                  Productos
-                </a>
-                <a
-                  href="#testimonios"
-                  className="block px-4 py-3 text-gray-700 hover:text-[#E65C37] hover:bg-orange-50 rounded-lg font-medium transition-colors"
-                  onClick={(e) => {
-                    handleSmoothScroll(e)
-                    setIsMobileMenuOpen(false)
-                  }}
-                >
-                  Testimonios
-                </a>
-                <a
-                  href="#contacto"
-                  className="block px-4 py-3 text-gray-700 hover:text-[#E65C37] hover:bg-orange-50 rounded-lg font-medium transition-colors"
-                  onClick={(e) => {
-                    handleSmoothScroll(e)
-                    setIsMobileMenuOpen(false)
-                  }}
-                >
-                  Contacto
-                </a>
-                <a
-                  href="#faq"
-                  className="block px-4 py-3 text-gray-700 hover:text-[#E65C37] hover:bg-orange-50 rounded-lg font-medium transition-colors"
-                  onClick={(e) => {
-                    handleSmoothScroll(e)
-                    setIsMobileMenuOpen(false)
-                  }}
-                >
-                  FAQ
-                </a>
-              </nav>
-
-              {/* CTA Button */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 bg-gray-50 border-t">
-                <Button
-                  className="w-full bg-[#E65C37] hover:bg-[#E65C37]/90 text-white font-semibold py-3"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    const contactForm = document.getElementById("contacto")
-                    if (contactForm) {
-                      window.scrollTo({
-                        top: contactForm.offsetTop - 100,
-                        behavior: "smooth",
-                      })
-                    }
-                    setIsMobileMenuOpen(false)
-                  }}
-                >
-                  <MessageCircle className="mr-2 h-4 w-4" />
-                  Contactar
-                </Button>
-              </div>
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <>
+          {/* Backdrop */}
+          <div 
+            className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-50"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          {/* Menu Panel */}
+          <div className="lg:hidden fixed top-0 left-0 w-80 h-full bg-white shadow-2xl z-[60] transform transition-transform duration-300">
+            {/* Header */}
+            <div className="flex items-center justify-center p-2 bg-orange-50 border-b">
+              <Image
+                src="/images/mimi-logo-new.png"
+                alt="MIMI"
+                width={60}
+                height={24}
+                className="h-5 w-auto"
+                style={{
+                  filter: "brightness(0) saturate(100%) invert(45%) sepia(89%) saturate(1000%) hue-rotate(346deg) brightness(95%) contrast(95%)",
+                  width: "auto",
+                  height: "auto",
+                }}
+              />
             </div>
-          </>
-        )}
 
-        {/* Hero Section */}
+            {/* Menu Items */}
+            <nav className="p-4 space-y-2">
+              <a
+                href="#beneficios"
+                className="block px-4 py-3 text-gray-700 hover:text-[#E65C37] hover:bg-orange-50 rounded-lg font-medium transition-colors"
+                onClick={(e) => {
+                  handleSmoothScroll(e)
+                  setIsMobileMenuOpen(false)
+                }}
+              >
+                Beneficios
+              </a>
+              <a
+                href="#productos"
+                className="block px-4 py-3 text-gray-700 hover:text-[#E65C37] hover:bg-orange-50 rounded-lg font-medium transition-colors"
+                onClick={(e) => {
+                  handleSmoothScroll(e)
+                  setIsMobileMenuOpen(false)
+                }}
+              >
+                Productos
+              </a>
+              <a
+                href="#testimonios"
+                className="block px-4 py-3 text-gray-700 hover:text-[#E65C37] hover:bg-orange-50 rounded-lg font-medium transition-colors"
+                onClick={(e) => {
+                  handleSmoothScroll(e)
+                  setIsMobileMenuOpen(false)
+                }}
+              >
+                Testimonios
+              </a>
+              <a
+                href="#contacto"
+                className="block px-4 py-3 text-gray-700 hover:text-[#E65C37] hover:bg-orange-50 rounded-lg font-medium transition-colors"
+                onClick={(e) => {
+                  handleSmoothScroll(e)
+                  setIsMobileMenuOpen(false)
+                }}
+              >
+                Contacto
+              </a>
+              <a
+                href="#faq"
+                className="block px-4 py-3 text-gray-700 hover:text-[#E65C37] hover:bg-orange-50 rounded-lg font-medium transition-colors"
+                onClick={(e) => {
+                  handleSmoothScroll(e)
+                  setIsMobileMenuOpen(false)
+                }}
+              >
+                FAQ
+              </a>
+            </nav>
+
+            {/* CTA Button */}
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gray-50 border-t">
+              <Button
+                className="w-full bg-[#E65C37] hover:bg-[#E65C37]/90 text-white font-semibold py-3"
+                onClick={(e) => {
+                  e.preventDefault()
+                  const contactForm = document.getElementById("contacto")
+                  if (contactForm) {
+                    window.scrollTo({
+                      top: contactForm.offsetTop - 100,
+                      behavior: "smooth",
+                    })
+                  }
+                  setIsMobileMenuOpen(false)
+                }}
+              >
+                <MessageCircle className="mr-2 h-4 w-4" />
+                Contactar
+              </Button>
+            </div>
+
+            {/* Botón de prueba TEMPORAL móvil */}
+            <button 
+              onClick={testGoogleAds}
+              className="bg-red-500 text-white px-4 py-2 rounded text-sm hover:bg-red-600 transition-colors"
+            >
+              🧪 Test Google Ads
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-white via-orange-50 to-cyan-50 py-6 px-4 overflow-hidden">
         <div className="container mx-auto max-w-7xl">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
