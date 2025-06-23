@@ -4,18 +4,13 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "build:analyze": "ANALYZE=true next build",
-    "build:production": "NODE_ENV=production next build",
     "dev": "next dev",
-    "dev:turbo": "next dev --turbo",
     "lint": "next lint",
     "start": "next start",
     "railway:start": "bash start.sh",
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
-    "db:studio": "prisma studio",
-    "performance:audit": "npx lighthouse http://localhost:3000 --output=html --output-path=./lighthouse-report.html",
-    "performance:build": "npm run build:production && npm run performance:audit"
+    "db:studio": "prisma studio"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -76,7 +71,6 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^15.3.4",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
