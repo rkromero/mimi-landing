@@ -16,6 +16,7 @@ export const metadata: Metadata = {
 
 // Google Ads ID desde variables de entorno
 const GOOGLE_ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID || 'AW-16869254273'
+const CONVERSION_LABEL = process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL || 'MTk0CLP7o-EaEIHJ8es-'
 
 export default function RootLayout({
   children,
@@ -36,10 +37,32 @@ export default function RootLayout({
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', '${GOOGLE_ADS_ID}');
+            
+            // Función gtag_report_conversion como Google sugiere
+            function gtag_report_conversion(url) {
+              var callback = function () {
+                if (typeof(url) != 'undefined') {
+                  window.location = url;
+                }
+              };
+              gtag('event', 'conversion', {
+                'send_to': '${GOOGLE_ADS_ID}/${CONVERSION_LABEL}',
+                'value': 1.0,
+                'currency': 'ARS',
+                'event_callback': callback
+              });
+              return false;
+            }
+            
+            // Hacer la función disponible globalmente
+            window.gtag_report_conversion = gtag_report_conversion;
+            
             console.log('🎯 Google Ads cargado con ID:', '${GOOGLE_ADS_ID}');
+            console.log('🎯 Conversion Label:', '${CONVERSION_LABEL}');
             console.log('🎯 Variables disponibles:', {
               GOOGLE_ADS_ID: '${GOOGLE_ADS_ID}',
-              CONVERSION_LABEL: '${process.env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL || 'DEFAULT_LABEL'}'
+              CONVERSION_LABEL: '${CONVERSION_LABEL}',
+              gtag_report_conversion: typeof gtag_report_conversion
             });
           `}
         </Script>
