@@ -203,18 +203,68 @@ export default function CRMPage() {
 
   // Manejar acciones de contacto
   const handleCall = (lead: Lead) => {
-    const phoneNumber = lead.whatsapp.replace(/\D/g, '')
-    window.open(`tel:+${phoneNumber}`)
+    try {
+      const phoneNumber = lead.whatsapp.replace(/\D/g, '')
+      if (phoneNumber) {
+        // Agregar código de país si no lo tiene
+        const fullNumber = phoneNumber.startsWith('54') ? phoneNumber : `54${phoneNumber}`
+        window.open(`tel:+${fullNumber}`)
+        console.log(`📞 Llamando a ${lead.nombre}: +${fullNumber}`)
+      } else {
+        alert('Número de teléfono no válido')
+      }
+    } catch (error) {
+      console.error('Error al realizar llamada:', error)
+      alert('Error al realizar la llamada')
+    }
   }
 
   const handleWhatsApp = (lead: Lead) => {
-    const phoneNumber = lead.whatsapp.replace(/\D/g, '')
-    window.open(`https://wa.me/${phoneNumber}`, '_blank')
+    try {
+      const phoneNumber = lead.whatsapp.replace(/\D/g, '')
+      if (phoneNumber) {
+        // Agregar código de país si no lo tiene
+        const fullNumber = phoneNumber.startsWith('54') ? phoneNumber : `54${phoneNumber}`
+        const message = `Hola ${lead.nombre}! Te contacto desde MIMI Alfajores respecto a tu consulta sobre distribución. ¿Cuándo podemos hablar?`
+        const encodedMessage = encodeURIComponent(message)
+        window.open(`https://wa.me/${fullNumber}?text=${encodedMessage}`, '_blank')
+        console.log(`💬 WhatsApp a ${lead.nombre}: +${fullNumber}`)
+      } else {
+        alert('Número de WhatsApp no válido')
+      }
+    } catch (error) {
+      console.error('Error al abrir WhatsApp:', error)
+      alert('Error al abrir WhatsApp')
+    }
   }
 
   const handleEmail = (lead: Lead) => {
-    if (lead.email) {
-      window.open(`mailto:${lead.email}`)
+    try {
+      if (lead.email) {
+        const subject = encodeURIComponent(`MIMI Alfajores - Consulta de ${lead.nombre}`)
+        const body = encodeURIComponent(`Hola ${lead.nombre},
+
+Te contacto desde MIMI Alfajores respecto a tu consulta sobre distribución.
+
+Información de tu consulta:
+- Negocio: ${lead.negocio}
+- Ubicación: ${lead.ubicacion}
+- Cantidad estimada: ${lead.cantidad || 'No especificada'}
+- Etapa: ${lead.etapa}
+
+¿Cuándo podemos coordinar una llamada para conversar sobre la oportunidad?
+
+Saludos,
+Equipo MIMI`)
+        
+        window.open(`mailto:${lead.email}?subject=${subject}&body=${body}`)
+        console.log(`📧 Email a ${lead.nombre}: ${lead.email}`)
+      } else {
+        alert('Email no disponible para este lead')
+      }
+    } catch (error) {
+      console.error('Error al abrir email:', error)
+      alert('Error al abrir el cliente de email')
     }
   }
 

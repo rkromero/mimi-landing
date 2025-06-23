@@ -153,49 +153,55 @@ export function LeadCard({ lead, onCall, onWhatsApp, onEmail }: LeadCardProps) {
           <span>{formatDate(lead.createdAt)}</span>
         </div>
 
-        {/* Botones de acción compactos */}
-        <div className="grid grid-cols-2 gap-1">
-          <Button
-            size="sm"
-            variant="outline"
-            className="text-xs h-7 px-2"
-            onClick={(e) => {
-              e.stopPropagation()
-              onCall?.(lead)
-            }}
-          >
-            <Phone className="h-3 w-3 mr-1" />
-            Llamar
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="text-xs h-7 px-2 text-green-600 hover:text-green-700"
-            onClick={(e) => {
-              e.stopPropagation()
-              onWhatsApp?.(lead)
-            }}
-          >
-            <MessageCircle className="h-3 w-3 mr-1" />
-            WhatsApp
-          </Button>
-        </div>
-        
-        {/* Email button si existe */}
-        {lead.email && (
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-full text-xs h-7 px-2 text-blue-600 hover:text-blue-700 mt-1"
-            onClick={(e) => {
-              e.stopPropagation()
-              onEmail?.(lead)
-            }}
-          >
-            <Mail className="h-3 w-3 mr-1" />
-            Email
-          </Button>
-        )}
+                 {/* Botones de acción compactos */}
+         <div className="grid grid-cols-2 gap-1">
+           <Button
+             size="sm"
+             variant="outline"
+             className="text-xs h-7 px-2 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 transition-colors"
+             onClick={(e) => {
+               e.stopPropagation()
+               e.preventDefault()
+               onCall?.(lead)
+             }}
+             title={`Llamar a ${lead.nombre}`}
+           >
+             <Phone className="h-3 w-3 mr-1" />
+             Llamar
+           </Button>
+           <Button
+             size="sm"
+             variant="outline"
+             className="text-xs h-7 px-2 text-green-600 hover:text-green-700 hover:bg-green-50 hover:border-green-300 transition-colors"
+             onClick={(e) => {
+               e.stopPropagation()
+               e.preventDefault()
+               onWhatsApp?.(lead)
+             }}
+             title={`WhatsApp a ${lead.nombre}`}
+           >
+             <MessageCircle className="h-3 w-3 mr-1" />
+             WhatsApp
+           </Button>
+         </div>
+         
+         {/* Email button si existe */}
+         {lead.email && (
+           <Button
+             size="sm"
+             variant="outline"
+             className="w-full text-xs h-7 px-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 hover:border-blue-300 mt-1 transition-colors"
+             onClick={(e) => {
+               e.stopPropagation()
+               e.preventDefault()
+               onEmail?.(lead)
+             }}
+             title={`Email a ${lead.email}`}
+           >
+             <Mail className="h-3 w-3 mr-1" />
+             Email
+           </Button>
+         )}
       </CardContent>
     </Card>
   )
