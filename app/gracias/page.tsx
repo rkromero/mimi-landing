@@ -144,10 +144,10 @@ export default function GraciasPage() {
             </p>
             <div className="bg-white/20 rounded-xl p-6 backdrop-blur-sm">
               <p className="text-lg font-semibold mb-2">
-                "El éxito no es casualidad. Es trabajo duro, perseverancia, aprendizaje y sacrificio."
+                "Prepárate para aumentar las ventas y acelerar la rotación de tu negocio. Los alfajores MIMI no solo se venden, se buscan."
               </p>
               <p className="text-orange-100">
-                - Pelé
+                - Equipo MIMI
               </p>
             </div>
           </div>
