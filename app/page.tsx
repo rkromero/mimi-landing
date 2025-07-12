@@ -152,19 +152,22 @@ export default function MimiLanding() {
       {/* Header with Logo and Navigation */}
       <header className="bg-orange-50 py-1 px-4 border-b border-gray-100 sticky top-0 z-40 backdrop-blur-sm h-16">
         <div className="container mx-auto max-w-7xl h-full">
-          <div className="flex items-center justify-between h-full">
+          <div className="flex items-center justify-between h-full lg:grid lg:grid-cols-3 lg:gap-4">
             {/* Logo */}
-            <div className="flex justify-center lg:justify-start">
+            <div className="flex justify-center lg:justify-center lg:col-start-2">
               <img
                 src="/images/mimi-logo-new.png"
                 alt="MIMI Alfajores"
-                className="h-10 w-auto"
-                style={{ maxWidth: '120px' }}
+                className="h-12 w-auto"
+                style={{ 
+                  maxWidth: '140px',
+                  filter: "brightness(0) saturate(100%) invert(45%) sepia(89%) saturate(1000%) hue-rotate(346deg) brightness(95%) contrast(95%)"
+                }}
               />
             </div>
             
             {/* Navigation Menu - Desktop */}
-            <nav className="hidden lg:flex items-center space-x-4">
+            <nav className="hidden lg:flex items-center space-x-4 lg:col-start-3 lg:justify-end">
               <a
                 href="#beneficios"
                 className="text-gray-700 hover:text-[#E65C37] text-sm font-medium transition-colors duration-200"
@@ -221,7 +224,7 @@ export default function MimiLanding() {
 
             {/* Mobile Menu Button */}
             <button
-              className="lg:hidden p-1 text-gray-700 hover:text-[#E65C37] transition-colors duration-200"
+              className="lg:hidden p-1 text-gray-700 hover:text-[#E65C37] transition-colors duration-200 absolute right-4"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Toggle mobile menu"
             >
