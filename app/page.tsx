@@ -150,7 +150,7 @@ export default function MimiLanding() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header with Logo and Navigation */}
-      <header className="bg-orange-50 py-1 px-4 border-b border-gray-100 sticky top-0 z-40 backdrop-blur-sm h-16">
+      <header className="bg-orange-50 py-2 px-4 border-b border-gray-100 sticky top-0 z-40 backdrop-blur-sm h-20">
         <div className="container mx-auto max-w-7xl h-full">
           <div className="flex items-center justify-between h-full lg:grid lg:grid-cols-3 lg:gap-4">
             {/* Logo */}
@@ -158,9 +158,9 @@ export default function MimiLanding() {
               <img
                 src="/images/mimi-logo-new.png"
                 alt="MIMI Alfajores"
-                className="h-12 w-auto"
+                className="h-16 w-auto"
                 style={{ 
-                  maxWidth: '140px',
+                  maxWidth: '180px',
                   filter: "brightness(0) saturate(100%) invert(45%) sepia(89%) saturate(1000%) hue-rotate(346deg) brightness(95%) contrast(95%)"
                 }}
               />
@@ -253,13 +253,13 @@ export default function MimiLanding() {
           {/* Menu Panel */}
           <div className="lg:hidden fixed top-0 left-0 w-80 h-full bg-white shadow-2xl z-[60] transform transition-transform duration-300">
             {/* Header */}
-            <div className="flex items-center justify-center p-2 bg-orange-50 border-b">
+            <div className="flex items-center justify-center p-4 bg-orange-50 border-b">
               <Image
                 src="/images/mimi-logo-new.png"
                 alt="MIMI"
-                width={60}
-                height={24}
-                className="h-5 w-auto"
+                width={80}
+                height={32}
+                className="h-8 w-auto"
                 style={{
                   filter: "brightness(0) saturate(100%) invert(45%) sepia(89%) saturate(1000%) hue-rotate(346deg) brightness(95%) contrast(95%)",
                   width: "auto",
