@@ -1,16 +1,41 @@
 {
-  "name": "MIMI Alfajores",
-  "short_name": "MIMI",
-  "description": "Distribuidores de alfajores MIMI",
+  "name": "MIMI Alfajores - Distribuidores",
+  "short_name": "MIMI Distribuidores",
+  "description": "Únete a la red de distribuidores de alfajores MIMI. Productos premium argentinos.",
   "start_url": "/",
-  "display": "browser",
+  "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#E65C37",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "/images/mimi-logo-new.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/mimi-logo-new.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "food", "shopping"],
+  "lang": "es",
+  "scope": "/",
+  "screenshots": [
+    {
+      "src": "/images/screenshot-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "platform": "wide"
+    },
+    {
+      "src": "/images/screenshot-mobile.png",
+      "sizes": "375x667",
+      "type": "image/png",
+      "platform": "narrow"
     }
   ]
 } 

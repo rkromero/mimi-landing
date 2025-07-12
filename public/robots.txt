@@ -1,0 +1,27 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /crm/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+
+# Sitemap
+Sitemap: https://www.mimialfajor.com.ar/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
+
+# Specific for Google
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/
+Disallow: /crm/
+Disallow: /api/
+
+# Specific for Bing
+User-agent: Bingbot
+Allow: /
+Disallow: /admin/
+Disallow: /crm/
+Disallow: /api/ 

@@ -10,7 +10,10 @@
     "railway:start": "bash start.sh",
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "optimize": "node scripts/optimize-conversion.js",
+    "check-conversion": "node scripts/optimize-conversion.js",
+    "precommit": "npm run lint && npm run optimize"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

@@ -29,14 +29,16 @@ import Image from "next/image"
 import Link from "next/link"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { useGoogleAds } from "@/hooks/use-google-ads"
 import OptimizedLogo from "@/components/OptimizedLogo"
 
 export default function MimiLanding() {
+  const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const { trackLeadSubmission, trackInteraction, isGtagAvailable } = useGoogleAds()
+  const { trackLeadSubmission, trackFormInteraction, trackButtonClick, isGtagAvailable } = useGoogleAds()
   
   // Estado para el formulario
   const [formData, setFormData] = useState({
@@ -84,10 +86,10 @@ export default function MimiLanding() {
       })
 
       if (response.ok) {
-        // Trackear conversión de Google Ads
+        // Trackear conversión de Google Ads y Analytics
         trackLeadSubmission(formData)
         
-        setSubmitMessage('¡Formulario enviado exitosamente! Te contactaremos pronto.')
+        // Limpiar formulario
         setFormData({
           nombre: '',
           negocio: '',
@@ -98,6 +100,12 @@ export default function MimiLanding() {
           email: '',
           comentarios: ''
         })
+        
+        // Redireccionar a página de agradecimiento
+        setTimeout(() => {
+          router.push('/gracias')
+        }, 500) // Pequeño delay para que se procese el tracking
+        
       } else {
         const errorData = await response.json()
         setSubmitMessage(`Error: ${errorData.error}`)
