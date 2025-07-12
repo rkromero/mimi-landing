@@ -257,68 +257,7 @@ export default function GraciasPage() {
           </div>
         </div>
 
-        {/* Contacto directo */}
-        <div className="bg-white rounded-2xl p-8 border-2 border-orange-100">
-          <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">
-            ¿Tenés alguna pregunta?
-          </h2>
-          
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="flex justify-center mb-4">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <MessageCircle className="w-6 h-6 text-green-600" />
-                </div>
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2">WhatsApp</h3>
-              <p className="text-sm text-gray-600 mb-3">Respuesta inmediata</p>
-              <Button
-                onClick={handleWhatsAppClick}
-                variant="outline"
-                size="sm"
-                className="border-green-600 text-green-600 hover:bg-green-600 hover:text-white"
-              >
-                Escribir
-              </Button>
-            </div>
 
-            <div className="text-center">
-              <div className="flex justify-center mb-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Phone className="w-6 h-6 text-blue-600" />
-                </div>
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Teléfono</h3>
-              <p className="text-sm text-gray-600 mb-3">+54 11 7363-9684</p>
-              <Button
-                onClick={handlePhoneClick}
-                variant="outline"
-                size="sm"
-                className="border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"
-              >
-                Llamar
-              </Button>
-            </div>
-
-            <div className="text-center">
-              <div className="flex justify-center mb-4">
-                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                  <Mail className="w-6 h-6 text-red-600" />
-                </div>
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2">Email</h3>
-              <p className="text-sm text-gray-600 mb-3">ventas@mimialfajor.com.ar</p>
-              <Button
-                onClick={handleEmailClick}
-                variant="outline"
-                size="sm"
-                className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
-              >
-                Escribir
-              </Button>
-            </div>
-          </div>
-        </div>
 
         {/* Footer con redes sociales */}
         <div className="text-center mt-12 pt-8 border-t border-gray-200">
