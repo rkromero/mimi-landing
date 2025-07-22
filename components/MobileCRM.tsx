@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { 
   Phone, 
   MessageCircle, 
@@ -22,7 +23,8 @@ import {
   ChevronRight,
   ArrowRight,
   Check,
-  AlertCircle
+  AlertCircle,
+  Trash2
 } from 'lucide-react'
 
 interface Lead {
@@ -71,6 +73,7 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
   const [updatingLead, setUpdatingLead] = useState(false)
   const [updateMessage, setUpdateMessage] = useState<string | null>(null)
+  const [deletingLead, setDeletingLead] = useState(false)
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-AR', {
@@ -154,6 +157,44 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
     }
   }
 
+  // Función para eliminar lead
+  const handleDeleteLead = async () => {
+    if (!selectedLead) return
+    
+    setDeletingLead(true)
+    setUpdateMessage(null)
+    
+    try {
+      const response = await fetch('/api/crm', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          leadId: selectedLead.id,
+        }),
+      })
+
+      if (response.ok) {
+        setUpdateMessage(`✅ Lead "${selectedLead.nombre}" eliminado correctamente`)
+        // Esperar un momento para mostrar el mensaje y luego volver a la lista
+        setTimeout(() => {
+          setSelectedLead(null)
+          onRefresh()
+          setUpdateMessage(null)
+        }, 2000)
+      } else {
+        throw new Error('Error al eliminar')
+      }
+    } catch (error) {
+      console.error('Error al eliminar lead:', error)
+      setUpdateMessage('❌ Error al eliminar el lead')
+      setTimeout(() => setUpdateMessage(null), 3000)
+    } finally {
+      setDeletingLead(false)
+    }
+  }
+
   // Calcular estadísticas
   const totalLeads = Object.values(leads).reduce((sum, columnLeads) => sum + columnLeads.length, 0)
   const totalValue = Object.values(leads).flat().reduce((sum, lead) => sum + (lead.valor || 0), 0)
@@ -192,6 +233,53 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
                 <h1 className="text-lg font-bold text-gray-900 truncate">{selectedLead.nombre}</h1>
                 <p className="text-sm text-gray-600 truncate">{selectedLead.negocio}</p>
               </div>
+              {/* Botón Eliminar en el header */}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="mx-4">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+                      <Trash2 className="h-5 w-5" />
+                      Eliminar Lead
+                    </AlertDialogTitle>
+                    <AlertDialogDescription className="text-gray-600">
+                      ¿Estás seguro de que querés eliminar el lead de <span className="font-semibold">{selectedLead.nombre}</span>? 
+                      <br /><br />
+                      Esta acción no se puede deshacer y se perderán todos los datos del lead.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                    <AlertDialogCancel className="w-full sm:w-auto">
+                      No, cancelar
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDeleteLead}
+                      disabled={deletingLead}
+                      className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white"
+                    >
+                      {deletingLead ? (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          Eliminando...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Sí, eliminar
+                        </>
+                      )}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         </div>
@@ -234,7 +322,7 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
               {/* Selector de Nueva Etapa */}
               <div>
                 <p className="text-sm font-medium text-gray-700 mb-2">Mover a:</p>
-                <Select onValueChange={handleEtapaChange} disabled={updatingLead}>
+                <Select onValueChange={handleEtapaChange} disabled={updatingLead || deletingLead}>
                   <SelectTrigger className="w-full h-12 text-left bg-white">
                     <SelectValue placeholder="Seleccionar nueva etapa..." />
                   </SelectTrigger>
@@ -253,10 +341,10 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
                 </Select>
               </div>
 
-              {updatingLead && (
+              {(updatingLead || deletingLead) && (
                 <div className="flex items-center gap-2 text-sm text-blue-600">
                   <RefreshCw className="h-4 w-4 animate-spin" />
-                  Actualizando estado...
+                  {updatingLead ? 'Actualizando estado...' : 'Eliminando lead...'}
                 </div>
               )}
             </CardContent>
@@ -331,6 +419,7 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
               size="lg"
               className="w-full h-14 text-base bg-blue-600 hover:bg-blue-700"
               onClick={() => onCall(selectedLead)}
+              disabled={deletingLead}
             >
               <Phone className="h-5 w-5 mr-3" />
               Llamar a {selectedLead.nombre}
@@ -340,6 +429,7 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
               size="lg"
               className="w-full h-14 text-base bg-green-600 hover:bg-green-700"
               onClick={() => onWhatsApp(selectedLead)}
+              disabled={deletingLead}
             >
               <MessageCircle className="h-5 w-5 mr-3" />
               WhatsApp
@@ -351,11 +441,62 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
                 variant="outline"
                 className="w-full h-14 text-base border-2"
                 onClick={() => onEmail(selectedLead)}
+                disabled={deletingLead}
               >
                 <Mail className="h-5 w-5 mr-3" />
                 Enviar Email
               </Button>
             )}
+
+            {/* Botón de Eliminar grande y destacado */}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  size="lg"
+                  variant="destructive"
+                  className="w-full h-14 text-base bg-red-600 hover:bg-red-700"
+                  disabled={deletingLead}
+                >
+                  <Trash2 className="h-5 w-5 mr-3" />
+                  Eliminar Lead
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="mx-4">
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+                    <AlertCircle className="h-5 w-5" />
+                    ¿Eliminar este lead?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription className="text-gray-600">
+                    ¿Estás seguro de que querés eliminar el lead de <span className="font-semibold text-gray-900">{selectedLead.nombre}</span>? 
+                    <br /><br />
+                    <span className="text-red-600 font-medium">Esta acción no se puede deshacer</span> y se perderán todos los datos del lead.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                  <AlertDialogCancel className="w-full sm:w-auto order-2 sm:order-1">
+                    No, cancelar
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeleteLead}
+                    disabled={deletingLead}
+                    className="w-full sm:w-auto order-1 sm:order-2 bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    {deletingLead ? (
+                      <>
+                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                        Eliminando...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Sí, eliminar
+                      </>
+                    )}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </div>

@@ -62,4 +62,46 @@ export async function PUT(request: NextRequest) {
       { status: 500 }
     )
   }
+}
+
+// DELETE: Eliminar un lead
+export async function DELETE(request: NextRequest) {
+  try {
+    const { leadId } = await request.json()
+
+    if (!leadId) {
+      return NextResponse.json(
+        { error: 'leadId es requerido' },
+        { status: 400 }
+      )
+    }
+
+    // Verificar que el lead existe antes de eliminarlo
+    const leadExistente = await prisma.contactForm.findUnique({
+      where: { id: leadId }
+    })
+
+    if (!leadExistente) {
+      return NextResponse.json(
+        { error: 'Lead no encontrado' },
+        { status: 404 }
+      )
+    }
+
+    // Eliminar el lead
+    await prisma.contactForm.delete({
+      where: { id: leadId }
+    })
+
+    return NextResponse.json({
+      success: true,
+      message: `Lead eliminado correctamente`
+    })
+  } catch (error) {
+    console.error('Error al eliminar lead:', error)
+    return NextResponse.json(
+      { error: 'Error interno del servidor' },
+      { status: 500 }
+    )
+  }
 } 
