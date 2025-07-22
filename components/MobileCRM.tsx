@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { 
   Phone, 
   MessageCircle, 
@@ -18,7 +19,10 @@ import {
   TrendingUp,
   RefreshCw,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ArrowRight,
+  Check,
+  AlertCircle
 } from 'lucide-react'
 
 interface Lead {
@@ -65,6 +69,8 @@ const ETAPAS = [
 
 export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loading }: MobileCRMProps) {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
+  const [updatingLead, setUpdatingLead] = useState(false)
+  const [updateMessage, setUpdateMessage] = useState<string | null>(null)
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-AR', {
@@ -101,6 +107,53 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
     }
   }
 
+  const getEtapaInfo = (etapaId: string) => {
+    return ETAPAS.find(e => e.id === etapaId)
+  }
+
+  // Función para cambiar etapa de lead
+  const handleEtapaChange = async (nuevaEtapa: string) => {
+    if (!selectedLead || nuevaEtapa === selectedLead.etapaCrm) return
+    
+    setUpdatingLead(true)
+    setUpdateMessage(null)
+    
+    try {
+      const response = await fetch('/api/crm', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          leadId: selectedLead.id,
+          nuevaEtapa: nuevaEtapa,
+        }),
+      })
+
+      if (response.ok) {
+        setUpdateMessage(`✅ Lead movido a ${getEtapaInfo(nuevaEtapa)?.title}`)
+        // Actualizar el lead seleccionado localmente
+        setSelectedLead({
+          ...selectedLead,
+          etapaCrm: nuevaEtapa
+        })
+        // Refrescar los datos después de un breve delay
+        setTimeout(() => {
+          onRefresh()
+          setUpdateMessage(null)
+        }, 1500)
+      } else {
+        throw new Error('Error al actualizar')
+      }
+    } catch (error) {
+      console.error('Error al cambiar etapa:', error)
+      setUpdateMessage('❌ Error al actualizar el lead')
+      setTimeout(() => setUpdateMessage(null), 3000)
+    } finally {
+      setUpdatingLead(false)
+    }
+  }
+
   // Calcular estadísticas
   const totalLeads = Object.values(leads).reduce((sum, columnLeads) => sum + columnLeads.length, 0)
   const totalValue = Object.values(leads).flat().reduce((sum, lead) => sum + (lead.valor || 0), 0)
@@ -119,6 +172,8 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
 
   // Vista detalle de lead
   if (selectedLead) {
+    const currentEtapaInfo = getEtapaInfo(selectedLead.etapaCrm)
+    
     return (
       <div className="min-h-screen bg-gray-100">
         {/* Header del detalle */}
@@ -141,8 +196,72 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
           </div>
         </div>
 
+        {/* Mensaje de actualización */}
+        {updateMessage && (
+          <div className="bg-white border-b">
+            <div className="px-4 py-3">
+              <div className={`text-sm text-center p-2 rounded ${
+                updateMessage.startsWith('✅') 
+                  ? 'bg-green-100 text-green-800' 
+                  : 'bg-red-100 text-red-800'
+              }`}>
+                {updateMessage}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Contenido del detalle */}
         <div className="p-4 space-y-4">
+          {/* Cambiar Etapa - Sección Principal */}
+          <Card className="border-2 border-orange-200 bg-orange-50">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <ArrowRight className="h-5 w-5 text-orange-600" />
+                Cambiar Estado del Lead
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Estado Actual */}
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">Estado Actual:</p>
+                <div className="flex items-center gap-2 p-3 bg-white rounded-lg border">
+                  <span className="text-lg">{currentEtapaInfo?.icon}</span>
+                  <span className="font-medium">{currentEtapaInfo?.title}</span>
+                </div>
+              </div>
+
+              {/* Selector de Nueva Etapa */}
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-2">Mover a:</p>
+                <Select onValueChange={handleEtapaChange} disabled={updatingLead}>
+                  <SelectTrigger className="w-full h-12 text-left bg-white">
+                    <SelectValue placeholder="Seleccionar nueva etapa..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ETAPAS
+                      .filter(etapa => etapa.id !== selectedLead.etapaCrm)
+                      .map((etapa) => (
+                        <SelectItem key={etapa.id} value={etapa.id}>
+                          <div className="flex items-center gap-3">
+                            <span className="text-base">{etapa.icon}</span>
+                            <span className="font-medium">{etapa.title}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {updatingLead && (
+                <div className="flex items-center gap-2 text-sm text-blue-600">
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  Actualizando estado...
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Información principal */}
           <Card>
             <CardContent className="p-4 space-y-3">
@@ -315,7 +434,7 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
                 leads[etapa.id as keyof LeadsPorEtapa].map((lead) => (
                   <Card
                     key={lead.id}
-                    className="cursor-pointer hover:shadow-md transition-shadow"
+                    className="cursor-pointer hover:shadow-md transition-shadow border-l-4 border-l-orange-400"
                     onClick={() => setSelectedLead(lead)}
                   >
                     <CardContent className="p-4">
@@ -324,15 +443,19 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
                           <h3 className="font-semibold text-gray-900 truncate">{lead.nombre}</h3>
                           <p className="text-sm text-gray-600 truncate">{lead.negocio}</p>
                         </div>
-                        {lead.valor && (
-                          <div className="flex items-center gap-1 text-green-600 ml-2">
-                            <DollarSign className="h-4 w-4" />
-                            <span className="text-sm font-medium">
-                              ${lead.valor.toLocaleString()}
-                            </span>
+                        <div className="flex items-center gap-2 ml-2">
+                          {lead.valor && (
+                            <div className="flex items-center gap-1 text-green-600">
+                              <DollarSign className="h-4 w-4" />
+                              <span className="text-sm font-medium">
+                                ${lead.valor.toLocaleString()}
+                              </span>
+                            </div>
+                          )}
+                          <div className="bg-orange-100 p-1 rounded">
+                            <ArrowRight className="h-4 w-4 text-orange-600" />
                           </div>
-                        )}
-                        <ChevronRight className="h-4 w-4 text-gray-400 ml-2 flex-shrink-0" />
+                        </div>
                       </div>
                       
                       <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
@@ -347,9 +470,14 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
                           {lead.etapa === 'busco-mejor-proveedor' && '🔍 Busca'}
                           {lead.etapa === 'buscando-opciones' && '👀 Explora'}
                         </Badge>
-                        <span className="text-xs text-gray-500">
-                          {formatDate(lead.createdAt)}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-gray-500">
+                            {formatDate(lead.createdAt)}
+                          </span>
+                          <div className="text-orange-600">
+                            <span className="text-xs font-medium">Tocar para gestionar</span>
+                          </div>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
