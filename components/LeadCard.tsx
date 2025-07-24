@@ -123,7 +123,6 @@ export function LeadCard({ lead, onCall, onWhatsApp, onEmail }: LeadCardProps) {
     if (!isDragging) {
       e.preventDefault()
       e.stopPropagation()
-      console.log('🎯 Clic en tarjeta:', lead.nombre)
       setShowDetails(true)
     }
   }
@@ -131,10 +130,7 @@ export function LeadCard({ lead, onCall, onWhatsApp, onEmail }: LeadCardProps) {
   const handleDetailsClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    console.log('🎯 Clic en botón de detalles:', lead.nombre)
-    console.log('🎯 Estado actual showDetails:', showDetails)
     setShowDetails(true)
-    console.log('🎯 Estado después de setShowDetails:', true)
   }
 
   return (
@@ -202,18 +198,42 @@ export function LeadCard({ lead, onCall, onWhatsApp, onEmail }: LeadCardProps) {
             {lead.etapa === 'buscando-opciones' && '👀 Explora'}
           </Badge>
 
-          {/* Comentarios compactos */}
+          {/* Comentarios compactos - clickeable */}
           {lead.comentarios && (
-            <p className="text-xs text-gray-600 bg-gray-50 p-1 rounded mb-2 line-clamp-2">
-              "{lead.comentarios.length > 50 ? lead.comentarios.substring(0, 50) + '...' : lead.comentarios}"
-            </p>
+            <div 
+              className="text-xs text-gray-600 bg-gray-50 p-2 rounded mb-2 line-clamp-2 cursor-pointer hover:bg-gray-100 transition-colors border border-gray-200 hover:border-[#E65C37]"
+              onClick={handleDetailsClick}
+              title="Haz clic para ver detalles completos"
+            >
+              <div className="flex items-start gap-2">
+                <span className="text-[#E65C37] mt-0.5">💬</span>
+                <span className="flex-1">
+                  "{lead.comentarios.length > 50 ? lead.comentarios.substring(0, 50) + '...' : lead.comentarios}"
+                </span>
+              </div>
+              <div className="text-[10px] text-[#E65C37] mt-1 font-medium">
+                Haz clic para ver completo →
+              </div>
+            </div>
           )}
 
-          {/* Notas del CRM compactas */}
+          {/* Notas del CRM compactas - clickeable */}
           {lead.notas && (
-            <p className="text-xs text-blue-600 bg-blue-50 p-1 rounded mb-2 line-clamp-1">
-              📝 {lead.notas.length > 30 ? lead.notas.substring(0, 30) + '...' : lead.notas}
-            </p>
+            <div 
+              className="text-xs text-blue-600 bg-blue-50 p-2 rounded mb-2 line-clamp-1 cursor-pointer hover:bg-blue-100 transition-colors border border-blue-200 hover:border-blue-400"
+              onClick={handleDetailsClick}
+              title="Haz clic para ver detalles completos"
+            >
+              <div className="flex items-start gap-2">
+                <span className="text-blue-700 mt-0.5">📝</span>
+                <span className="flex-1">
+                  {lead.notas.length > 30 ? lead.notas.substring(0, 30) + '...' : lead.notas}
+                </span>
+              </div>
+              <div className="text-[10px] text-blue-700 mt-1 font-medium">
+                Haz clic para ver completo →
+              </div>
+            </div>
           )}
 
           {/* Fecha compacta */}
@@ -295,15 +315,187 @@ export function LeadCard({ lead, onCall, onWhatsApp, onEmail }: LeadCardProps) {
 
       {/* Modal de detalles completos */}
       <Dialog open={showDetails} onOpenChange={setShowDetails}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Detalles de {lead.nombre}</DialogTitle>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+          <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b border-gray-200">
+            <DialogTitle className="flex items-center gap-3 text-xl">
+              <div className="w-10 h-10 bg-gradient-to-r from-[#E65C37] to-orange-500 rounded-full flex items-center justify-center">
+                <User className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <div className="font-bold text-gray-900">{lead.nombre}</div>
+                <div className="text-sm text-gray-600 font-normal">{lead.negocio}</div>
+              </div>
+            </DialogTitle>
+            <div className="flex items-center gap-3">
+              {lead.valor && (
+                <div className="flex items-center gap-1 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
+                  <DollarSign className="h-4 w-4" />
+                  ${lead.valor.toLocaleString()}
+                </div>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowDetails(false)}
+                className="h-8 w-8 p-0 hover:bg-gray-100"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </DialogHeader>
-          <div className="p-4">
-            <p>Modal funcionando para: {lead.nombre}</p>
-            <p>Negocio: {lead.negocio}</p>
-            <p>Ubicación: {lead.ubicacion}</p>
-            <Button onClick={() => setShowDetails(false)}>Cerrar</Button>
+          
+          <div className="space-y-6 py-4">
+            {/* Información principal con gradiente */}
+            <div className="bg-gradient-to-r from-[#E65C37] to-orange-500 text-white rounded-xl p-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                      <MapPin className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <div className="text-sm opacity-90">Ubicación</div>
+                      <div className="font-semibold">{lead.ubicacion}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                      <Package className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <div className="text-sm opacity-90">Volumen estimado</div>
+                      <div className="font-semibold">{getCantidadTextFull(lead.cantidad)}</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                      <Clock className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <div className="text-sm opacity-90">Etapa de compra</div>
+                      <div className="font-semibold">{getEtapaText(lead.etapa)}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                      <Calendar className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <div className="text-sm opacity-90">Fecha de registro</div>
+                      <div className="font-semibold">{formatDate(lead.createdAt)}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Información de contacto */}
+            <div className="bg-white border border-gray-200 rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Phone className="h-3 w-3 text-blue-600" />
+                </div>
+                Información de contacto
+              </h3>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                    <MessageCircle className="h-5 w-5 text-green-600" />
+                    <div>
+                      <div className="text-sm text-gray-600">WhatsApp</div>
+                      <div className="font-medium text-gray-900">{lead.whatsapp}</div>
+                    </div>
+                  </div>
+                  {lead.email && (
+                    <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <Mail className="h-5 w-5 text-blue-600" />
+                      <div>
+                        <div className="text-sm text-gray-600">Email</div>
+                        <div className="font-medium text-gray-900">{lead.email}</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <Building className="h-5 w-5 text-gray-600" />
+                    <div>
+                      <div className="text-sm text-gray-600">Negocio</div>
+                      <div className="font-medium text-gray-900">{lead.negocio}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <MapPin className="h-5 w-5 text-gray-600" />
+                    <div>
+                      <div className="text-sm text-gray-600">Ubicación</div>
+                      <div className="font-medium text-gray-900">{lead.ubicacion}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Comentarios del cliente */}
+            {lead.comentarios && (
+              <div className="bg-white border border-gray-200 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
+                    <MessageSquare className="h-3 w-3 text-orange-600" />
+                  </div>
+                  Comentarios del cliente
+                </h3>
+                <div className="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-lg">
+                  <p className="text-gray-800 italic leading-relaxed">"{lead.comentarios}"</p>
+                </div>
+              </div>
+            )}
+
+            {/* Notas del equipo */}
+            {lead.notas && (
+              <div className="bg-white border border-gray-200 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                    <MessageSquare className="h-3 w-3 text-purple-600" />
+                  </div>
+                  Notas del equipo
+                </h3>
+                <div className="bg-purple-50 border-l-4 border-purple-400 p-4 rounded-lg">
+                  <p className="text-gray-800 leading-relaxed">{lead.notas}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Botones de acción */}
+            <div className="bg-white border border-gray-200 rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Acciones rápidas</h3>
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  onClick={() => onCall?.(lead)}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3"
+                >
+                  <Phone className="h-4 w-4 mr-2" />
+                  Llamar ahora
+                </Button>
+                <Button
+                  onClick={() => onWhatsApp?.(lead)}
+                  className="bg-green-500 hover:bg-green-600 text-white px-6 py-3"
+                >
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  WhatsApp
+                </Button>
+                {lead.email && (
+                  <Button
+                    onClick={() => onEmail?.(lead)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3"
+                  >
+                    <Mail className="h-4 w-4 mr-2" />
+                    Enviar email
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
