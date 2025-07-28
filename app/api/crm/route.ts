@@ -10,13 +10,31 @@ export async function GET() {
       }
     })
 
-    // Organizar leads por etapa
+    // Transformar y organizar leads por etapa
+    const transformLead = (lead: any) => ({
+      id: lead.id,
+      nombre: lead.nombre,
+      negocio: lead.negocio,
+      provincia: lead.provincia || 'No especificada',
+      localidad: lead.localidad || 'No especificada',
+      cantidad: lead.cantidad || '24-100',
+      etapa: lead.etapa,
+      etapaCrm: lead.etapaCrm,
+      whatsapp: lead.whatsapp,
+      email: lead.email,
+      comentarios: lead.comentarios,
+      notas: lead.notas,
+      valor: lead.valor,
+      createdAt: lead.createdAt.toISOString(),
+      updatedAt: lead.updatedAt.toISOString()
+    })
+
     const leadsPorEtapa = {
-      entrante: leads.filter((lead: any) => lead.etapaCrm === 'entrante'),
-      'primer-llamado': leads.filter((lead: any) => lead.etapaCrm === 'primer-llamado'),
-      seguimiento: leads.filter((lead: any) => lead.etapaCrm === 'seguimiento'),
-      ganado: leads.filter((lead: any) => lead.etapaCrm === 'ganado'),
-      perdido: leads.filter((lead: any) => lead.etapaCrm === 'perdido'),
+      entrante: leads.filter((lead: any) => lead.etapaCrm === 'entrante').map(transformLead),
+      'primer-llamado': leads.filter((lead: any) => lead.etapaCrm === 'primer-llamado').map(transformLead),
+      seguimiento: leads.filter((lead: any) => lead.etapaCrm === 'seguimiento').map(transformLead),
+      ganado: leads.filter((lead: any) => lead.etapaCrm === 'ganado').map(transformLead),
+      perdido: leads.filter((lead: any) => lead.etapaCrm === 'perdido').map(transformLead),
     }
 
     return NextResponse.json(leadsPorEtapa)
