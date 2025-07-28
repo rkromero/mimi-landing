@@ -8,24 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Phone, MessageCircle, Mail, MapPin, Package, Calendar, DollarSign, User, Building, X, Clock, MessageSquare } from 'lucide-react'
 import { useState } from 'react'
-
-interface Lead {
-  id: string
-  nombre: string
-  negocio: string
-  provincia: string
-  localidad: string
-  cantidad: string
-  etapa: string
-  etapaCrm: string
-  whatsapp: string
-  email?: string
-  comentarios?: string
-  notas?: string
-  valor?: number
-  createdAt: string
-  updatedAt: string
-}
+import { Lead } from '@/types/lead'
 
 interface LeadCardProps {
   lead: Lead

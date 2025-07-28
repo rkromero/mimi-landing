@@ -10,32 +10,7 @@ import { useMobile } from '@/hooks/use-mobile'
 import { Button } from '@/components/ui/button'
 import { RefreshCw, BarChart3, Users, TrendingUp } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-
-interface Lead {
-  id: string
-  nombre: string
-  negocio: string
-  provincia: string
-  localidad: string
-  cantidad?: string
-  etapa: string
-  etapaCrm: string
-  whatsapp: string
-  email?: string
-  comentarios?: string
-  notas?: string
-  valor?: number
-  createdAt: string
-  updatedAt: string
-}
-
-interface LeadsPorEtapa {
-  entrante: Lead[]
-  'primer-llamado': Lead[]
-  seguimiento: Lead[]
-  ganado: Lead[]
-  perdido: Lead[]
-}
+import { Lead, LeadsPorEtapa } from '@/types/lead'
 
 const COLUMNAS = [
   {

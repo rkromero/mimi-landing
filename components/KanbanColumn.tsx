@@ -4,24 +4,7 @@ import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { LeadCard } from './LeadCard'
 import { Badge } from '@/components/ui/badge'
-
-interface Lead {
-  id: string
-  nombre: string
-  negocio: string
-  provincia: string
-  localidad: string
-  cantidad: string
-  etapa: string
-  etapaCrm: string
-  whatsapp: string
-  email?: string
-  comentarios?: string
-  notas?: string
-  valor?: number
-  createdAt: string
-  updatedAt: string
-}
+import { Lead } from '@/types/lead'
 
 interface KanbanColumnProps {
   id: string
