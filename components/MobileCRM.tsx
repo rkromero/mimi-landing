@@ -31,8 +31,9 @@ interface Lead {
   id: string
   nombre: string
   negocio: string
-  ubicacion: string
-  cantidad?: string
+  provincia: string
+  localidad: string
+  cantidad: string
   etapa: string
   etapaCrm: string
   whatsapp: string
@@ -355,7 +356,7 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
             <CardContent className="p-4 space-y-3">
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-gray-500" />
-                <span className="text-sm">{selectedLead.ubicacion}</span>
+                <span className="text-sm">{selectedLead.provincia}, {selectedLead.localidad}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Package className="h-4 w-4 text-gray-500" />
@@ -601,7 +602,7 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
                       
                       <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
                         <MapPin className="h-3 w-3" />
-                        <span className="truncate">{lead.ubicacion}</span>
+                        <span className="truncate">{lead.provincia}, {lead.localidad}</span>
                       </div>
                       
                       <div className="flex items-center justify-between">

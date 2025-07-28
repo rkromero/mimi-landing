@@ -9,8 +9,9 @@ interface Lead {
   id: string
   nombre: string
   negocio: string
-  ubicacion: string
-  cantidad?: string
+  provincia: string
+  localidad: string
+  cantidad: string
   etapa: string
   etapaCrm: string
   whatsapp: string

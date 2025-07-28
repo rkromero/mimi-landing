@@ -13,8 +13,9 @@ interface Lead {
   id: string
   nombre: string
   negocio: string
-  ubicacion: string
-  cantidad?: string
+  provincia: string
+  localidad: string
+  cantidad: string
   etapa: string
   etapaCrm: string
   whatsapp: string
@@ -182,7 +183,7 @@ export function LeadCard({ lead, onCall, onWhatsApp, onEmail }: LeadCardProps) {
           <div className="space-y-1 mb-2">
             <div className="flex items-center gap-2 text-xs text-gray-600">
               <MapPin className="h-3 w-3 flex-shrink-0" />
-              <span className="truncate">{lead.ubicacion}</span>
+                              <span className="truncate">{lead.provincia}, {lead.localidad}</span>
             </div>
             <div className="flex items-center gap-2 text-xs text-gray-600">
               <Package className="h-3 w-3 flex-shrink-0" />
@@ -355,7 +356,7 @@ export function LeadCard({ lead, onCall, onWhatsApp, onEmail }: LeadCardProps) {
                     </div>
                     <div>
                       <div className="text-sm opacity-90">Ubicación</div>
-                      <div className="font-semibold">{lead.ubicacion}</div>
+                      <div className="font-semibold">{lead.provincia}, {lead.localidad}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -430,7 +431,7 @@ export function LeadCard({ lead, onCall, onWhatsApp, onEmail }: LeadCardProps) {
                     <MapPin className="h-5 w-5 text-gray-600" />
                     <div>
                       <div className="text-sm text-gray-600">Ubicación</div>
-                      <div className="font-medium text-gray-900">{lead.ubicacion}</div>
+                      <div className="font-medium text-gray-900">{lead.provincia}, {lead.localidad}</div>
                     </div>
                   </div>
                 </div>
