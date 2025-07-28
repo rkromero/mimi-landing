@@ -15,7 +15,8 @@ interface Lead {
   id: string
   nombre: string
   negocio: string
-  ubicacion: string
+  provincia: string
+  localidad: string
   cantidad?: string
   etapa: string
   etapaCrm: string
@@ -275,7 +276,8 @@ Te contacto desde MIMI Alfajores respecto a tu consulta sobre distribución.
 
 Información de tu consulta:
 - Negocio: ${lead.negocio}
-- Ubicación: ${lead.ubicacion}
+- Provincia: ${lead.provincia}
+- Localidad: ${lead.localidad}
 - Cantidad estimada: ${lead.cantidad || 'No especificada'}
 - Etapa: ${lead.etapa}
 

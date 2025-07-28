@@ -1,8 +1,9 @@
 interface FormData {
   nombre: string
   negocio: string
-  ubicacion: string
-  cantidad?: string
+  provincia: string
+  localidad: string
+  cantidad: string
   etapa: string
   whatsapp: string
   email?: string
@@ -36,7 +37,7 @@ export function createEmailTemplate(data: FormData): string {
     }
   }
 
-  const getCantidadText = (cantidad?: string) => {
+  const getCantidadText = (cantidad: string) => {
     switch (cantidad) {
       case 'menos-24':
         return 'Menos de 24 docenas'
@@ -194,8 +195,12 @@ export function createEmailTemplate(data: FormData): string {
                 <div class="info-value"><strong>${data.negocio}</strong></div>
             </div>
             <div class="info-row">
-                <div class="info-label">📍 Ubicación:</div>
-                <div class="info-value">${data.ubicacion}</div>
+                <div class="info-label">📍 Provincia:</div>
+                <div class="info-value">${data.provincia}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">🏘️ Localidad:</div>
+                <div class="info-value">${data.localidad}</div>
             </div>
             <div class="info-row">
                 <div class="info-label">📦 Cantidad:</div>

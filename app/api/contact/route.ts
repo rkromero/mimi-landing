@@ -10,10 +10,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     console.log('📝 Datos recibidos:', { ...body, whatsapp: body.whatsapp ? '***' : undefined })
     
-    const { nombre, negocio, ubicacion, cantidad, etapa, whatsapp, email, comentarios } = body
+    const { nombre, negocio, provincia, localidad, cantidad, etapa, whatsapp, email, comentarios } = body
 
     // Validar campos obligatorios
-    if (!nombre || !negocio || !ubicacion || !etapa || !whatsapp) {
+    if (!nombre || !negocio || !provincia || !localidad || !cantidad || !etapa || !whatsapp) {
       console.log('❌ Faltan campos obligatorios')
       return NextResponse.json(
         { error: 'Faltan campos obligatorios' },
@@ -33,7 +33,8 @@ export async function POST(request: NextRequest) {
       data: {
         nombre,
         negocio,
-        ubicacion,
+        provincia,
+        localidad,
         cantidad,
         etapa,
         whatsapp,
@@ -52,8 +53,9 @@ export async function POST(request: NextRequest) {
         const emailHtml = createEmailTemplate({
           nombre: contactForm.nombre,
           negocio: contactForm.negocio,
-          ubicacion: contactForm.ubicacion,
-          cantidad: contactForm.cantidad || undefined,
+          provincia: contactForm.provincia,
+          localidad: contactForm.localidad,
+          cantidad: contactForm.cantidad,
           etapa: contactForm.etapa,
           whatsapp: contactForm.whatsapp,
           email: contactForm.email || undefined,

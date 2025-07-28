@@ -17,8 +17,9 @@ model ContactForm {
   id                String   @id @default(cuid())
   nombre            String
   negocio           String
-  ubicacion         String
-  cantidad          String?
+  provincia         String
+  localidad         String
+  cantidad          String
   etapa             String   // etapa original del formulario
   etapaCrm          String   @default("entrante") // etapa del CRM: entrante, primer-llamado, seguimiento, ganado, perdido
   whatsapp          String

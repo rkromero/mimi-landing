@@ -9,8 +9,9 @@ interface ContactForm {
   id: string
   nombre: string
   negocio: string
-  ubicacion: string
-  cantidad?: string
+  provincia: string
+  localidad: string
+  cantidad: string
   etapa: string
   whatsapp: string
   email?: string
@@ -144,7 +145,7 @@ export default function AdminPage() {
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <h4 className="font-semibold text-gray-700">Ubicación</h4>
-                      <p className="text-gray-600">{form.ubicacion}</p>
+                      <p className="text-gray-600">{form.provincia}, {form.localidad}</p>
                     </div>
                     <div>
                       <h4 className="font-semibold text-gray-700">Cantidad estimada</h4>

@@ -33,6 +33,34 @@ import { useRouter } from "next/navigation"
 import { useGoogleAds } from "@/hooks/use-google-ads"
 import OptimizedLogo from "@/components/OptimizedLogo"
 
+// Lista de provincias de Argentina
+const provinciasArgentina = [
+  'Buenos Aires',
+  'Ciudad Autónoma de Buenos Aires',
+  'Catamarca',
+  'Chaco',
+  'Chubut',
+  'Córdoba',
+  'Corrientes',
+  'Entre Ríos',
+  'Formosa',
+  'Jujuy',
+  'La Pampa',
+  'La Rioja',
+  'Mendoza',
+  'Misiones',
+  'Neuquén',
+  'Río Negro',
+  'Salta',
+  'San Juan',
+  'San Luis',
+  'Santa Cruz',
+  'Santa Fe',
+  'Santiago del Estero',
+  'Tierra del Fuego',
+  'Tucumán'
+]
+
 export default function MimiLanding() {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -44,7 +72,8 @@ export default function MimiLanding() {
   const [formData, setFormData] = useState({
     nombre: '',
     negocio: '',
-    ubicacion: '',
+    provincia: '',
+    localidad: '',
     cantidad: '',
     etapa: '',
     whatsapp: '',
@@ -93,7 +122,8 @@ export default function MimiLanding() {
         setFormData({
           nombre: '',
           negocio: '',
-          ubicacion: '',
+          provincia: '',
+          localidad: '',
           cantidad: '',
           etapa: '',
           whatsapp: '',
@@ -922,29 +952,45 @@ export default function MimiLanding() {
 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="ubicacion">Provincia/Localidad *</Label>
+                    <Label htmlFor="provincia">Provincia *</Label>
+                    <Select value={formData.provincia} onValueChange={(value) => handleSelectChange('provincia', value)} required>
+                      <SelectTrigger className="h-12">
+                        <SelectValue placeholder="Seleccioná tu provincia" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {provinciasArgentina.map((provincia) => (
+                          <SelectItem key={provincia} value={provincia}>
+                            {provincia}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="localidad">Localidad *</Label>
                     <Input 
-                      id="ubicacion" 
-                      placeholder="¿Dónde está ubicado?" 
+                      id="localidad" 
+                      placeholder="Tu ciudad o localidad" 
                       className="h-12"
-                      value={formData.ubicacion}
+                      value={formData.localidad}
                       onChange={handleInputChange}
                       required
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cantidad">Cantidad estimada mensual</Label>
-                    <Select value={formData.cantidad} onValueChange={(value) => handleSelectChange('cantidad', value)}>
-                      <SelectTrigger className="h-12">
-                        <SelectValue placeholder="Seleccioná tu volumen estimado" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="menos-24">Menos de 24 docenas</SelectItem>
-                        <SelectItem value="24-100">Entre 24 docenas y 100 docenas</SelectItem>
-                        <SelectItem value="mas-100">Más de 100 docenas</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="cantidad">Cantidad estimada mensual *</Label>
+                  <Select value={formData.cantidad} onValueChange={(value) => handleSelectChange('cantidad', value)} required>
+                    <SelectTrigger className="h-12">
+                      <SelectValue placeholder="Seleccioná tu volumen estimado" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="menos-24">Menos de 24 docenas</SelectItem>
+                      <SelectItem value="24-100">Entre 24 docenas y 100 docenas</SelectItem>
+                      <SelectItem value="mas-100">Más de 100 docenas</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
