@@ -27,6 +27,7 @@ import {
   Trash2
 } from 'lucide-react'
 import { Lead, LeadsPorEtapa } from '@/types/lead'
+import { CreateLeadModal } from '@/components/CreateLeadModal'
 
 interface MobileCRMProps {
   leads: LeadsPorEtapa
@@ -490,9 +491,12 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
               <h1 className="text-xl font-bold text-gray-900">CRM MIMI</h1>
               <p className="text-sm text-gray-600">Gestión de Leads</p>
             </div>
-            <Button onClick={onRefresh} variant="outline" size="sm">
-              <RefreshCw className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center space-x-2">
+              <CreateLeadModal onLeadCreated={onRefresh} />
+              <Button onClick={onRefresh} variant="outline" size="sm">
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>

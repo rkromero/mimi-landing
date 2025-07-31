@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { RefreshCw, BarChart3, Users, TrendingUp } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Lead, LeadsPorEtapa } from '@/types/lead'
+import { CreateLeadModal } from '@/components/CreateLeadModal'
 
 const COLUMNAS = [
   {
@@ -313,10 +314,13 @@ Equipo MIMI`)
               <h1 className="text-2xl font-bold text-gray-900">CRM MIMI</h1>
               <p className="text-gray-600">Gestión de Leads y Oportunidades</p>
             </div>
-            <Button onClick={cargarLeads} variant="outline">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Actualizar
-            </Button>
+            <div className="flex items-center space-x-3">
+              <CreateLeadModal onLeadCreated={cargarLeads} />
+              <Button onClick={cargarLeads} variant="outline">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Actualizar
+              </Button>
+            </div>
           </div>
         </div>
       </div>
