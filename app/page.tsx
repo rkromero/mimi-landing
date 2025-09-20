@@ -1193,7 +1193,11 @@ export default function MimiLanding() {
               <h4 className="font-semibold mb-4 text-[#66CCDA]">Información</h4>
               <ul className="space-y-2 text-gray-300">
                 <li>Términos y Condiciones</li>
-                <li>Política de Privacidad</li>
+                <li>
+                  <Link href="/politicas-privacidad" className="hover:text-[#E65C37] transition-colors">
+                    Política de Privacidad
+                  </Link>
+                </li>
                 <li>Preguntas Frecuentes</li>
                 <li>Sobre Nosotros</li>
               </ul>
