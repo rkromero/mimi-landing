@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
           cantidad: contactForm.cantidad,
           etapa: contactForm.etapa,
           whatsapp: contactForm.whatsapp,
-          cuit: contactForm.cuit,
+          cuit: contactForm.cuit || undefined,
           email: contactForm.email || undefined,
           comentarios: contactForm.comentarios || undefined,
           createdAt: contactForm.createdAt.toISOString()
