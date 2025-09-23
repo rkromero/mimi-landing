@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('❌ Error durante la migración:', error)
     return NextResponse.json(
-      { error: 'Error durante la migración', details: error.message },
+      { error: 'Error durante la migración', details: error instanceof Error ? error.message : 'Error desconocido' },
       { status: 500 }
     )
   }
