@@ -28,6 +28,7 @@ model ContactForm {
   comentarios       String?
   notas             String?  // notas del CRM
   valor             Float?   // valor estimado del lead
+  esBajoVolumen     Boolean  @default(false) // marca si es un lead de bajo volumen (menos de 24 docenas)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 

@@ -175,6 +175,15 @@ export default function MimiLanding() {
       })
 
       if (response.ok) {
+        const result = await response.json()
+        
+        // Verificar si es un lead de bajo volumen
+        if (result.esBajoVolumen) {
+          setSubmitMessage('Actualmente solo trabajamos con distribuidores y comercios que compran desde 24 docenas. Te avisaremos si habilitamos otra opción.')
+          setIsSubmitting(false)
+          return
+        }
+        
         // Trackear conversión de Google Ads y Analytics
         trackLeadSubmission(formData)
         

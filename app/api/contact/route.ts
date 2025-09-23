@@ -50,6 +50,9 @@ export async function POST(request: NextRequest) {
     await prisma.$connect()
     console.log('✅ Conexión a base de datos exitosa')
 
+    // Determinar si es un lead de bajo volumen
+    const esBajoVolumen = cantidad === 'menos-24'
+    
     // Guardar en la base de datos
     console.log('💾 Guardando en base de datos...')
     const contactForm = await prisma.contactForm.create({
@@ -64,6 +67,7 @@ export async function POST(request: NextRequest) {
         cuit,
         email,
         comentarios,
+        esBajoVolumen,
       },
     })
 
@@ -106,7 +110,11 @@ export async function POST(request: NextRequest) {
     }
     
     return NextResponse.json(
-      { message: 'Formulario enviado exitosamente', id: contactForm.id },
+      { 
+        message: 'Formulario enviado exitosamente', 
+        id: contactForm.id,
+        esBajoVolumen 
+      },
       { status: 201 }
     )
   } catch (error) {

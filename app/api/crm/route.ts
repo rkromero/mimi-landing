@@ -5,6 +5,9 @@ import { prisma } from '@/lib/prisma'
 export async function GET() {
   try {
     const leads = await prisma.contactForm.findMany({
+      where: {
+        esBajoVolumen: false // Excluir leads de bajo volumen del CRM
+      },
       orderBy: {
         updatedAt: 'desc'
       }
