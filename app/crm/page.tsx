@@ -229,7 +229,7 @@ export default function CRMPage() {
       if (phoneNumber) {
         // Agregar código de país si no lo tiene
         const fullNumber = phoneNumber.startsWith('54') ? phoneNumber : `54${phoneNumber}`
-        const message = `Hola ${lead.nombre}! Te contacto desde MIMI Alfajores respecto a tu consulta sobre distribución. ¿Cuándo podemos hablar?`
+        const message = `Hola ${lead.nombre}! Te contacto desde MIMI Alfajores respecto a tu consulta sobre distribución. Un representante de la empresa se estará contactando con vos en breve!`
         const encodedMessage = encodeURIComponent(message)
         window.open(`https://wa.me/${fullNumber}?text=${encodedMessage}`, '_blank')
         console.log(`💬 WhatsApp a ${lead.nombre}: +${fullNumber}`)
