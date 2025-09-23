@@ -23,6 +23,7 @@ model ContactForm {
   etapa             String   // etapa original del formulario
   etapaCrm          String   @default("entrante") // etapa del CRM: entrante, primer-llamado, seguimiento, ganado, perdido
   whatsapp          String
+  cuit              String   // CUIT obligatorio para filtrar emprendedores curiosos
   email             String?
   comentarios       String?
   notas             String?  // notas del CRM

@@ -6,6 +6,7 @@ interface FormData {
   cantidad: string
   etapa: string
   whatsapp: string
+  cuit: string
   email?: string
   comentarios?: string
   createdAt: string
@@ -209,6 +210,10 @@ export function createEmailTemplate(data: FormData): string {
             <div class="info-row">
                 <div class="info-label">📞 WhatsApp:</div>
                 <div class="info-value"><strong>${formattedPhone}</strong></div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">🏢 CUIT:</div>
+                <div class="info-value"><strong>${data.cuit}</strong></div>
             </div>
             ${data.email ? `
             <div class="info-row">
