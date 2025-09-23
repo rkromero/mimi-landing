@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     const { nombre, negocio, provincia, localidad, cantidad, etapa, whatsapp, cuit, email, comentarios } = body
 
     // Validar campos obligatorios
-    if (!nombre || !negocio || !provincia || !localidad || !cantidad || !etapa || !whatsapp || !cuit) {
+    if (!nombre || !negocio || !provincia || !localidad || !cantidad || !etapa || !whatsapp) {
       console.log('❌ Faltan campos obligatorios')
       return NextResponse.json(
         { error: 'Faltan campos obligatorios' },
@@ -21,27 +21,29 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validar formato del CUIT
-    const validarCuit = (cuit: string): boolean => {
-      const cuitLimpio = cuit.replace(/[-\s]/g, '')
-      if (!/^\d{11}$/.test(cuitLimpio)) return false
-      
-      const multiplicadores = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2]
-      let suma = 0
-      for (let i = 0; i < 10; i++) {
-        suma += parseInt(cuitLimpio[i]) * multiplicadores[i]
+    // Validar CUIT si se proporciona (temporalmente opcional)
+    if (cuit) {
+      const validarCuit = (cuit: string): boolean => {
+        const cuitLimpio = cuit.replace(/[-\s]/g, '')
+        if (!/^\d{11}$/.test(cuitLimpio)) return false
+        
+        const multiplicadores = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2]
+        let suma = 0
+        for (let i = 0; i < 10; i++) {
+          suma += parseInt(cuitLimpio[i]) * multiplicadores[i]
+        }
+        const resto = suma % 11
+        const digitoVerificador = resto < 2 ? resto : 11 - resto
+        return digitoVerificador === parseInt(cuitLimpio[10])
       }
-      const resto = suma % 11
-      const digitoVerificador = resto < 2 ? resto : 11 - resto
-      return digitoVerificador === parseInt(cuitLimpio[10])
-    }
 
-    if (!validarCuit(cuit)) {
-      console.log('❌ CUIT inválido')
-      return NextResponse.json(
-        { error: 'El CUIT ingresado no es válido' },
-        { status: 400 }
-      )
+      if (!validarCuit(cuit)) {
+        console.log('❌ CUIT inválido')
+        return NextResponse.json(
+          { error: 'El CUIT ingresado no es válido' },
+          { status: 400 }
+        )
+      }
     }
 
     console.log('🔗 Conectando a la base de datos...')
