@@ -158,6 +158,13 @@ export default function MimiLanding() {
     setIsSubmitting(true)
     setSubmitMessage('')
 
+    // Validar cantidad mínima antes de enviar
+    if (formData.cantidad === 'menos-24') {
+      setSubmitMessage('Lo sentimos, actualmente no tenemos una propuesta comercial para menos de 24 docenas. El mínimo de compra es de 24 docenas mensuales.')
+      setIsSubmitting(false)
+      return
+    }
+
     // Validar CUIT antes de enviar
     if (!validarCuit(formData.cuit)) {
       setSubmitMessage('Error: El CUIT ingresado no es válido. Por favor, verifica los datos.')

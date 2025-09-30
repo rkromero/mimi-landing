@@ -48,6 +48,16 @@ export function CreateLeadModal({ onLeadCreated }: CreateLeadModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    // Validar cantidad mínima
+    if (formData.cantidad === 'menos-24') {
+      toast({
+        title: "Cantidad insuficiente",
+        description: "Lo sentimos, actualmente no tenemos una propuesta comercial para menos de 24 docenas. El mínimo de compra es de 24 docenas mensuales.",
+        variant: "destructive"
+      })
+      return
+    }
+    
     // Validar campos obligatorios
     if (!formData.nombre || !formData.negocio || !formData.provincia || 
         !formData.localidad || !formData.cantidad || !formData.whatsapp) {
