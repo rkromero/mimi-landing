@@ -52,7 +52,7 @@ export function CreateLeadModal({ onLeadCreated }: CreateLeadModalProps) {
     if (formData.cantidad === 'menos-24') {
       toast({
         title: "Cantidad insuficiente",
-        description: "Lo sentimos, actualmente no tenemos una propuesta comercial para menos de 24 docenas. El mínimo de compra es de 24 docenas mensuales.",
+        description: "Por el momento trabajamos únicamente con distribuidores y comercios que realizan compras a partir de 24 docenas. Si en el futuro abrimos otras opciones de compra, te lo vamos a avisar con gusto.",
         variant: "destructive"
       })
       return
