@@ -77,71 +77,20 @@ export default function MimiLanding() {
     cantidad: '',
     etapa: '',
     whatsapp: '',
-    cuit: '',
     email: '',
     comentarios: ''
   })
   const [submitMessage, setSubmitMessage] = useState('')
 
-  // Función para validar CUIT argentino
-  const validarCuit = (cuit: string): boolean => {
-    // Remover guiones y espacios
-    const cuitLimpio = cuit.replace(/[-\s]/g, '')
-    
-    // Verificar que tenga 11 dígitos
-    if (!/^\d{11}$/.test(cuitLimpio)) {
-      return false
-    }
-    
-    // Verificar dígito verificador
-    const multiplicadores = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2]
-    let suma = 0
-    
-    for (let i = 0; i < 10; i++) {
-      suma += parseInt(cuitLimpio[i]) * multiplicadores[i]
-    }
-    
-    const resto = suma % 11
-    const digitoVerificador = resto < 2 ? resto : 11 - resto
-    
-    return digitoVerificador === parseInt(cuitLimpio[10])
-  }
-
-  // Función para formatear CUIT
-  const formatearCuit = (valor: string): string => {
-    // Remover todo excepto números
-    const soloNumeros = valor.replace(/\D/g, '')
-    
-    // Limitar a 11 dígitos
-    const limitado = soloNumeros.slice(0, 11)
-    
-    // Aplicar formato XX-XXXXXXXX-X
-    if (limitado.length <= 2) {
-      return limitado
-    } else if (limitado.length <= 10) {
-      return `${limitado.slice(0, 2)}-${limitado.slice(2)}`
-    } else {
-      return `${limitado.slice(0, 2)}-${limitado.slice(2, 10)}-${limitado.slice(10)}`
-    }
-  }
 
   // Función para manejar cambios en el formulario
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target
     
-    // Formatear CUIT automáticamente
-    if (id === 'cuit') {
-      const cuitFormateado = formatearCuit(value)
-      setFormData(prev => ({
-        ...prev,
-        [id]: cuitFormateado
-      }))
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [id]: value
-      }))
-    }
+    setFormData(prev => ({
+      ...prev,
+      [id]: value
+    }))
   }
 
   // Función para manejar cambios en los selects
@@ -165,12 +114,6 @@ export default function MimiLanding() {
       return
     }
 
-    // Validar CUIT antes de enviar
-    if (!validarCuit(formData.cuit)) {
-      setSubmitMessage('Error: El CUIT ingresado no es válido. Por favor, verifica los datos.')
-      setIsSubmitting(false)
-      return
-    }
 
     try {
       const response = await fetch('/api/contact', {
@@ -203,7 +146,6 @@ export default function MimiLanding() {
           cantidad: '',
           etapa: '',
           whatsapp: '',
-          cuit: '',
           email: '',
           comentarios: ''
         })
@@ -1085,33 +1027,16 @@ export default function MimiLanding() {
                   </Select>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="whatsapp">WhatsApp *</Label>
-                    <Input 
-                      id="whatsapp" 
-                      placeholder="+54 9 11 1234-5678" 
-                      className="h-12"
-                      value={formData.whatsapp}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cuit">CUIT *</Label>
-                    <Input 
-                      id="cuit" 
-                      placeholder="20-12345678-9" 
-                      className="h-12"
-                      value={formData.cuit}
-                      onChange={handleInputChange}
-                      maxLength={13}
-                      required
-                    />
-                    <p className="text-xs text-gray-500">
-                      Formato: XX-XXXXXXXX-X (11 dígitos)
-                    </p>
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="whatsapp">WhatsApp *</Label>
+                  <Input 
+                    id="whatsapp" 
+                    placeholder="+54 9 11 1234-5678" 
+                    className="h-12"
+                    value={formData.whatsapp}
+                    onChange={handleInputChange}
+                    required
+                  />
                 </div>
 
                 <div className="space-y-2">
