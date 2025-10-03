@@ -66,6 +66,7 @@ export default function MimiLanding() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [showForm, setShowForm] = useState(true)
   const { trackLeadSubmission, trackFormInteraction, trackButtonClick, isGtagAvailable } = useGoogleAds()
   
   // Estado para el formulario
@@ -109,6 +110,7 @@ export default function MimiLanding() {
 
     // Validar cantidad mínima antes de enviar
     if (formData.cantidad === 'menos-24') {
+      setShowForm(false)
       setSubmitMessage('Por el momento trabajamos únicamente con distribuidores y comercios que realizan compras a partir de 24 docenas. Si en el futuro abrimos otras opciones de compra, te lo vamos a avisar con gusto.')
       setIsSubmitting(false)
       return
@@ -943,7 +945,34 @@ export default function MimiLanding() {
 
           <Card className="shadow-2xl border-0">
             <CardContent className="p-8">
-              <form className="space-y-6" onSubmit={handleSubmit}>
+              {!showForm ? (
+                <div className="text-center py-12">
+                  <div className="mb-6">
+                    <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+                      <svg className="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                      Gracias por tu interés
+                    </h3>
+                    <p className="text-lg text-gray-600 mb-6">
+                      Por el momento trabajamos únicamente con distribuidores y comercios que realizan compras a partir de 24 docenas. Si en el futuro abrimos otras opciones de compra, te lo vamos a avisar con gusto.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => window.location.reload()}
+                      className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors"
+                    >
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      Volver a intentar
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <form className="space-y-6" onSubmit={handleSubmit}>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="nombre">Nombre y Apellido *</Label>
@@ -1085,7 +1114,8 @@ export default function MimiLanding() {
                 <p className="text-sm text-gray-500 text-center">
                   * Campos obligatorios. Te contactaremos en menos de 24hs.
                 </p>
-              </form>
+                </form>
+              )}
             </CardContent>
           </Card>
         </div>
