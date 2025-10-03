@@ -956,19 +956,9 @@ export default function MimiLanding() {
                     <h3 className="text-2xl font-bold text-gray-900 mb-4">
                       Gracias por tu interés
                     </h3>
-                    <p className="text-lg text-gray-600 mb-6">
+                    <p className="text-lg text-gray-600">
                       Por el momento trabajamos únicamente con distribuidores y comercios que realizan compras a partir de 24 docenas. Si en el futuro abrimos otras opciones de compra, te lo vamos a avisar con gusto.
                     </p>
-                    <button
-                      type="button"
-                      onClick={() => window.location.reload()}
-                      className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors"
-                    >
-                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                      Volver a intentar
-                    </button>
                   </div>
                 </div>
               ) : (
