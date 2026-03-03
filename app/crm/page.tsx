@@ -120,9 +120,8 @@ export default function CRMPage() {
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      // El drag solo se activa si el puntero se mueve al menos 8px
-      // Esto permite que los clicks cortos abran el panel de detalles
-      activationConstraint: { distance: 8 },
+      // El drag se activa al mover 3px — instantáneo en la práctica
+      activationConstraint: { distance: 3 },
     })
   )
 
@@ -656,19 +655,20 @@ Equipo MIMI`)
                 </div>
               </div>
 
-              <DragOverlay>
-                {activeId ? (
-                  <div className="opacity-90 rotate-2 scale-105 transition-transform duration-200">
-                    <LeadCard
-                      lead={getActiveLead()!}
-                      isAdmin={isAdmin}
-                      sellers={sellers}
-                      onAssignSeller={handleAssignSeller}
-                      onDeleteLead={handleDeleteLead}
-                      onUpdateLead={handleUpdateLead}
-                    />
-                  </div>
-                ) : null}
+              <DragOverlay dropAnimation={null}>
+                {activeId ? (() => {
+                  const activeLead = getActiveLead()
+                  if (!activeLead) return null
+                  return (
+                    <div className="rotate-1 scale-[1.03] shadow-2xl shadow-black/60 opacity-95 w-full">
+                      <div className="rounded-xl border border-brand-orange/40 bg-[#0f172a] text-slate-100 px-4 py-3">
+                        <p className="font-bold text-sm text-white">{activeLead.nombre}</p>
+                        <p className="text-[11px] text-slate-400 uppercase tracking-wider mb-2">{activeLead.negocio}</p>
+                        <p className="text-xs text-slate-500">{activeLead.provincia}, {activeLead.localidad}</p>
+                      </div>
+                    </div>
+                  )
+                })() : null}
               </DragOverlay>
             </DndContext>
           </div>

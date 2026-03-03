@@ -120,8 +120,10 @@ export function LeadCard({
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.4 : 1,
+    // Deshabilitar transition durante drag para máxima performance
+    transition: isDragging ? 'none' : transition,
+    opacity: isDragging ? 0.35 : 1,
+    willChange: isDragging ? 'transform' : 'auto',
   }
 
   const formatDate = (dateString: string) => {
