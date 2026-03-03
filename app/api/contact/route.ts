@@ -1,67 +1,84 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { CrmRole } from '@prisma/client'
+import { CrmRole, Prisma } from '@prisma/client'
 import { getAuthUserFromRequest, requireAuth } from '@/lib/auth'
 import { Resend } from 'resend'
 import { createEmailTemplate } from '@/lib/email-template'
 
+const pickBalancedSellerId = async (
+  tx: Prisma.TransactionClient,
+  sellerIds: string[]
+) => {
+  if (sellerIds.length === 0) return null
+
+  const grouped = await tx.contactForm.groupBy({
+    by: ['assignedToId'],
+    where: {
+      assignedToId: { in: sellerIds },
+    },
+    _count: { _all: true },
+  })
+
+  const counts = new Map<string, number>()
+  for (const sellerId of sellerIds) counts.set(sellerId, 0)
+  for (const row of grouped) {
+    if (row.assignedToId) {
+      counts.set(row.assignedToId, row._count._all)
+    }
+  }
+
+  const minCount = Math.min(...Array.from(counts.values()))
+  const candidates = sellerIds.filter((sellerId) => (counts.get(sellerId) ?? 0) === minCount)
+  return candidates[Math.floor(Math.random() * candidates.length)] ?? null
+}
+
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔍 Iniciando procesamiento de formulario...')
-    
     const body = await request.json()
-    console.log('📝 Datos recibidos:', { ...body, whatsapp: body.whatsapp ? '***' : undefined })
-    
     const { nombre, negocio, provincia, localidad, cantidad, etapa, whatsapp, cuit, email, comentarios } = body
 
     // Validar campos obligatorios
     if (!nombre || !negocio || !provincia || !localidad || !cantidad || !etapa || !whatsapp) {
-      console.log('❌ Faltan campos obligatorios')
       return NextResponse.json(
         { error: 'Faltan campos obligatorios' },
         { status: 400 }
       )
     }
 
-
-    console.log('🔗 Conectando a la base de datos...')
-    
-    // Verificar conexión a Prisma
-    await prisma.$connect()
-    console.log('✅ Conexión a base de datos exitosa')
-
     // Determinar si es un lead de bajo volumen
     const esBajoVolumen = cantidad === 'menos-24'
-    
     const auth = await getAuthUserFromRequest(request)
 
-    // Guardar en la base de datos
-    console.log('💾 Guardando en base de datos...')
-    const contactForm = await prisma.contactForm.create({
-      data: {
-        nombre,
-        negocio,
-        provincia,
-        localidad,
-        cantidad,
-        etapa,
-        whatsapp,
-        cuit: cuit || null,
-        email,
-        comentarios,
-        esBajoVolumen,
-        ...(auth?.user.role === CrmRole.VENDEDOR && { assignedToId: auth.user.id }),
-        ...(auth && { updatedByUserId: auth.user.id }),
-      },
+    const contactForm = await prisma.$transaction(async (tx) => {
+      const sellers = await tx.crmUser.findMany({
+        where: { role: CrmRole.VENDEDOR },
+        select: { id: true },
+      })
+      const sellerIds = sellers.map((seller) => seller.id)
+      const assignedToId = await pickBalancedSellerId(tx, sellerIds)
+
+      return tx.contactForm.create({
+        data: {
+          nombre,
+          negocio,
+          provincia,
+          localidad,
+          cantidad,
+          etapa,
+          whatsapp,
+          cuit: cuit || null,
+          email: email || null,
+          comentarios: comentarios || null,
+          esBajoVolumen,
+          assignedToId,
+          ...(auth && { updatedByUserId: auth.user.id }),
+        },
+      })
     })
 
-    console.log('✅ Formulario guardado exitosamente:', contactForm.id)
-    
     // Enviar email si está configurado
     if (process.env.RESEND_API_KEY && process.env.EMAIL_TO) {
       try {
-        console.log('📧 Enviando email...')
-        
         const emailHtml = createEmailTemplate({
           nombre: contactForm.nombre,
           negocio: contactForm.negocio,
@@ -77,20 +94,16 @@ export async function POST(request: NextRequest) {
         })
 
         const resend = new Resend(process.env.RESEND_API_KEY)
-        const emailResult = await resend.emails.send({
+        await resend.emails.send({
           from: process.env.EMAIL_FROM || 'MIMI Landing <onboarding@resend.dev>',
           to: process.env.EMAIL_TO.split(','),
           subject: `🎯 Nuevo Lead: ${nombre} - ${negocio}`,
           html: emailHtml,
         })
-
-        console.log('✅ Email enviado exitosamente:', emailResult.data?.id)
       } catch (emailError) {
-        console.error('❌ Error al enviar email:', emailError)
+        console.error('Error al enviar email:', emailError)
         // No fallar si el email falla, el formulario ya se guardó
       }
-    } else {
-      console.log('⚠️ Email no configurado (RESEND_API_KEY o EMAIL_TO faltantes)')
     }
     
     return NextResponse.json(
@@ -102,9 +115,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     )
   } catch (error) {
-    console.error('❌ Error detallado al procesar formulario:', error)
-    console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack available')
-    
+    console.error('Error al procesar formulario:', error)
     return NextResponse.json(
       { 
         error: 'Error interno del servidor',
@@ -113,8 +124,6 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     )
-  } finally {
-    await prisma.$disconnect()
   }
 }
 
