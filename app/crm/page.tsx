@@ -2,49 +2,73 @@
 
 import { useState, useEffect } from 'react'
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCorners } from '@dnd-kit/core'
-import { arrayMove } from '@dnd-kit/sortable'
 import { KanbanColumn } from '@/components/KanbanColumn'
 import { LeadCard } from '@/components/LeadCard'
 import { MobileCRM } from '@/components/MobileCRM'
 import { useMobile } from '@/hooks/use-mobile'
 import { Button } from '@/components/ui/button'
-import { RefreshCw, BarChart3, Users, TrendingUp } from 'lucide-react'
+import { toast } from '@/hooks/use-toast'
+import {
+  RefreshCw,
+  BarChart3,
+  Users,
+  TrendingUp,
+  Inbox,
+  PhoneCall,
+  RefreshCcw,
+  CircleCheck,
+  CircleX,
+} from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Lead, LeadsPorEtapa } from '@/types/lead'
 import { CreateLeadModal } from '@/components/CreateLeadModal'
+import { LucideIcon } from 'lucide-react'
+
+type CrmEtapaId = keyof LeadsPorEtapa
 
 const COLUMNAS = [
   {
     id: 'entrante',
     title: 'LEADS ENTRANTES',
     color: 'bg-blue-600',
-    icon: '📨'
+    icon: Inbox,
   },
   {
     id: 'primer-llamado',
     title: 'PRIMER LLAMADO REALIZADO',
     color: 'bg-yellow-600',
-    icon: '📞'
+    icon: PhoneCall,
   },
   {
     id: 'seguimiento',
     title: 'HACER SEGUIMIENTO',
     color: 'bg-purple-600',
-    icon: '🔄'
+    icon: RefreshCcw,
   },
   {
     id: 'ganado',
     title: 'LEAD GANADO',
     color: 'bg-green-600',
-    icon: '🎉'
+    icon: CircleCheck,
   },
   {
     id: 'perdido',
     title: 'LEAD PERDIDO',
     color: 'bg-red-600',
-    icon: '❌'
+    icon: CircleX,
   }
-]
+] as const satisfies ReadonlyArray<{
+  id: CrmEtapaId
+  title: string
+  color: string
+  icon: LucideIcon
+}>
+
+const normalizePhone = (phone: string) => {
+  const cleaned = phone.replace(/\D/g, '')
+  if (!cleaned) return null
+  return cleaned.startsWith('54') ? cleaned : `54${cleaned}`
+}
 
 export default function CRMPage() {
   const isMobile = useMobile()
@@ -161,10 +185,20 @@ export default function CRMPage() {
           nuevaEtapa: toColumn,
         }),
       })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('No se pudo actualizar la etapa del lead')
+          }
+        })
     } catch (error) {
       console.error('Error al actualizar lead:', error)
       // Revertir cambios si falla
       cargarLeads()
+      toast({
+        title: 'No se pudo mover el lead',
+        description: 'Hubo un error al guardar el cambio de etapa.',
+        variant: 'destructive',
+      })
     }
 
     setActiveId(null)
@@ -183,94 +217,63 @@ export default function CRMPage() {
 
   // Manejar acciones de contacto
   const handleCall = (lead: Lead) => {
-    console.log('🚀 handleCall ejecutándose para:', lead.nombre)
-    console.log('🚀 Número original:', lead.whatsapp)
-    
-    try {
-      const phoneNumber = lead.whatsapp.replace(/\D/g, '')
-      console.log('🚀 Número limpio:', phoneNumber)
-      
-      if (phoneNumber) {
-        // Agregar código de país si no lo tiene
-        const fullNumber = phoneNumber.startsWith('54') ? phoneNumber : `54${phoneNumber}`
-        console.log('🚀 Número final:', fullNumber)
-        console.log('🚀 Intentando abrir tel:', `tel:+${fullNumber}`)
-        
-        // Intentar múltiples métodos
-        const telUrl = `tel:+${fullNumber}`
-        
-        // Método 1: window.open
-        const result = window.open(telUrl)
-        console.log('🚀 Resultado window.open:', result)
-        
-        // Método 2: crear link y clickear (fallback)
-        if (!result) {
-          console.log('🚀 Probando método alternativo...')
-          const link = document.createElement('a')
-          link.href = telUrl
-          link.click()
-        }
-        
-        console.log(`📞 Llamando a ${lead.nombre}: +${fullNumber}`)
-        alert(`Intentando llamar a ${lead.nombre} al +${fullNumber}`)
-      } else {
-        console.error('❌ Número de teléfono vacío')
-        alert('Número de teléfono no válido')
-      }
-    } catch (error) {
-      console.error('❌ Error al realizar llamada:', error)
-      alert('Error al realizar la llamada: ' + (error instanceof Error ? error.message : String(error)))
+    const fullNumber = normalizePhone(lead.whatsapp)
+    if (!fullNumber) {
+      toast({
+        title: 'Numero invalido',
+        description: 'El lead no tiene un numero de telefono valido.',
+        variant: 'destructive',
+      })
+      return
     }
+
+    window.location.href = `tel:+${fullNumber}`
   }
 
   const handleWhatsApp = (lead: Lead) => {
-    try {
-      const phoneNumber = lead.whatsapp.replace(/\D/g, '')
-      if (phoneNumber) {
-        // Agregar código de país si no lo tiene
-        const fullNumber = phoneNumber.startsWith('54') ? phoneNumber : `54${phoneNumber}`
-        const message = `Hola ${lead.nombre}! Te contacto desde MIMI Alfajores respecto a tu consulta sobre distribución. Un representante de la empresa se estará contactando con vos en breve!`
-        const encodedMessage = encodeURIComponent(message)
-        window.open(`https://wa.me/${fullNumber}?text=${encodedMessage}`, '_blank')
-        console.log(`💬 WhatsApp a ${lead.nombre}: +${fullNumber}`)
-      } else {
-        alert('Número de WhatsApp no válido')
-      }
-    } catch (error) {
-      console.error('Error al abrir WhatsApp:', error)
-      alert('Error al abrir WhatsApp')
+    const fullNumber = normalizePhone(lead.whatsapp)
+    if (!fullNumber) {
+      toast({
+        title: 'Numero invalido',
+        description: 'El lead no tiene un numero de WhatsApp valido.',
+        variant: 'destructive',
+      })
+      return
     }
+
+    const message = `Hola ${lead.nombre}! Te contacto desde MIMI Alfajores respecto a tu consulta sobre distribucion. Un representante de la empresa se estara contactando con vos en breve!`
+    const encodedMessage = encodeURIComponent(message)
+    window.open(`https://wa.me/${fullNumber}?text=${encodedMessage}`, '_blank', 'noopener,noreferrer')
   }
 
   const handleEmail = (lead: Lead) => {
-    try {
-      if (lead.email) {
-        const subject = encodeURIComponent(`MIMI Alfajores - Consulta de ${lead.nombre}`)
-        const body = encodeURIComponent(`Hola ${lead.nombre},
+    if (!lead.email) {
+      toast({
+        title: 'Email no disponible',
+        description: 'Este lead no tiene correo registrado.',
+        variant: 'destructive',
+      })
+      return
+    }
 
-Te contacto desde MIMI Alfajores respecto a tu consulta sobre distribución.
+    const subject = encodeURIComponent(`MIMI Alfajores - Consulta de ${lead.nombre}`)
+    const body = encodeURIComponent(`Hola ${lead.nombre},
 
-Información de tu consulta:
+Te contacto desde MIMI Alfajores respecto a tu consulta sobre distribucion.
+
+Informacion de tu consulta:
 - Negocio: ${lead.negocio}
 - Provincia: ${lead.provincia}
 - Localidad: ${lead.localidad}
 - Cantidad estimada: ${lead.cantidad || 'No especificada'}
 - Etapa: ${lead.etapa}
 
-¿Cuándo podemos coordinar una llamada para conversar sobre la oportunidad?
+Cuando podemos coordinar una llamada para conversar sobre la oportunidad?
 
 Saludos,
 Equipo MIMI`)
-        
-        window.open(`mailto:${lead.email}?subject=${subject}&body=${body}`)
-        console.log(`📧 Email a ${lead.nombre}: ${lead.email}`)
-      } else {
-        alert('Email no disponible para este lead')
-      }
-    } catch (error) {
-      console.error('Error al abrir email:', error)
-      alert('Error al abrir el cliente de email')
-    }
+
+    window.open(`mailto:${lead.email}?subject=${subject}&body=${body}`)
   }
 
   // Calcular estadísticas

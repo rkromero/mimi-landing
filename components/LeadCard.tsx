@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Phone, MessageCircle, Mail, MapPin, Package, Calendar, DollarSign, User, Building, X, Clock, MessageSquare } from 'lucide-react'
+import { Phone, MessageCircle, Mail, MapPin, Package, Calendar, DollarSign, User, Building, X, Clock, MessageSquare, FileText } from 'lucide-react'
 import { useState } from 'react'
 import { Lead } from '@/types/lead'
 
@@ -86,28 +86,15 @@ export function LeadCard({ lead, onCall, onWhatsApp, onEmail }: LeadCardProps) {
   const getEtapaText = (etapa: string) => {
     switch (etapa) {
       case 'listo-primer-pedido':
-        return '🎯 Listo para primer pedido'
+        return 'Listo para primer pedido'
       case 'empezar-pronto':
-        return '⚡ Empezar pronto'
+        return 'Empezar pronto'
       case 'busco-mejor-proveedor':
-        return '🔍 Busca mejor proveedor'
+        return 'Busca mejor proveedor'
       case 'buscando-opciones':
-        return '👀 Explorando opciones'
+        return 'Explorando opciones'
       default:
         return etapa
-    }
-  }
-
-  const cleanPhoneNumber = (phone: string) => {
-    return phone.replace(/\D/g, '')
-  }
-
-  const handleCardClick = (e: React.MouseEvent) => {
-    // Solo abrir modal si no se está haciendo drag
-    if (!isDragging) {
-      e.preventDefault()
-      e.stopPropagation()
-      setShowDetails(true)
     }
   }
 
@@ -122,7 +109,7 @@ export function LeadCard({ lead, onCall, onWhatsApp, onEmail }: LeadCardProps) {
       <Card
         ref={setNodeRef}
         style={style}
-        className={`mb-2 hover:shadow-md transition-all duration-200 hover:scale-[1.02] ${
+        className={`mb-2 hover:shadow-md transition-shadow duration-200 ${
           isDragging ? 'shadow-lg' : ''
         }`}
       >
@@ -156,7 +143,7 @@ export function LeadCard({ lead, onCall, onWhatsApp, onEmail }: LeadCardProps) {
                 onClick={handleDetailsClick}
               >
                 <div className="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center hover:bg-[#E65C37] hover:text-white transition-colors">
-                  <span className="text-[10px]">📋</span>
+                  <FileText className="h-3 w-3" aria-hidden="true" />
                 </div>
               </div>
             </div>
@@ -176,10 +163,10 @@ export function LeadCard({ lead, onCall, onWhatsApp, onEmail }: LeadCardProps) {
 
           {/* Etapa original */}
           <Badge variant="secondary" className={`text-xs mb-2 ${getEtapaColor(lead.etapa)}`}>
-            {lead.etapa === 'listo-primer-pedido' && '🎯 Listo'}
-            {lead.etapa === 'empezar-pronto' && '⚡ Pronto'}
-            {lead.etapa === 'busco-mejor-proveedor' && '🔍 Busca'}
-            {lead.etapa === 'buscando-opciones' && '👀 Explora'}
+            {lead.etapa === 'listo-primer-pedido' && 'Listo'}
+            {lead.etapa === 'empezar-pronto' && 'Pronto'}
+            {lead.etapa === 'busco-mejor-proveedor' && 'Busca'}
+            {lead.etapa === 'buscando-opciones' && 'Explora'}
           </Badge>
 
           {/* Comentarios compactos - clickeable */}
@@ -190,7 +177,7 @@ export function LeadCard({ lead, onCall, onWhatsApp, onEmail }: LeadCardProps) {
               title="Haz clic para ver detalles completos"
             >
               <div className="flex items-start gap-2">
-                <span className="text-[#E65C37] mt-0.5">💬</span>
+                <MessageSquare className="h-3 w-3 mt-0.5 text-[#E65C37]" aria-hidden="true" />
                 <span className="flex-1">
                   "{lead.comentarios.length > 50 ? lead.comentarios.substring(0, 50) + '...' : lead.comentarios}"
                 </span>
@@ -209,7 +196,7 @@ export function LeadCard({ lead, onCall, onWhatsApp, onEmail }: LeadCardProps) {
               title="Haz clic para ver detalles completos"
             >
               <div className="flex items-start gap-2">
-                <span className="text-blue-700 mt-0.5">📝</span>
+                <MessageSquare className="h-3 w-3 mt-0.5 text-blue-700" aria-hidden="true" />
                 <span className="flex-1">
                   {lead.notas.length > 30 ? lead.notas.substring(0, 30) + '...' : lead.notas}
                 </span>
@@ -235,14 +222,8 @@ export function LeadCard({ lead, onCall, onWhatsApp, onEmail }: LeadCardProps) {
               onClick={(e) => {
                 e.stopPropagation()
                 e.preventDefault()
-                console.log('🔍 Botón Llamar clickeado:', lead.nombre)
-                console.log('🔍 Función onCall disponible:', !!onCall)
-                console.log('🔍 Número WhatsApp:', lead.whatsapp)
                 if (onCall) {
                   onCall(lead)
-                } else {
-                  console.error('❌ Función onCall no está definida')
-                  alert('Error: Función de llamada no está configurada')
                 }
               }}
               title={`Llamar a ${lead.nombre}`}
@@ -291,7 +272,7 @@ export function LeadCard({ lead, onCall, onWhatsApp, onEmail }: LeadCardProps) {
             className="w-full text-xs h-7 px-2 text-[#E65C37] hover:text-white hover:bg-[#E65C37] hover:border-[#E65C37] mt-2 transition-colors"
             onClick={handleDetailsClick}
           >
-            <span className="mr-1">📋</span>
+            <FileText className="h-3 w-3 mr-1" aria-hidden="true" />
             Ver detalles completos
           </Button>
         </CardContent>

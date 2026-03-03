@@ -5,13 +5,14 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { LeadCard } from './LeadCard'
 import { Badge } from '@/components/ui/badge'
 import { Lead } from '@/types/lead'
+import { LucideIcon, Inbox } from 'lucide-react'
 
 interface KanbanColumnProps {
   id: string
   title: string
   leads: Lead[]
   color: string
-  icon: string
+  icon: LucideIcon
   onCall?: (lead: Lead) => void
   onWhatsApp?: (lead: Lead) => void
   onEmail?: (lead: Lead) => void
@@ -27,6 +28,7 @@ export function KanbanColumn({
   onWhatsApp,
   onEmail
 }: KanbanColumnProps) {
+  const Icon = icon
   const { setNodeRef, isOver } = useDroppable({
     id: id,
   })
@@ -39,7 +41,7 @@ export function KanbanColumn({
       <div className={`${color} rounded-t-lg p-3 text-white`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-base">{icon}</span>
+            <Icon className="h-4 w-4" aria-hidden="true" />
             <h3 className="font-semibold text-xs">{title}</h3>
           </div>
           <Badge variant="secondary" className="bg-white/20 text-white text-xs">
@@ -63,7 +65,7 @@ export function KanbanColumn({
         <SortableContext items={leads.map(lead => lead.id)} strategy={verticalListSortingStrategy}>
           {leads.length === 0 ? (
             <div className="text-center text-gray-400 mt-8">
-              <div className="text-4xl mb-2">📭</div>
+              <Inbox className="h-10 w-10 mx-auto mb-2" aria-hidden="true" />
               <p className="text-sm">No hay leads en esta etapa</p>
             </div>
           ) : (

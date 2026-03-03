@@ -24,10 +24,16 @@ import {
   ArrowRight,
   Check,
   AlertCircle,
-  Trash2
+  Trash2,
+  Inbox,
+  PhoneCall,
+  RefreshCcw,
+  CircleCheck,
+  CircleX
 } from 'lucide-react'
 import { Lead, LeadsPorEtapa } from '@/types/lead'
 import { CreateLeadModal } from '@/components/CreateLeadModal'
+import { LucideIcon } from 'lucide-react'
 
 interface MobileCRMProps {
   leads: LeadsPorEtapa
@@ -39,12 +45,17 @@ interface MobileCRMProps {
 }
 
 const ETAPAS = [
-  { id: 'entrante', title: 'Entrante', icon: '📨', color: 'bg-blue-500' },
-  { id: 'primer-llamado', title: 'Primer Llamado', icon: '📞', color: 'bg-yellow-500' },
-  { id: 'seguimiento', title: 'Seguimiento', icon: '🔄', color: 'bg-purple-500' },
-  { id: 'ganado', title: 'Ganado', icon: '🎉', color: 'bg-green-500' },
-  { id: 'perdido', title: 'Perdido', icon: '❌', color: 'bg-red-500' }
-]
+  { id: 'entrante', title: 'Entrante', icon: Inbox, color: 'bg-blue-500' },
+  { id: 'primer-llamado', title: 'Primer Llamado', icon: PhoneCall, color: 'bg-yellow-500' },
+  { id: 'seguimiento', title: 'Seguimiento', icon: RefreshCcw, color: 'bg-purple-500' },
+  { id: 'ganado', title: 'Ganado', icon: CircleCheck, color: 'bg-green-500' },
+  { id: 'perdido', title: 'Perdido', icon: CircleX, color: 'bg-red-500' }
+] as const satisfies ReadonlyArray<{
+  id: keyof LeadsPorEtapa
+  title: string
+  icon: LucideIcon
+  color: string
+}>
 
 export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loading }: MobileCRMProps) {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
@@ -111,7 +122,7 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
       })
 
       if (response.ok) {
-        setUpdateMessage(`✅ Lead movido a ${getEtapaInfo(nuevaEtapa)?.title}`)
+        setUpdateMessage(`Lead movido a ${getEtapaInfo(nuevaEtapa)?.title}`)
         // Actualizar el lead seleccionado localmente
         setSelectedLead({
           ...selectedLead,
@@ -127,7 +138,7 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
       }
     } catch (error) {
       console.error('Error al cambiar etapa:', error)
-      setUpdateMessage('❌ Error al actualizar el lead')
+      setUpdateMessage('Error al actualizar el lead')
       setTimeout(() => setUpdateMessage(null), 3000)
     } finally {
       setUpdatingLead(false)
@@ -153,7 +164,7 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
       })
 
       if (response.ok) {
-        setUpdateMessage(`✅ Lead "${selectedLead.nombre}" eliminado correctamente`)
+        setUpdateMessage(`Lead "${selectedLead.nombre}" eliminado correctamente`)
         // Esperar un momento para mostrar el mensaje y luego volver a la lista
         setTimeout(() => {
           setSelectedLead(null)
@@ -165,7 +176,7 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
       }
     } catch (error) {
       console.error('Error al eliminar lead:', error)
-      setUpdateMessage('❌ Error al eliminar el lead')
+      setUpdateMessage('Error al eliminar el lead')
       setTimeout(() => setUpdateMessage(null), 3000)
     } finally {
       setDeletingLead(false)
@@ -266,7 +277,7 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
           <div className="bg-white border-b">
             <div className="px-4 py-3">
               <div className={`text-sm text-center p-2 rounded ${
-                updateMessage.startsWith('✅') 
+                !updateMessage.startsWith('Error')
                   ? 'bg-green-100 text-green-800' 
                   : 'bg-red-100 text-red-800'
               }`}>
@@ -291,7 +302,9 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
               <div>
                 <p className="text-sm font-medium text-gray-700 mb-2">Estado Actual:</p>
                 <div className="flex items-center gap-2 p-3 bg-white rounded-lg border">
-                  <span className="text-lg">{currentEtapaInfo?.icon}</span>
+                  {currentEtapaInfo?.icon ? (
+                    <currentEtapaInfo.icon className="h-5 w-5" aria-hidden="true" />
+                  ) : null}
                   <span className="font-medium">{currentEtapaInfo?.title}</span>
                 </div>
               </div>
@@ -309,7 +322,7 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
                       .map((etapa) => (
                         <SelectItem key={etapa.id} value={etapa.id}>
                           <div className="flex items-center gap-3">
-                            <span className="text-base">{etapa.icon}</span>
+                            <etapa.icon className="h-4 w-4" aria-hidden="true" />
                             <span className="font-medium">{etapa.title}</span>
                           </div>
                         </SelectItem>
@@ -358,10 +371,10 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
             <CardContent className="p-4">
               <h3 className="font-medium mb-2">Etapa Original</h3>
               <Badge variant="secondary" className={getEtapaColor(selectedLead.etapa)}>
-                {selectedLead.etapa === 'listo-primer-pedido' && '🎯 Listo para primer pedido'}
-                {selectedLead.etapa === 'empezar-pronto' && '⚡ Empezar pronto'}
-                {selectedLead.etapa === 'busco-mejor-proveedor' && '🔍 Busca mejor proveedor'}
-                {selectedLead.etapa === 'buscando-opciones' && '👀 Explorando opciones'}
+                {selectedLead.etapa === 'listo-primer-pedido' && 'Listo para primer pedido'}
+                {selectedLead.etapa === 'empezar-pronto' && 'Empezar pronto'}
+                {selectedLead.etapa === 'busco-mejor-proveedor' && 'Busca mejor proveedor'}
+                {selectedLead.etapa === 'buscando-opciones' && 'Explorando opciones'}
               </Badge>
             </CardContent>
           </Card>
@@ -384,7 +397,7 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
               <CardContent className="p-4">
                 <h3 className="font-medium mb-2">Notas del CRM</h3>
                 <p className="text-sm text-blue-600 bg-blue-50 p-3 rounded">
-                  📝 {selectedLead.notas}
+                  {selectedLead.notas}
                 </p>
               </CardContent>
             </Card>
@@ -530,7 +543,7 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
               value={etapa.id}
               className="flex flex-col gap-1 py-3 px-2 data-[state=active]:bg-gray-100"
             >
-              <span className="text-base">{etapa.icon}</span>
+              <etapa.icon className="h-4 w-4" aria-hidden="true" />
               <span className="text-xs font-medium truncate">{etapa.title}</span>
               <Badge variant="secondary" className="text-xs">
                 {leads[etapa.id as keyof LeadsPorEtapa].length}
@@ -548,7 +561,7 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
             <div className="p-4 space-y-3">
               {leads[etapa.id as keyof LeadsPorEtapa].length === 0 ? (
                 <div className="text-center py-12">
-                  <div className="text-4xl mb-3">{etapa.icon}</div>
+                  <etapa.icon className="h-10 w-10 mx-auto mb-3 text-gray-400" aria-hidden="true" />
                   <p className="text-gray-500">No hay leads en esta etapa</p>
                 </div>
               ) : (
@@ -586,10 +599,10 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
                       
                       <div className="flex items-center justify-between">
                         <Badge variant="secondary" className={`text-xs ${getEtapaColor(lead.etapa)}`}>
-                          {lead.etapa === 'listo-primer-pedido' && '🎯 Listo'}
-                          {lead.etapa === 'empezar-pronto' && '⚡ Pronto'}
-                          {lead.etapa === 'busco-mejor-proveedor' && '🔍 Busca'}
-                          {lead.etapa === 'buscando-opciones' && '👀 Explora'}
+                          {lead.etapa === 'listo-primer-pedido' && 'Listo'}
+                          {lead.etapa === 'empezar-pronto' && 'Pronto'}
+                          {lead.etapa === 'busco-mejor-proveedor' && 'Busca'}
+                          {lead.etapa === 'buscando-opciones' && 'Explora'}
                         </Badge>
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-gray-500">
