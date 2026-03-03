@@ -20,6 +20,22 @@ interface KanbanColumnProps {
   isAdmin?: boolean
   sellers?: CrmSeller[]
   onAssignSeller?: (leadId: string, sellerId: string | null) => Promise<void>
+  onUpdateLead?: (
+    leadId: string,
+    payload: {
+      nuevaEtapa?: string
+      motivoPerdido?: string
+      nombre?: string
+      negocio?: string
+      provincia?: string
+      localidad?: string
+      whatsapp?: string
+      email?: string
+      comentarios?: string
+      cantidad?: string
+      etapa?: string
+    }
+  ) => Promise<void>
 }
 
 export function KanbanColumn({ 
@@ -34,6 +50,7 @@ export function KanbanColumn({
   isAdmin = false,
   sellers = [],
   onAssignSeller,
+  onUpdateLead,
 }: KanbanColumnProps) {
   const Icon = icon
   const { setNodeRef, isOver } = useDroppable({
@@ -87,6 +104,7 @@ export function KanbanColumn({
                 isAdmin={isAdmin}
                 sellers={sellers}
                 onAssignSeller={onAssignSeller}
+                onUpdateLead={onUpdateLead}
               />
             ))
           )}

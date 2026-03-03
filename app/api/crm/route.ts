@@ -4,9 +4,18 @@ import { CrmRole, Prisma } from '@prisma/client'
 import { requireAuth } from '@/lib/auth'
 
 const CRM_ETAPAS = ['entrante', 'primer-llamado', 'seguimiento', 'ganado', 'perdido'] as const
+const LOST_REASONS = ['precio', 'minorista', 'en-otro-momento', 'pago-anticipado'] as const
+const LOST_REASON_LABELS: Record<(typeof LOST_REASONS)[number], string> = {
+  precio: 'Precio',
+  minorista: 'Minorista',
+  'en-otro-momento': 'En otro momento',
+  'pago-anticipado': 'Pago anticipado',
+}
 
 const isCrmEtapa = (value: unknown): value is (typeof CRM_ETAPAS)[number] =>
   typeof value === 'string' && CRM_ETAPAS.includes(value as (typeof CRM_ETAPAS)[number])
+const isLostReason = (value: unknown): value is (typeof LOST_REASONS)[number] =>
+  typeof value === 'string' && LOST_REASONS.includes(value as (typeof LOST_REASONS)[number])
 
 const parseJsonBody = async (request: NextRequest) => {
   try {
@@ -99,7 +108,23 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'JSON inválido' }, { status: 400 })
     }
 
-    const { leadId, nuevaEtapa, notas, valor, assignedToId } = body
+    const {
+      leadId,
+      nuevaEtapa,
+      notas,
+      valor,
+      assignedToId,
+      motivoPerdido,
+      nombre,
+      negocio,
+      provincia,
+      localidad,
+      whatsapp,
+      email,
+      comentarios,
+      cantidad,
+      etapa,
+    } = body
 
     if (typeof leadId !== 'string' || !leadId.trim()) {
       return NextResponse.json(
@@ -115,9 +140,30 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    if (nuevaEtapa === undefined && notas === undefined && valor === undefined && assignedToId === undefined) {
+    if (
+      nuevaEtapa === undefined &&
+      notas === undefined &&
+      valor === undefined &&
+      assignedToId === undefined &&
+      nombre === undefined &&
+      negocio === undefined &&
+      provincia === undefined &&
+      localidad === undefined &&
+      whatsapp === undefined &&
+      email === undefined &&
+      comentarios === undefined &&
+      cantidad === undefined &&
+      etapa === undefined
+    ) {
       return NextResponse.json(
         { error: 'No hay cambios para aplicar' },
+        { status: 400 }
+      )
+    }
+
+    if (nuevaEtapa === 'perdido' && !isLostReason(motivoPerdido)) {
+      return NextResponse.json(
+        { error: 'Motivo de perdido obligatorio e inválido' },
         { status: 400 }
       )
     }
@@ -135,6 +181,24 @@ export async function PUT(request: NextRequest) {
 
     const normalizedNotas =
       typeof notas === 'string' ? (notas.trim() ? notas.trim() : null) : undefined
+    const normalizedNombre =
+      typeof nombre === 'string' ? nombre.trim() : undefined
+    const normalizedNegocio =
+      typeof negocio === 'string' ? negocio.trim() : undefined
+    const normalizedProvincia =
+      typeof provincia === 'string' ? provincia.trim() : undefined
+    const normalizedLocalidad =
+      typeof localidad === 'string' ? localidad.trim() : undefined
+    const normalizedWhatsapp =
+      typeof whatsapp === 'string' ? whatsapp.trim() : undefined
+    const normalizedEmail =
+      typeof email === 'string' ? (email.trim() ? email.trim().toLowerCase() : null) : undefined
+    const normalizedComentarios =
+      typeof comentarios === 'string' ? (comentarios.trim() ? comentarios.trim() : null) : undefined
+    const normalizedCantidad =
+      typeof cantidad === 'string' ? cantidad.trim() : undefined
+    const normalizedEtapaCompra =
+      typeof etapa === 'string' ? etapa.trim() : undefined
 
     const trimmedLeadId = leadId.trim()
     const existingLead = await prisma.contactForm.findUnique({
@@ -142,6 +206,7 @@ export async function PUT(request: NextRequest) {
       select: {
         id: true,
         assignedToId: true,
+        notas: true,
       },
     })
 
@@ -195,13 +260,62 @@ export async function PUT(request: NextRequest) {
       }
     }
 
+    const requiredTextFields = [
+      { key: 'nombre', value: normalizedNombre },
+      { key: 'negocio', value: normalizedNegocio },
+      { key: 'provincia', value: normalizedProvincia },
+      { key: 'localidad', value: normalizedLocalidad },
+      { key: 'whatsapp', value: normalizedWhatsapp },
+      { key: 'cantidad', value: normalizedCantidad },
+      { key: 'etapa', value: normalizedEtapaCompra },
+    ]
+    const invalidField = requiredTextFields.find(
+      (field) => field.value !== undefined && field.value.length === 0
+    )
+    if (invalidField) {
+      return NextResponse.json(
+        { error: `${invalidField.key} no puede estar vacío` },
+        { status: 400 }
+      )
+    }
+
+    const stripLostReason = (value: string | null | undefined) => {
+      if (!value) return ''
+      return value
+        .replace(/\n?Motivo de perdido:\s*(Precio|Minorista|En otro momento|Pago anticipado)\.?/gi, '')
+        .trim()
+    }
+
+    let finalNotas: string | null | undefined = normalizedNotas
+    if (nuevaEtapa !== undefined) {
+      const notesBase =
+        normalizedNotas !== undefined ? normalizedNotas : (existingLead.notas ?? null)
+      const cleanedBase = stripLostReason(notesBase)
+
+      if (nuevaEtapa === 'perdido' && isLostReason(motivoPerdido)) {
+        const lostReasonLine = `Motivo de perdido: ${LOST_REASON_LABELS[motivoPerdido]}.`
+        finalNotas = cleanedBase ? `${cleanedBase}\n${lostReasonLine}` : lostReasonLine
+      } else if (nuevaEtapa !== 'perdido') {
+        finalNotas = cleanedBase || null
+      }
+    }
+
     const leadActualizado = await prisma.contactForm.update({
       where: { id: trimmedLeadId },
       data: {
         ...(nuevaEtapa !== undefined && { etapaCrm: nuevaEtapa }),
-        ...(normalizedNotas !== undefined && { notas: normalizedNotas }),
+        ...(finalNotas !== undefined && { notas: finalNotas }),
         ...(parsedValor !== undefined && { valor: parsedValor }),
         ...(normalizedAssignedToId !== undefined && { assignedToId: normalizedAssignedToId }),
+        ...(normalizedNombre !== undefined && { nombre: normalizedNombre }),
+        ...(normalizedNegocio !== undefined && { negocio: normalizedNegocio }),
+        ...(normalizedProvincia !== undefined && { provincia: normalizedProvincia }),
+        ...(normalizedLocalidad !== undefined && { localidad: normalizedLocalidad }),
+        ...(normalizedWhatsapp !== undefined && { whatsapp: normalizedWhatsapp }),
+        ...(normalizedEmail !== undefined && { email: normalizedEmail }),
+        ...(normalizedComentarios !== undefined && { comentarios: normalizedComentarios }),
+        ...(normalizedCantidad !== undefined && { cantidad: normalizedCantidad }),
+        ...(normalizedEtapaCompra !== undefined && { etapa: normalizedEtapaCompra }),
         updatedByUserId: auth.user.id,
         updatedAt: new Date()
       },

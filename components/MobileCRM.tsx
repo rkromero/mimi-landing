@@ -47,6 +47,22 @@ interface MobileCRMProps {
   onLogout: () => void
   onSellerCreated: () => void
   onAssignSeller: (leadId: string, sellerId: string | null) => Promise<void>
+  onUpdateLead?: (
+    leadId: string,
+    payload: {
+      nuevaEtapa?: string
+      motivoPerdido?: string
+      nombre?: string
+      negocio?: string
+      provincia?: string
+      localidad?: string
+      whatsapp?: string
+      email?: string
+      comentarios?: string
+      cantidad?: string
+      etapa?: string
+    }
+  ) => Promise<void>
   currentUserRole: CrmRole
   sellers: CrmSeller[]
   loading: boolean
@@ -94,6 +110,7 @@ export function MobileCRM({
   onLogout,
   onSellerCreated,
   onAssignSeller,
+  onUpdateLead,
   currentUserRole,
   sellers,
   loading,
@@ -152,36 +169,66 @@ export function MobileCRM({
   // Función para cambiar etapa de lead
   const handleEtapaChange = async (nuevaEtapa: string) => {
     if (!selectedLead || nuevaEtapa === selectedLead.etapaCrm) return
+    let motivoPerdido: string | undefined
+
+    if (nuevaEtapa === 'perdido') {
+      const answer = window.prompt(
+        'Elegí motivo de perdido:\n1) precio\n2) minorista\n3) en-otro-momento\n4) pago-anticipado',
+        'precio'
+      )
+      const value = (answer || '').trim().toLowerCase()
+      const allowed = ['precio', 'minorista', 'en-otro-momento', 'pago-anticipado']
+      if (!allowed.includes(value)) {
+        setUpdateMessage('Motivo inválido. Debe ser: precio, minorista, en-otro-momento o pago-anticipado')
+        setTimeout(() => setUpdateMessage(null), 3000)
+        return
+      }
+      motivoPerdido = value
+    }
     
     setUpdatingLead(true)
     setUpdateMessage(null)
     
     try {
-      const response = await fetch('/api/crm', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          leadId: selectedLead.id,
-          nuevaEtapa: nuevaEtapa,
-        }),
-      })
-
-      if (response.ok) {
+      if (onUpdateLead) {
+        await onUpdateLead(selectedLead.id, {
+          nuevaEtapa,
+          motivoPerdido,
+        })
         setUpdateMessage(`Lead movido a ${getEtapaInfo(nuevaEtapa)?.title}`)
-        // Actualizar el lead seleccionado localmente
         setSelectedLead({
           ...selectedLead,
           etapaCrm: nuevaEtapa
         })
-        // Refrescar los datos después de un breve delay
         setTimeout(() => {
           onRefresh()
           setUpdateMessage(null)
         }, 1500)
       } else {
-        throw new Error('Error al actualizar')
+        const response = await fetch('/api/crm', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            leadId: selectedLead.id,
+            nuevaEtapa,
+            motivoPerdido,
+          }),
+        })
+
+        if (!response.ok) {
+          throw new Error('Error al actualizar')
+        }
+        setUpdateMessage(`Lead movido a ${getEtapaInfo(nuevaEtapa)?.title}`)
+        setSelectedLead({
+          ...selectedLead,
+          etapaCrm: nuevaEtapa
+        })
+        setTimeout(() => {
+          onRefresh()
+          setUpdateMessage(null)
+        }, 1500)
       }
     } catch (error) {
       console.error('Error al cambiar etapa:', error)

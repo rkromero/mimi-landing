@@ -8,10 +8,13 @@ import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Phone, MessageCircle, Mail, MapPin, Package, Calendar, DollarSign, User, Building, Clock, MessageSquare, FileText, ArrowRight } from 'lucide-react'
-import { useState } from 'react'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Phone, MessageCircle, Mail, MapPin, Calendar, User, ArrowRight, Save } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Lead } from '@/types/lead'
 import { CrmSeller } from '@/types/auth'
+import { toast } from '@/hooks/use-toast'
 
 interface LeadCardProps {
   lead: Lead
@@ -21,9 +24,49 @@ interface LeadCardProps {
   isAdmin?: boolean
   sellers?: CrmSeller[]
   onAssignSeller?: (leadId: string, sellerId: string | null) => Promise<void>
+  onUpdateLead?: (
+    leadId: string,
+    payload: {
+      nuevaEtapa?: string
+      motivoPerdido?: string
+      nombre?: string
+      negocio?: string
+      provincia?: string
+      localidad?: string
+      whatsapp?: string
+      email?: string
+      comentarios?: string
+      cantidad?: string
+      etapa?: string
+    }
+  ) => Promise<void>
 }
 
 const UNASSIGNED_OPTION = '__UNASSIGNED__'
+const LOST_REASON_OPTIONS = [
+  { value: 'precio', label: 'Precio' },
+  { value: 'minorista', label: 'Minorista' },
+  { value: 'en-otro-momento', label: 'En otro momento' },
+  { value: 'pago-anticipado', label: 'Pago anticipado' },
+] as const
+const CRM_STAGE_OPTIONS = [
+  { value: 'entrante', label: 'Entrante' },
+  { value: 'primer-llamado', label: 'Primer llamado' },
+  { value: 'seguimiento', label: 'Seguimiento' },
+  { value: 'ganado', label: 'Ganado' },
+  { value: 'perdido', label: 'Perdido' },
+] as const
+const PURCHASE_STAGE_OPTIONS = [
+  { value: 'buscando-opciones', label: 'Estoy buscando opciones, sin apuro' },
+  { value: 'empezar-pronto', label: 'Me interesa empezar pronto' },
+  { value: 'listo-primer-pedido', label: 'Estoy listo para hacer mi primer pedido' },
+  { value: 'busco-mejor-proveedor', label: 'Ya vendo alfajores y busco mejor proveedor' },
+] as const
+const VOLUME_OPTIONS = [
+  { value: 'menos-24', label: 'Menos de 24 docenas' },
+  { value: '24-100', label: 'Entre 24 y 100 docenas' },
+  { value: 'mas-100', label: 'Más de 100 docenas' },
+] as const
 
 export function LeadCard({
   lead,
@@ -33,9 +76,24 @@ export function LeadCard({
   isAdmin = false,
   sellers = [],
   onAssignSeller,
+  onUpdateLead,
 }: LeadCardProps) {
   const [showDetails, setShowDetails] = useState(false)
   const [assigningSeller, setAssigningSeller] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [crmStage, setCrmStage] = useState(lead.etapaCrm)
+  const [lostReason, setLostReason] = useState('')
+  const [formData, setFormData] = useState({
+    nombre: lead.nombre,
+    negocio: lead.negocio,
+    provincia: lead.provincia,
+    localidad: lead.localidad,
+    whatsapp: lead.whatsapp,
+    email: lead.email ?? '',
+    comentarios: lead.comentarios ?? '',
+    cantidad: lead.cantidad,
+    etapa: lead.etapa,
+  })
   
   const {
     attributes,
@@ -74,44 +132,71 @@ export function LeadCard({
     }
   }
 
-  const getCantidadText = (cantidad?: string) => {
-    switch (cantidad) {
-      case 'menos-24':
-        return '< 24 doc'
-      case '24-100':
-        return '24-100 doc'
-      case 'mas-100':
-        return '> 100 doc'
-      default:
-        return 'No especificado'
-    }
+  const inferLostReason = (notes?: string) => {
+    if (!notes) return ''
+    if (notes.includes('Motivo de perdido: Precio')) return 'precio'
+    if (notes.includes('Motivo de perdido: Minorista')) return 'minorista'
+    if (notes.includes('Motivo de perdido: En otro momento')) return 'en-otro-momento'
+    if (notes.includes('Motivo de perdido: Pago anticipado')) return 'pago-anticipado'
+    return ''
   }
 
-  const getCantidadTextFull = (cantidad?: string) => {
-    switch (cantidad) {
-      case 'menos-24':
-        return 'Menos de 24 docenas'
-      case '24-100':
-        return 'Entre 24 y 100 docenas'
-      case 'mas-100':
-        return 'Más de 100 docenas'
-      default:
-        return 'No especificado'
-    }
-  }
+  useEffect(() => {
+    if (!showDetails) return
+    setCrmStage(lead.etapaCrm)
+    setLostReason(inferLostReason(lead.notas))
+    setFormData({
+      nombre: lead.nombre,
+      negocio: lead.negocio,
+      provincia: lead.provincia,
+      localidad: lead.localidad,
+      whatsapp: lead.whatsapp,
+      email: lead.email ?? '',
+      comentarios: lead.comentarios ?? '',
+      cantidad: lead.cantidad,
+      etapa: lead.etapa,
+    })
+  }, [showDetails, lead])
 
-  const getEtapaText = (etapa: string) => {
-    switch (etapa) {
-      case 'listo-primer-pedido':
-        return 'Listo para primer pedido'
-      case 'empezar-pronto':
-        return 'Empezar pronto'
-      case 'busco-mejor-proveedor':
-        return 'Busca mejor proveedor'
-      case 'buscando-opciones':
-        return 'Explorando opciones'
-      default:
-        return etapa
+  const handleSave = async () => {
+    if (!onUpdateLead) return
+    if (!formData.nombre.trim() || !formData.negocio.trim() || !formData.provincia.trim() || !formData.localidad.trim() || !formData.whatsapp.trim()) {
+      toast({
+        title: 'Faltan campos obligatorios',
+        description: 'Nombre, negocio, provincia, localidad y WhatsApp son obligatorios.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    if (crmStage === 'perdido' && !lostReason) {
+      toast({
+        title: 'Motivo obligatorio',
+        description: 'Para marcar un lead como perdido debes indicar un motivo.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    try {
+      setSaving(true)
+      await onUpdateLead(lead.id, {
+        ...formData,
+        nuevaEtapa: crmStage,
+        motivoPerdido: crmStage === 'perdido' ? lostReason : undefined,
+      })
+      toast({
+        title: 'Lead actualizado',
+        description: 'Los cambios se guardaron correctamente.',
+      })
+    } catch (error) {
+      toast({
+        title: 'No se pudo guardar',
+        description: error instanceof Error ? error.message : 'Error inesperado',
+        variant: 'destructive',
+      })
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -181,25 +266,64 @@ export function LeadCard({
       <Sheet open={showDetails} onOpenChange={setShowDetails}>
         <SheetContent
           side="right"
-          className="w-full sm:max-w-2xl max-h-screen overflow-y-auto border-white/10 bg-[#0b1020] text-slate-100"
+          className="w-full sm:max-w-2xl max-h-screen overflow-y-auto bg-gradient-to-b from-[#fff7f2] to-white text-gray-900 border-[#f4d8cb]"
         >
-          <SheetHeader className="pb-4 border-b border-white/10">
-            <SheetTitle className="flex items-center gap-3 text-xl text-slate-100">
+          <SheetHeader className="pb-4 border-b border-[#f3e2d8]">
+            <SheetTitle className="flex items-center gap-3 text-xl text-gray-900">
               <div className="w-10 h-10 bg-gradient-to-r from-[#E65C37] to-orange-500 rounded-full flex items-center justify-center">
                 <User className="h-5 w-5 text-white" />
               </div>
               <div>
-                <div className="font-bold text-slate-100">{lead.nombre}</div>
-                <div className="text-sm text-slate-400 font-normal">{lead.negocio}</div>
+                <div className="font-bold text-gray-900">{lead.nombre}</div>
+                <div className="text-sm text-gray-600 font-normal">{lead.negocio}</div>
               </div>
             </SheetTitle>
           </SheetHeader>
           
           <div className="space-y-6 py-4">
-            {isAdmin && onAssignSeller ? (
-              <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+            <div className="bg-white border border-[#f3e2d8] rounded-xl p-5 shadow-sm">
+              <h3 className="text-base font-semibold text-gray-900 mb-4">Gestión del lead</h3>
+              <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-slate-300">Vendedor asignado</Label>
+                  <Label className="text-gray-700">Etapa CRM</Label>
+                  <Select value={crmStage} onValueChange={setCrmStage}>
+                    <SelectTrigger className="h-11 border-[#f0cbb9] focus-visible:ring-[#E65C37]">
+                      <SelectValue placeholder="Seleccionar etapa" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CRM_STAGE_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {crmStage === 'perdido' ? (
+                  <div className="space-y-2">
+                    <Label className="text-gray-700">Motivo de perdido *</Label>
+                    <Select value={lostReason} onValueChange={setLostReason}>
+                      <SelectTrigger className="h-11 border-[#f0cbb9] focus-visible:ring-[#E65C37]">
+                        <SelectValue placeholder="Seleccionar motivo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {LOST_REASON_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+
+            {isAdmin && onAssignSeller ? (
+              <div className="bg-white border border-[#f3e2d8] rounded-xl p-5 shadow-sm">
+                <div className="space-y-2">
+                  <Label className="text-gray-700">Vendedor asignado</Label>
                   <Select
                     value={lead.assignedToId ?? UNASSIGNED_OPTION}
                     onValueChange={async (value) => {
@@ -213,10 +337,10 @@ export function LeadCard({
                     }}
                     disabled={assigningSeller}
                   >
-                    <SelectTrigger className="bg-[#10182b] border-white/10 text-slate-100">
+                    <SelectTrigger className="h-11 border-[#f0cbb9] focus-visible:ring-[#E65C37]">
                       <SelectValue placeholder="Seleccionar vendedor" />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#10182b] border-white/10 text-slate-100">
+                    <SelectContent>
                       <SelectItem value={UNASSIGNED_OPTION}>Sin asignar</SelectItem>
                       {sellers.map((seller) => (
                         <SelectItem key={seller.id} value={seller.id}>
@@ -229,150 +353,151 @@ export function LeadCard({
               </div>
             ) : null}
 
-            <div className="bg-gradient-to-r from-[#E65C37] to-orange-500 text-white rounded-xl p-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                      <MapPin className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <div className="text-sm opacity-90">Ubicación</div>
-                      <div className="font-semibold">{lead.provincia}, {lead.localidad}</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                      <Package className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <div className="text-sm opacity-90">Volumen estimado</div>
-                      <div className="font-semibold">{getCantidadTextFull(lead.cantidad)}</div>
-                    </div>
-                  </div>
+            <div className="bg-gradient-to-r from-[#E65C37] to-[#66CCDA] text-white rounded-xl p-5 shadow-sm">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs opacity-90">Lead desde</p>
+                  <p className="font-semibold">{formatDate(lead.createdAt)}</p>
                 </div>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                      <Clock className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <div className="text-sm opacity-90">Etapa de compra</div>
-                      <div className="font-semibold">{getEtapaText(lead.etapa)}</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                      <Calendar className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <div className="text-sm opacity-90">Fecha de registro</div>
-                      <div className="font-semibold">{formatDate(lead.createdAt)}</div>
-                    </div>
-                  </div>
+                <div>
+                  <p className="text-xs opacity-90">Etapa actual</p>
+                  <p className="font-semibold capitalize">{crmStage.replace('-', ' ')}</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
-                <div className="w-6 h-6 bg-blue-500/20 rounded-full flex items-center justify-center">
-                  <Phone className="h-3 w-3 text-blue-300" />
-                </div>
-                Información de contacto
-              </h3>
+            <div className="bg-white border border-[#f3e2d8] rounded-xl p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Editar contacto</h3>
               <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 bg-green-500/10 rounded-lg border border-green-400/20">
-                    <MessageCircle className="h-5 w-5 text-green-300" />
-                    <div>
-                      <div className="text-sm text-slate-400">WhatsApp</div>
-                      <div className="font-medium text-slate-100">{lead.whatsapp}</div>
-                    </div>
-                  </div>
-                  {lead.email && (
-                    <div className="flex items-center gap-3 p-3 bg-blue-500/10 rounded-lg border border-blue-400/20">
-                      <Mail className="h-5 w-5 text-blue-300" />
-                      <div>
-                        <div className="text-sm text-slate-400">Email</div>
-                        <div className="font-medium text-slate-100">{lead.email}</div>
-                      </div>
-                    </div>
-                  )}
+                <div className="space-y-2">
+                  <Label htmlFor={`lead-nombre-${lead.id}`}>Nombre *</Label>
+                  <Input
+                    id={`lead-nombre-${lead.id}`}
+                    value={formData.nombre}
+                    onChange={(event) => setFormData((prev) => ({ ...prev, nombre: event.target.value }))}
+                    className="h-11 border-[#f0cbb9] focus-visible:ring-[#E65C37]"
+                  />
                 </div>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg border border-white/10">
-                    <Building className="h-5 w-5 text-slate-400" />
-                    <div>
-                      <div className="text-sm text-slate-400">Negocio</div>
-                      <div className="font-medium text-slate-100">{lead.negocio}</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg border border-white/10">
-                    <MapPin className="h-5 w-5 text-slate-400" />
-                    <div>
-                      <div className="text-sm text-slate-400">Ubicación</div>
-                      <div className="font-medium text-slate-100">{lead.provincia}, {lead.localidad}</div>
-                    </div>
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor={`lead-negocio-${lead.id}`}>Negocio *</Label>
+                  <Input
+                    id={`lead-negocio-${lead.id}`}
+                    value={formData.negocio}
+                    onChange={(event) => setFormData((prev) => ({ ...prev, negocio: event.target.value }))}
+                    className="h-11 border-[#f0cbb9] focus-visible:ring-[#E65C37]"
+                  />
                 </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`lead-whatsapp-${lead.id}`}>WhatsApp *</Label>
+                  <Input
+                    id={`lead-whatsapp-${lead.id}`}
+                    value={formData.whatsapp}
+                    onChange={(event) => setFormData((prev) => ({ ...prev, whatsapp: event.target.value }))}
+                    className="h-11 border-[#f0cbb9] focus-visible:ring-[#E65C37]"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor={`lead-email-${lead.id}`}>Email</Label>
+                  <Input
+                    id={`lead-email-${lead.id}`}
+                    type="email"
+                    value={formData.email}
+                    onChange={(event) => setFormData((prev) => ({ ...prev, email: event.target.value }))}
+                    className="h-11 border-[#f0cbb9] focus-visible:ring-[#66CCDA]"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`lead-provincia-${lead.id}`}>Provincia *</Label>
+                  <Input
+                    id={`lead-provincia-${lead.id}`}
+                    value={formData.provincia}
+                    onChange={(event) => setFormData((prev) => ({ ...prev, provincia: event.target.value }))}
+                    className="h-11 border-[#f0cbb9] focus-visible:ring-[#66CCDA]"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor={`lead-localidad-${lead.id}`}>Localidad *</Label>
+                  <Input
+                    id={`lead-localidad-${lead.id}`}
+                    value={formData.localidad}
+                    onChange={(event) => setFormData((prev) => ({ ...prev, localidad: event.target.value }))}
+                    className="h-11 border-[#f0cbb9] focus-visible:ring-[#66CCDA]"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Volumen estimado *</Label>
+                  <Select value={formData.cantidad} onValueChange={(value) => setFormData((prev) => ({ ...prev, cantidad: value }))}>
+                    <SelectTrigger className="h-11 border-[#f0cbb9] focus-visible:ring-[#66CCDA]">
+                      <SelectValue placeholder="Seleccionar volumen" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {VOLUME_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Etapa de compra *</Label>
+                  <Select value={formData.etapa} onValueChange={(value) => setFormData((prev) => ({ ...prev, etapa: value }))}>
+                    <SelectTrigger className="h-11 border-[#f0cbb9] focus-visible:ring-[#66CCDA]">
+                      <SelectValue placeholder="Seleccionar etapa de compra" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PURCHASE_STAGE_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="mt-4 space-y-2">
+                <Label htmlFor={`lead-comentarios-${lead.id}`}>Comentarios del cliente</Label>
+                <Textarea
+                  id={`lead-comentarios-${lead.id}`}
+                  value={formData.comentarios}
+                  onChange={(event) => setFormData((prev) => ({ ...prev, comentarios: event.target.value }))}
+                  className="min-h-[96px] border-[#f0cbb9] focus-visible:ring-[#66CCDA]"
+                />
               </div>
             </div>
 
-            {lead.comentarios && (
-              <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
-                  <div className="w-6 h-6 bg-orange-500/20 rounded-full flex items-center justify-center">
-                    <MessageSquare className="h-3 w-3 text-orange-300" />
-                  </div>
-                  Comentarios del cliente
-                </h3>
-                <div className="bg-orange-500/10 border-l-4 border-orange-400 p-4 rounded-lg">
-                  <p className="text-slate-100 italic leading-relaxed">"{lead.comentarios}"</p>
-                </div>
-              </div>
-            )}
-
-            {lead.notas && (
-              <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
-                  <div className="w-6 h-6 bg-purple-500/20 rounded-full flex items-center justify-center">
-                    <MessageSquare className="h-3 w-3 text-purple-300" />
-                  </div>
-                  Notas del equipo
-                </h3>
-                <div className="bg-purple-500/10 border-l-4 border-purple-400 p-4 rounded-lg">
-                  <p className="text-slate-100 leading-relaxed">{lead.notas}</p>
-                </div>
-              </div>
-            )}
-
-            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-slate-100 mb-4">Acciones rápidas</h3>
+            <div className="bg-white border border-[#f3e2d8] rounded-xl p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Acciones rápidas</h3>
               <div className="flex flex-wrap gap-3">
-                <Button
-                  onClick={() => onCall?.(lead)}
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3"
-                >
+                <Button onClick={() => onCall?.(lead)} className="bg-green-600 hover:bg-green-700 text-white px-6 py-3">
                   <Phone className="h-4 w-4 mr-2" />
-                  Llamar ahora
+                  Llamar
                 </Button>
-                <Button
-                  onClick={() => onWhatsApp?.(lead)}
-                  className="bg-green-500 hover:bg-green-600 text-white px-6 py-3"
-                >
+                <Button onClick={() => onWhatsApp?.(lead)} className="bg-green-500 hover:bg-green-600 text-white px-6 py-3">
                   <MessageCircle className="h-4 w-4 mr-2" />
                   WhatsApp
                 </Button>
-                {lead.email && (
-                  <Button
-                    onClick={() => onEmail?.(lead)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3"
-                  >
+                {lead.email ? (
+                  <Button onClick={() => onEmail?.(lead)} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3">
                     <Mail className="h-4 w-4 mr-2" />
-                    Enviar email
+                    Email
                   </Button>
-                )}
+                ) : null}
+                {onUpdateLead ? (
+                  <Button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="ml-auto bg-[#E65C37] hover:bg-[#d9532f] text-white px-6 py-3"
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    {saving ? 'Guardando...' : 'Guardar cambios'}
+                  </Button>
+                ) : null}
               </div>
             </div>
           </div>

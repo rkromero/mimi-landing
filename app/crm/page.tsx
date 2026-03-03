@@ -228,6 +228,39 @@ export default function CRMPage() {
     await cargarLeads()
   }
 
+  const handleUpdateLead = async (
+    leadId: string,
+    payload: {
+      nuevaEtapa?: string
+      motivoPerdido?: string
+      nombre?: string
+      negocio?: string
+      provincia?: string
+      localidad?: string
+      whatsapp?: string
+      email?: string
+      comentarios?: string
+      cantidad?: string
+      etapa?: string
+    }
+  ) => {
+    const response = await fetch('/api/crm', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        leadId,
+        ...payload,
+      }),
+    })
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}))
+      throw new Error(data.error || 'No se pudo actualizar el lead')
+    }
+
+    await cargarLeads()
+  }
+
   // Manejar inicio de drag
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string)
@@ -277,6 +310,16 @@ export default function CRMPage() {
 
     if (fromColumn === toColumn) {
       setActiveId(null)
+      return
+    }
+
+    if (toColumn === 'perdido') {
+      setActiveId(null)
+      toast({
+        title: 'Motivo obligatorio para perdido',
+        description: 'Para mover a perdido, abrí el lead y elegí el motivo en el panel derecho.',
+        variant: 'destructive',
+      })
       return
     }
 
@@ -419,6 +462,7 @@ Equipo MIMI`)
         onLogout={handleLogout}
         onSellerCreated={handleSellerCreated}
         onAssignSeller={handleAssignSeller}
+        onUpdateLead={handleUpdateLead}
         currentUserRole={currentUser?.role || 'VENDEDOR'}
         sellers={sellers}
         loading={loading}
@@ -599,6 +643,7 @@ Equipo MIMI`)
                     isAdmin={isAdmin}
                     sellers={sellers}
                     onAssignSeller={handleAssignSeller}
+                    onUpdateLead={handleUpdateLead}
                   />
                 ))}
               </div>
@@ -611,6 +656,7 @@ Equipo MIMI`)
                       isAdmin={isAdmin}
                       sellers={sellers}
                       onAssignSeller={handleAssignSeller}
+                      onUpdateLead={handleUpdateLead}
                     />
                   </div>
                 ) : null}
