@@ -347,11 +347,11 @@ export default function CRMPage() {
         l => l.id !== activeId
       )
 
-      // Agregar a la columna destino
+      // Agregar a la columna destino (siempre al principio)
       const updatedLead = { ...leadToMove!, etapaCrm: toColumn }
       newLeads[toColumn as keyof LeadsPorEtapa] = [
+        updatedLead,
         ...newLeads[toColumn as keyof LeadsPorEtapa],
-        updatedLead
       ]
 
       return newLeads

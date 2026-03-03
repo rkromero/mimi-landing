@@ -121,7 +121,7 @@ export function LeadCard({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.4 : 1,
   }
 
   const formatDate = (dateString: string) => {
@@ -225,16 +225,13 @@ export function LeadCard({
       <Card
         ref={setNodeRef}
         style={style}
-        className={`mb-3 border-white/5 bg-[#0f172a]/40 backdrop-blur-sm text-slate-100 hover:border-brand-orange/30 hover:bg-[#1e293b]/60 transition-all duration-300 group cursor-pointer ${isDragging ? 'shadow-2xl ring-2 ring-brand-orange/50 scale-[1.02] z-50' : 'shadow-md hover:shadow-brand-orange/10'
+        {...attributes}
+        {...listeners}
+        className={`mb-3 border-white/5 bg-[#0f172a]/40 backdrop-blur-sm text-slate-100 hover:border-brand-orange/30 hover:bg-[#1e293b]/60 transition-all duration-300 group cursor-grab active:cursor-grabbing ${isDragging ? 'shadow-2xl ring-2 ring-brand-orange/50 scale-[1.02] z-50 cursor-grabbing' : 'shadow-md hover:shadow-brand-orange/10'
           }`}
       >
-        {/* Área de drag and drop */}
-        <div
-          {...attributes}
-          {...listeners}
-          className="cursor-grab active:cursor-grabbing p-2 flex justify-center"
-          onClick={(e) => e.stopPropagation()}
-        >
+        {/* Indicador visual de drag */}
+        <div className="pt-2 pb-0 flex justify-center">
           <div className="w-8 h-1 bg-white/10 rounded-full group-hover:bg-brand-orange/40 transition-colors"></div>
         </div>
         <CardContent className="p-3 cursor-pointer" onClick={handleDetailsClick}>
