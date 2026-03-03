@@ -20,6 +20,7 @@ interface KanbanColumnProps {
   isAdmin?: boolean
   sellers?: CrmSeller[]
   onAssignSeller?: (leadId: string, sellerId: string | null) => Promise<void>
+  onDeleteLead?: (leadId: string) => Promise<void>
   onUpdateLead?: (
     leadId: string,
     payload: {
@@ -50,6 +51,7 @@ export function KanbanColumn({
   isAdmin = false,
   sellers = [],
   onAssignSeller,
+  onDeleteLead,
   onUpdateLead,
 }: KanbanColumnProps) {
   const Icon = icon
@@ -104,6 +106,7 @@ export function KanbanColumn({
                 isAdmin={isAdmin}
                 sellers={sellers}
                 onAssignSeller={onAssignSeller}
+                onDeleteLead={onDeleteLead}
                 onUpdateLead={onUpdateLead}
               />
             ))

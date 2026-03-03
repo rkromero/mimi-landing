@@ -5,12 +5,23 @@ import { CSS } from '@dnd-kit/utilities'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Phone, MessageCircle, Mail, MapPin, Calendar, User, ArrowRight, Save } from 'lucide-react'
+import { Phone, MessageCircle, Mail, MapPin, Calendar, User, ArrowRight, Save, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Lead } from '@/types/lead'
 import { CrmSeller } from '@/types/auth'
@@ -24,6 +35,7 @@ interface LeadCardProps {
   isAdmin?: boolean
   sellers?: CrmSeller[]
   onAssignSeller?: (leadId: string, sellerId: string | null) => Promise<void>
+  onDeleteLead?: (leadId: string) => Promise<void>
   onUpdateLead?: (
     leadId: string,
     payload: {
@@ -76,10 +88,12 @@ export function LeadCard({
   isAdmin = false,
   sellers = [],
   onAssignSeller,
+  onDeleteLead,
   onUpdateLead,
 }: LeadCardProps) {
   const [showDetails, setShowDetails] = useState(false)
   const [assigningSeller, setAssigningSeller] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [saving, setSaving] = useState(false)
   const [crmStage, setCrmStage] = useState(lead.etapaCrm)
   const [lostReason, setLostReason] = useState('')
@@ -229,8 +243,65 @@ export function LeadCard({
               <h3 className="font-semibold text-sm text-slate-100 truncate">{lead.nombre}</h3>
               <p className="text-xs text-slate-400 truncate">{lead.negocio}</p>
             </div>
-            <div className="text-[11px] text-slate-300 bg-white/10 px-2 py-0.5 rounded">
-              {lead.valor ? `$${lead.valor.toLocaleString()}` : 'Sin valor'}
+            <div className="flex items-center gap-1.5">
+              {isAdmin && onDeleteLead ? (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label={`Eliminar lead ${lead.nombre}`}
+                      className="h-6 w-6 rounded-md border border-red-400/30 bg-red-500/10 text-red-300 hover:bg-red-500/20 hover:text-red-200 transition-colors flex items-center justify-center"
+                      onClick={(event) => {
+                        event.preventDefault()
+                        event.stopPropagation()
+                      }}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="bg-[#0f162d] border-white/10 text-slate-100">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Eliminar lead</AlertDialogTitle>
+                      <AlertDialogDescription className="text-slate-300">
+                        ¿Seguro que querés eliminar a <span className="font-medium text-slate-100">{lead.nombre}</span>?
+                        Esta acción no se puede deshacer.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel className="border-white/15 bg-white/5 text-slate-100 hover:bg-white/10">
+                        Cancelar
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-red-600 hover:bg-red-700 text-white"
+                        disabled={deleting}
+                        onClick={async () => {
+                          try {
+                            setDeleting(true)
+                            await onDeleteLead(lead.id)
+                            toast({
+                              title: 'Lead eliminado',
+                              description: 'Se eliminó correctamente.',
+                            })
+                          } catch (error) {
+                            toast({
+                              title: 'No se pudo eliminar',
+                              description: error instanceof Error ? error.message : 'Error inesperado',
+                              variant: 'destructive',
+                            })
+                          } finally {
+                            setDeleting(false)
+                          }
+                        }}
+                      >
+                        {deleting ? 'Eliminando...' : 'Eliminar'}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              ) : null}
+              <div className="text-[11px] text-slate-300 bg-white/10 px-2 py-0.5 rounded">
+                {lead.valor ? `$${lead.valor.toLocaleString()}` : 'Sin valor'}
+              </div>
             </div>
           </div>
 

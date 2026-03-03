@@ -261,6 +261,21 @@ export default function CRMPage() {
     await cargarLeads()
   }
 
+  const handleDeleteLead = async (leadId: string) => {
+    const response = await fetch('/api/crm', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ leadId }),
+    })
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}))
+      throw new Error(data.error || 'No se pudo eliminar el lead')
+    }
+
+    await cargarLeads()
+  }
+
   // Manejar inicio de drag
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string)
@@ -481,8 +496,6 @@ Equipo MIMI`)
     )
   }
 
-  const conversionNumeric = Number(conversionRate)
-
   return (
     <div className="h-screen overflow-hidden bg-gradient-to-b from-[#050814] to-[#070d1f] text-slate-100">
       <div className="flex h-full">
@@ -534,6 +547,22 @@ Equipo MIMI`)
             </div>
             <div className="flex items-center gap-2 shrink-0">
               {isAdmin ? (
+                <Select value={sellerFilter} onValueChange={setSellerFilter}>
+                  <SelectTrigger className="w-[220px] h-9 bg-[#0b1328] border-slate-700 text-slate-100">
+                    <SelectValue placeholder="Filtrar por vendedor" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#0b1328] border-slate-700 text-slate-200">
+                    <SelectItem value="all">Todos los vendedores</SelectItem>
+                    <SelectItem value={UNASSIGNED_OPTION}>Sin asignar</SelectItem>
+                    {sellers.map((seller) => (
+                      <SelectItem key={seller.id} value={seller.id}>
+                        {seller.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : null}
+              {isAdmin ? (
                 <CreateSellerModal
                   onSellerCreated={handleSellerCreated}
                   triggerClassName="h-9 border-slate-600 bg-[#1b2a52] text-slate-100 hover:bg-[#24386d]"
@@ -555,42 +584,6 @@ Equipo MIMI`)
           </div>
 
           <div className="flex-1 min-h-0 overflow-hidden px-4 md:px-6 py-4 flex flex-col gap-4">
-            <div className="grid grid-cols-1 xl:grid-cols-[1fr_auto] gap-3">
-              <div className="rounded-xl border border-slate-800/80 bg-[#0b1328] p-4">
-                <h1 className="text-2xl font-semibold tracking-tight text-slate-100">CRM</h1>
-                <p className="text-sm text-slate-400 mt-1">
-                  {totalLeads} leads · {visibleLeads.ganado.length} ganados
-                  {currentUser ? ` · ${currentUser.name}` : ''}
-                </p>
-                <div className="mt-3 flex items-center justify-between rounded-lg border border-slate-800 bg-[#0a1020] px-3 py-2">
-                  <div>
-                    <p className="text-sm font-medium text-slate-200">Embudo de ventas</p>
-                    <p className="text-xs text-slate-500">{totalLeads} leads · {conversionRate}% conversión</p>
-                  </div>
-                  <span className="text-xs px-2 py-1 rounded-md bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
-                    {conversionNumeric >= 10 ? 'Saludable' : 'En crecimiento'}
-                  </span>
-                </div>
-              </div>
-
-              {isAdmin ? (
-                <Select value={sellerFilter} onValueChange={setSellerFilter}>
-                  <SelectTrigger className="w-full xl:w-[260px] h-11 bg-[#0b1328] border-slate-700 text-slate-100">
-                    <SelectValue placeholder="Filtrar por vendedor" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-[#0b1328] border-slate-700 text-slate-200">
-                    <SelectItem value="all">Todos los vendedores</SelectItem>
-                    <SelectItem value={UNASSIGNED_OPTION}>Sin asignar</SelectItem>
-                    {sellers.map((seller) => (
-                      <SelectItem key={seller.id} value={seller.id}>
-                        {seller.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : null}
-            </div>
-
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <Card className="bg-[#0b1328] border-slate-800/80 text-slate-100">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
@@ -646,6 +639,7 @@ Equipo MIMI`)
                     isAdmin={isAdmin}
                     sellers={sellers}
                     onAssignSeller={handleAssignSeller}
+                    onDeleteLead={handleDeleteLead}
                     onUpdateLead={handleUpdateLead}
                   />
                 ))}
@@ -659,6 +653,7 @@ Equipo MIMI`)
                       isAdmin={isAdmin}
                       sellers={sellers}
                       onAssignSeller={handleAssignSeller}
+                      onDeleteLead={handleDeleteLead}
                       onUpdateLead={handleUpdateLead}
                     />
                   </div>
