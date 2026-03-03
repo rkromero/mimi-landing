@@ -5,16 +5,23 @@ import { getAuthUserFromRequest, requireAuth } from '@/lib/auth'
 import { Resend } from 'resend'
 import { createEmailTemplate } from '@/lib/email-template'
 
+const ASSIGNMENT_WINDOW_DAYS = 30
+
 const pickBalancedSellerId = async (
   tx: Prisma.TransactionClient,
   sellerIds: string[]
 ) => {
   if (sellerIds.length === 0) return null
 
+  // Solo contar leads de los últimos N días para ignorar el historial total
+  const since = new Date()
+  since.setDate(since.getDate() - ASSIGNMENT_WINDOW_DAYS)
+
   const grouped = await tx.contactForm.groupBy({
     by: ['assignedToId'],
     where: {
       assignedToId: { in: sellerIds },
+      createdAt: { gte: since },
     },
     _count: { _all: true },
   })
@@ -31,6 +38,7 @@ const pickBalancedSellerId = async (
   const candidates = sellerIds.filter((sellerId) => (counts.get(sellerId) ?? 0) === minCount)
   return candidates[Math.floor(Math.random() * candidates.length)] ?? null
 }
+
 
 export async function POST(request: NextRequest) {
   try {
@@ -105,19 +113,19 @@ export async function POST(request: NextRequest) {
         // No fallar si el email falla, el formulario ya se guardó
       }
     }
-    
+
     return NextResponse.json(
-      { 
-        message: 'Formulario enviado exitosamente', 
+      {
+        message: 'Formulario enviado exitosamente',
         id: contactForm.id,
-        esBajoVolumen 
+        esBajoVolumen
       },
       { status: 201 }
     )
   } catch (error) {
     console.error('Error al procesar formulario:', error)
     return NextResponse.json(
-      { 
+      {
         error: 'Error interno del servidor',
         details: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString()
