@@ -484,8 +484,8 @@ Equipo MIMI`)
   const conversionNumeric = Number(conversionRate)
 
   return (
-    <div className="min-h-screen bg-[#070a13] text-slate-100">
-      <div className="flex min-h-screen">
+    <div className="h-screen overflow-hidden bg-gradient-to-b from-[#050814] to-[#070d1f] text-slate-100">
+      <div className="flex h-full">
         <aside className="hidden lg:flex w-64 flex-col border-r border-white/10 bg-[#080c1a]">
           <div className="h-14 px-4 border-b border-white/10 flex items-center gap-2">
             <div className="w-2.5 h-2.5 rounded-full bg-indigo-400" />
@@ -523,57 +523,62 @@ Equipo MIMI`)
           </div>
         </aside>
 
-        <main className="flex-1 min-w-0">
-          <div className="h-14 border-b border-white/10 bg-[#080c1a]/70 backdrop-blur px-4 md:px-6 flex items-center justify-between gap-3">
+        <main className="flex-1 min-w-0 h-full overflow-hidden flex flex-col">
+          <div className="h-14 border-b border-white/10 bg-[#0a1123]/85 backdrop-blur px-4 md:px-6 flex items-center justify-between gap-3">
             <div className="relative w-full max-w-sm">
               <Search className="h-4 w-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
               <Input
-                className="pl-9 bg-white/5 border-white/10 text-slate-200 placeholder:text-slate-500 h-9"
+                className="pl-9 bg-[#0f1932] border-slate-700/60 text-slate-100 placeholder:text-slate-500 h-9"
                 placeholder="Buscar..."
               />
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              {isAdmin ? <CreateSellerModal onSellerCreated={handleSellerCreated} /> : null}
-              <CreateLeadModal onLeadCreated={refreshData} />
-              <Button onClick={refreshData} variant="outline" className="border-white/15 bg-white/5 text-slate-100 hover:bg-white/10">
+              {isAdmin ? (
+                <CreateSellerModal
+                  onSellerCreated={handleSellerCreated}
+                  triggerClassName="h-9 border-slate-600 bg-[#1b2a52] text-slate-100 hover:bg-[#24386d]"
+                />
+              ) : null}
+              <CreateLeadModal
+                onLeadCreated={refreshData}
+                triggerClassName="h-9 bg-[#0ea56b] hover:bg-[#0b8a59] text-white"
+              />
+              <Button
+                onClick={refreshData}
+                variant="outline"
+                className="h-9 border-slate-600 bg-[#101a34] text-slate-100 hover:bg-[#162345]"
+              >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Actualizar
               </Button>
             </div>
           </div>
 
-          <div className="px-4 md:px-6 py-5">
-            <div className="mb-5">
-              <h1 className="text-2xl font-bold text-slate-100">CRM</h1>
-              <p className="text-sm text-slate-400">
-                {totalLeads} leads · {visibleLeads.ganado.length} ganados
-                {currentUser ? ` · ${currentUser.name}` : ''}
-              </p>
-            </div>
-
-            <div className="mb-5 border border-white/10 bg-[#0b1020] rounded-xl p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-100">Embudo de ventas</p>
-                  <p className="text-xs text-slate-400">
-                    {totalLeads} leads · {conversionRate}% conversión
-                  </p>
+          <div className="flex-1 min-h-0 overflow-hidden px-4 md:px-6 py-4 flex flex-col gap-4">
+            <div className="grid grid-cols-1 xl:grid-cols-[1fr_auto] gap-3">
+              <div className="rounded-xl border border-slate-800/80 bg-[#0b1328] p-4">
+                <h1 className="text-2xl font-semibold tracking-tight text-slate-100">CRM</h1>
+                <p className="text-sm text-slate-400 mt-1">
+                  {totalLeads} leads · {visibleLeads.ganado.length} ganados
+                  {currentUser ? ` · ${currentUser.name}` : ''}
+                </p>
+                <div className="mt-3 flex items-center justify-between rounded-lg border border-slate-800 bg-[#0a1020] px-3 py-2">
+                  <div>
+                    <p className="text-sm font-medium text-slate-200">Embudo de ventas</p>
+                    <p className="text-xs text-slate-500">{totalLeads} leads · {conversionRate}% conversión</p>
+                  </div>
+                  <span className="text-xs px-2 py-1 rounded-md bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                    {conversionNumeric >= 10 ? 'Saludable' : 'En crecimiento'}
+                  </span>
                 </div>
-                <span className="text-xs px-2 py-1 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
-                  {conversionNumeric >= 10 ? 'Saludable' : 'En crecimiento'}
-                </span>
               </div>
-            </div>
-          </div>
 
-          {isAdmin ? (
-            <div className="px-4 md:px-6 pb-4">
-              <div className="w-full max-w-sm">
+              {isAdmin ? (
                 <Select value={sellerFilter} onValueChange={setSellerFilter}>
-                  <SelectTrigger className="bg-[#0b1020] border-white/10 text-slate-200">
+                  <SelectTrigger className="w-full xl:w-[260px] h-11 bg-[#0b1328] border-slate-700 text-slate-100">
                     <SelectValue placeholder="Filtrar por vendedor" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#0b1020] border-white/10 text-slate-200">
+                  <SelectContent className="bg-[#0b1328] border-slate-700 text-slate-200">
                     <SelectItem value="all">Todos los vendedores</SelectItem>
                     <SelectItem value={UNASSIGNED_OPTION}>Sin asignar</SelectItem>
                     {sellers.map((seller) => (
@@ -583,41 +588,39 @@ Equipo MIMI`)
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              ) : null}
             </div>
-          ) : null}
 
-          <div className="px-4 md:px-6 pb-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
-              <Card className="bg-[#0b1020] border-white/10 text-slate-100">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs font-medium text-slate-300">Total Leads</CardTitle>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <Card className="bg-[#0b1328] border-slate-800/80 text-slate-100">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+                  <CardTitle className="text-xs font-medium text-slate-400">Total Leads</CardTitle>
                   <Users className="h-4 w-4 text-slate-500" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{totalLeads}</div>
+                <CardContent className="pt-1">
+                  <div className="text-xl font-semibold">{totalLeads}</div>
                   <p className="text-xs text-slate-500">leads activos</p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-[#0b1020] border-white/10 text-slate-100">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs font-medium text-slate-300">Valor Total</CardTitle>
+              <Card className="bg-[#0b1328] border-slate-800/80 text-slate-100">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+                  <CardTitle className="text-xs font-medium text-slate-400">Valor Total</CardTitle>
                   <BarChart3 className="h-4 w-4 text-slate-500" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">${totalValue.toLocaleString()}</div>
+                <CardContent className="pt-1">
+                  <div className="text-xl font-semibold">${totalValue.toLocaleString()}</div>
                   <p className="text-xs text-slate-500">valor estimado</p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-[#0b1020] border-white/10 text-slate-100">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs font-medium text-slate-300">Conversión</CardTitle>
+              <Card className="bg-[#0b1328] border-slate-800/80 text-slate-100">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
+                  <CardTitle className="text-xs font-medium text-slate-400">Conversión</CardTitle>
                   <TrendingUp className="h-4 w-4 text-slate-500" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{conversionRate}%</div>
+                <CardContent className="pt-1">
+                  <div className="text-xl font-semibold">{conversionRate}%</div>
                   <p className="text-xs text-slate-500">tasa de conversión</p>
                 </CardContent>
               </Card>
@@ -628,7 +631,7 @@ Equipo MIMI`)
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
             >
-              <div className="grid grid-cols-1 xl:grid-cols-5 gap-3 h-[calc(100vh-320px)] min-h-[520px]">
+              <div className="grid grid-cols-1 xl:grid-cols-5 gap-3 flex-1 min-h-0 overflow-hidden">
                 {COLUMNAS.map((columna) => (
                   <KanbanColumn
                     key={columna.id}

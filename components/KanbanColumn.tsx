@@ -60,16 +60,16 @@ export function KanbanColumn({
   const totalValue = leads.reduce((sum, lead) => sum + (lead.valor || 0), 0)
 
   return (
-    <div className="flex flex-col h-full rounded-xl border border-white/10 bg-[#0b1020] overflow-hidden">
+    <div className="flex flex-col h-full min-h-0 rounded-xl border border-slate-800/80 bg-[#0b1328] overflow-hidden shadow-[0_8px_24px_rgba(0,0,0,0.24)]">
       {/* Header de la columna */}
-      <div className="p-3 text-white border-b border-white/10 bg-[#0d1325]">
+      <div className="p-3 text-white border-b border-slate-800/80 bg-[#0a1020]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className={`w-2 h-2 rounded-full ${color}`} />
             <Icon className="h-3.5 w-3.5 text-slate-300" aria-hidden="true" />
             <h3 className="font-medium text-xs tracking-wide text-slate-200">{title}</h3>
           </div>
-          <Badge variant="secondary" className="bg-white/10 text-slate-200 border border-white/10 text-[10px]">
+          <Badge variant="secondary" className="bg-slate-700/30 text-slate-200 border border-slate-700/60 text-[10px]">
             {leads.length}
           </Badge>
         </div>
@@ -83,8 +83,8 @@ export function KanbanColumn({
       {/* Área de drop */}
       <div
         ref={setNodeRef}
-        className={`flex-1 p-3 min-h-[400px] max-h-[600px] overflow-y-auto transition-colors ${
-          isOver ? 'bg-indigo-500/10' : 'bg-[#0b1020]'
+        className={`flex-1 min-h-0 p-3 overflow-y-auto crm-scrollbar transition-colors ${
+          isOver ? 'bg-indigo-500/10' : 'bg-[#0b1328]'
         }`}
       >
         <SortableContext items={leads.map(lead => lead.id)} strategy={verticalListSortingStrategy}>

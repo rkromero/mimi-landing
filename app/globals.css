@@ -116,3 +116,29 @@ body {
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
 }
+
+/* Scrollbar premium para CRM (discreta y moderna) */
+.crm-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+}
+
+.crm-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.crm-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.crm-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.28);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.crm-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.45);
+  background-clip: padding-box;
+}
