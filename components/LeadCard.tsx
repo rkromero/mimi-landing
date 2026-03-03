@@ -335,31 +335,31 @@ export function LeadCard({
       <Sheet open={showDetails} onOpenChange={setShowDetails}>
         <SheetContent
           side="right"
-          className="w-full sm:max-w-2xl max-h-screen overflow-y-auto bg-gradient-to-b from-[#fff7f2] to-white text-gray-900 border-[#f4d8cb]"
+          className="w-full sm:max-w-2xl max-h-screen overflow-y-auto bg-[#0b1328] text-slate-100 border-white/10"
         >
-          <SheetHeader className="pb-4 border-b border-[#f3e2d8]">
-            <SheetTitle className="flex items-center gap-3 text-xl text-gray-900">
+          <SheetHeader className="pb-4 border-b border-white/10">
+            <SheetTitle className="flex items-center gap-3 text-xl text-slate-100">
               <div className="w-10 h-10 bg-gradient-to-r from-[#E65C37] to-orange-500 rounded-full flex items-center justify-center">
                 <User className="h-5 w-5 text-white" />
               </div>
               <div>
-                <div className="font-bold text-gray-900">{lead.nombre}</div>
-                <div className="text-sm text-gray-600 font-normal">{lead.negocio}</div>
+                <div className="font-bold text-slate-100">{lead.nombre}</div>
+                <div className="text-sm text-slate-400 font-normal">{lead.negocio}</div>
               </div>
             </SheetTitle>
           </SheetHeader>
           
           <div className="space-y-6 py-4">
-            <div className="bg-white border border-[#f3e2d8] rounded-xl p-5 shadow-sm">
-              <h3 className="text-base font-semibold text-gray-900 mb-4">Gestión del lead</h3>
+            <div className="bg-[#0f1a34] border border-white/10 rounded-xl p-5">
+              <h3 className="text-base font-semibold text-slate-100 mb-4">Gestión del lead</h3>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-gray-700">Etapa CRM</Label>
+                  <Label className="text-slate-300">Etapa CRM</Label>
                   <Select value={crmStage} onValueChange={setCrmStage}>
-                    <SelectTrigger className="h-11 border-[#f0cbb9] focus-visible:ring-[#E65C37]">
+                    <SelectTrigger className="h-11 bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400">
                       <SelectValue placeholder="Seleccionar etapa" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-[#0b1328] border-white/10 text-slate-100">
                       {CRM_STAGE_OPTIONS.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
                           {option.label}
@@ -371,12 +371,12 @@ export function LeadCard({
 
                 {crmStage === 'perdido' ? (
                   <div className="space-y-2">
-                    <Label className="text-gray-700">Motivo de perdido *</Label>
+                    <Label className="text-slate-300">Motivo de perdido *</Label>
                     <Select value={lostReason} onValueChange={setLostReason}>
-                      <SelectTrigger className="h-11 border-[#f0cbb9] focus-visible:ring-[#E65C37]">
+                      <SelectTrigger className="h-11 bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400">
                         <SelectValue placeholder="Seleccionar motivo" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-[#0b1328] border-white/10 text-slate-100">
                         {LOST_REASON_OPTIONS.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
                             {option.label}
@@ -390,9 +390,9 @@ export function LeadCard({
             </div>
 
             {isAdmin && onAssignSeller ? (
-              <div className="bg-white border border-[#f3e2d8] rounded-xl p-5 shadow-sm">
+              <div className="bg-[#0f1a34] border border-white/10 rounded-xl p-5">
                 <div className="space-y-2">
-                  <Label className="text-gray-700">Vendedor asignado</Label>
+                  <Label className="text-slate-300">Vendedor asignado</Label>
                   <Select
                     value={lead.assignedToId ?? UNASSIGNED_OPTION}
                     onValueChange={async (value) => {
@@ -406,10 +406,10 @@ export function LeadCard({
                     }}
                     disabled={assigningSeller}
                   >
-                    <SelectTrigger className="h-11 border-[#f0cbb9] focus-visible:ring-[#E65C37]">
+                    <SelectTrigger className="h-11 bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400">
                       <SelectValue placeholder="Seleccionar vendedor" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-[#0b1328] border-white/10 text-slate-100">
                       <SelectItem value={UNASSIGNED_OPTION}>Sin asignar</SelectItem>
                       {sellers.map((seller) => (
                         <SelectItem key={seller.id} value={seller.id}>
@@ -422,7 +422,7 @@ export function LeadCard({
               </div>
             ) : null}
 
-            <div className="bg-gradient-to-r from-[#E65C37] to-[#66CCDA] text-white rounded-xl p-5 shadow-sm">
+            <div className="bg-gradient-to-r from-[#1a2550] to-[#1a2f5f] text-white rounded-xl p-5 border border-indigo-400/20">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs opacity-90">Lead desde</p>
@@ -435,8 +435,8 @@ export function LeadCard({
               </div>
             </div>
 
-            <div className="bg-white border border-[#f3e2d8] rounded-xl p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Editar contacto</h3>
+            <div className="bg-[#0f1a34] border border-white/10 rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-slate-100 mb-4">Editar contacto</h3>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor={`lead-nombre-${lead.id}`}>Nombre *</Label>
@@ -444,7 +444,7 @@ export function LeadCard({
                     id={`lead-nombre-${lead.id}`}
                     value={formData.nombre}
                     onChange={(event) => setFormData((prev) => ({ ...prev, nombre: event.target.value }))}
-                    className="h-11 border-[#f0cbb9] focus-visible:ring-[#E65C37]"
+                    className="h-11 bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400"
                   />
                 </div>
                 <div className="space-y-2">
@@ -453,7 +453,7 @@ export function LeadCard({
                     id={`lead-negocio-${lead.id}`}
                     value={formData.negocio}
                     onChange={(event) => setFormData((prev) => ({ ...prev, negocio: event.target.value }))}
-                    className="h-11 border-[#f0cbb9] focus-visible:ring-[#E65C37]"
+                    className="h-11 bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400"
                   />
                 </div>
 
@@ -463,7 +463,7 @@ export function LeadCard({
                     id={`lead-whatsapp-${lead.id}`}
                     value={formData.whatsapp}
                     onChange={(event) => setFormData((prev) => ({ ...prev, whatsapp: event.target.value }))}
-                    className="h-11 border-[#f0cbb9] focus-visible:ring-[#E65C37]"
+                    className="h-11 bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400"
                   />
                 </div>
                 <div className="space-y-2">
@@ -473,7 +473,7 @@ export function LeadCard({
                     type="email"
                     value={formData.email}
                     onChange={(event) => setFormData((prev) => ({ ...prev, email: event.target.value }))}
-                    className="h-11 border-[#f0cbb9] focus-visible:ring-[#66CCDA]"
+                    className="h-11 bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400"
                   />
                 </div>
 
@@ -483,7 +483,7 @@ export function LeadCard({
                     id={`lead-provincia-${lead.id}`}
                     value={formData.provincia}
                     onChange={(event) => setFormData((prev) => ({ ...prev, provincia: event.target.value }))}
-                    className="h-11 border-[#f0cbb9] focus-visible:ring-[#66CCDA]"
+                    className="h-11 bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400"
                   />
                 </div>
                 <div className="space-y-2">
@@ -492,17 +492,17 @@ export function LeadCard({
                     id={`lead-localidad-${lead.id}`}
                     value={formData.localidad}
                     onChange={(event) => setFormData((prev) => ({ ...prev, localidad: event.target.value }))}
-                    className="h-11 border-[#f0cbb9] focus-visible:ring-[#66CCDA]"
+                    className="h-11 bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label>Volumen estimado *</Label>
                   <Select value={formData.cantidad} onValueChange={(value) => setFormData((prev) => ({ ...prev, cantidad: value }))}>
-                    <SelectTrigger className="h-11 border-[#f0cbb9] focus-visible:ring-[#66CCDA]">
+                    <SelectTrigger className="h-11 bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400">
                       <SelectValue placeholder="Seleccionar volumen" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-[#0b1328] border-white/10 text-slate-100">
                       {VOLUME_OPTIONS.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
                           {option.label}
@@ -515,10 +515,10 @@ export function LeadCard({
                 <div className="space-y-2">
                   <Label>Etapa de compra *</Label>
                   <Select value={formData.etapa} onValueChange={(value) => setFormData((prev) => ({ ...prev, etapa: value }))}>
-                    <SelectTrigger className="h-11 border-[#f0cbb9] focus-visible:ring-[#66CCDA]">
+                    <SelectTrigger className="h-11 bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400">
                       <SelectValue placeholder="Seleccionar etapa de compra" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-[#0b1328] border-white/10 text-slate-100">
                       {PURCHASE_STAGE_OPTIONS.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
                           {option.label}
@@ -535,13 +535,13 @@ export function LeadCard({
                   id={`lead-comentarios-${lead.id}`}
                   value={formData.comentarios}
                   onChange={(event) => setFormData((prev) => ({ ...prev, comentarios: event.target.value }))}
-                  className="min-h-[96px] border-[#f0cbb9] focus-visible:ring-[#66CCDA]"
+                  className="min-h-[96px] bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400"
                 />
               </div>
             </div>
 
-            <div className="bg-white border border-[#f3e2d8] rounded-xl p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Acciones rápidas</h3>
+            <div className="bg-[#0f1a34] border border-white/10 rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-slate-100 mb-4">Acciones rápidas</h3>
               <div className="flex flex-wrap gap-3">
                 <Button onClick={() => onCall?.(lead)} className="bg-green-600 hover:bg-green-700 text-white px-6 py-3">
                   <Phone className="h-4 w-4 mr-2" />
@@ -561,7 +561,7 @@ export function LeadCard({
                   <Button
                     onClick={handleSave}
                     disabled={saving}
-                    className="ml-auto bg-[#E65C37] hover:bg-[#d9532f] text-white px-6 py-3"
+                    className="ml-auto bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3"
                   >
                     <Save className="h-4 w-4 mr-2" />
                     {saving ? 'Guardando...' : 'Guardar cambios'}
