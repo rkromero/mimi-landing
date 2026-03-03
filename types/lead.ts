@@ -12,6 +12,9 @@ export interface Lead {
   comentarios?: string
   notas?: string
   valor?: number
+  assignedToId?: string | null
+  assignedToName?: string | null
+  assignedToEmail?: string | null
   createdAt: string
   updatedAt: string
 }

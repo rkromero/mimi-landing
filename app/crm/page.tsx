@@ -1,18 +1,21 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCorners } from '@dnd-kit/core'
 import { KanbanColumn } from '@/components/KanbanColumn'
 import { LeadCard } from '@/components/LeadCard'
 import { MobileCRM } from '@/components/MobileCRM'
 import { useMobile } from '@/hooks/use-mobile'
 import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from '@/hooks/use-toast'
 import {
   RefreshCw,
   BarChart3,
   Users,
   TrendingUp,
+  LogOut,
   Inbox,
   PhoneCall,
   RefreshCcw,
@@ -22,7 +25,9 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Lead, LeadsPorEtapa } from '@/types/lead'
 import { CreateLeadModal } from '@/components/CreateLeadModal'
+import { CreateSellerModal } from '@/components/CreateSellerModal'
 import { LucideIcon } from 'lucide-react'
+import { CrmAuthUser, CrmSeller } from '@/types/auth'
 
 type CrmEtapaId = keyof LeadsPorEtapa
 
@@ -70,37 +75,153 @@ const normalizePhone = (phone: string) => {
   return cleaned.startsWith('54') ? cleaned : `54${cleaned}`
 }
 
+const UNASSIGNED_OPTION = '__UNASSIGNED__'
+
+const emptyLeads = (): LeadsPorEtapa => ({
+  entrante: [],
+  'primer-llamado': [],
+  seguimiento: [],
+  ganado: [],
+  perdido: [],
+})
+
+const filterLeadsBySeller = (leads: LeadsPorEtapa, sellerFilter: string): LeadsPorEtapa => {
+  if (sellerFilter === 'all') return leads
+
+  const isUnassigned = sellerFilter === UNASSIGNED_OPTION
+  const filterColumn = (columnLeads: Lead[]) =>
+    columnLeads.filter((lead) =>
+      isUnassigned ? !lead.assignedToId : lead.assignedToId === sellerFilter
+    )
+
+  return {
+    entrante: filterColumn(leads.entrante),
+    'primer-llamado': filterColumn(leads['primer-llamado']),
+    seguimiento: filterColumn(leads.seguimiento),
+    ganado: filterColumn(leads.ganado),
+    perdido: filterColumn(leads.perdido),
+  }
+}
+
 export default function CRMPage() {
+  const router = useRouter()
   const isMobile = useMobile()
-  const [leads, setLeads] = useState<LeadsPorEtapa>({
-    entrante: [],
-    'primer-llamado': [],
-    seguimiento: [],
-    ganado: [],
-    perdido: []
-  })
+  const [currentUser, setCurrentUser] = useState<CrmAuthUser | null>(null)
+  const [sellers, setSellers] = useState<CrmSeller[]>([])
+  const [sellerFilter, setSellerFilter] = useState('all')
+  const [leads, setLeads] = useState<LeadsPorEtapa>(emptyLeads())
   const [activeId, setActiveId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // Cargar leads
+  const isAdmin = currentUser?.role === 'ADMIN'
+  const visibleLeads = useMemo(
+    () => (isAdmin ? filterLeadsBySeller(leads, sellerFilter) : leads),
+    [isAdmin, leads, sellerFilter]
+  )
+
   const cargarLeads = async () => {
+    const response = await fetch('/api/crm')
+    if (!response.ok) {
+      throw new Error('No se pudo cargar el CRM')
+    }
+    const data = await response.json()
+    setLeads(data)
+  }
+
+  const cargarVendedores = async () => {
+    const response = await fetch('/api/users')
+    if (!response.ok) {
+      throw new Error('No se pudo cargar vendedores')
+    }
+    const data = await response.json()
+    setSellers(data.users || [])
+  }
+
+  useEffect(() => {
+    const bootstrap = async () => {
+      try {
+        setLoading(true)
+        const meResponse = await fetch('/api/auth/me')
+        if (!meResponse.ok) {
+          router.replace('/crm/login')
+          return
+        }
+
+        const meData = await meResponse.json()
+        const user = meData.user as CrmAuthUser
+        setCurrentUser(user)
+
+        const requests: Promise<unknown>[] = [cargarLeads()]
+        if (user.role === 'ADMIN') {
+          requests.push(cargarVendedores())
+        }
+        await Promise.all(requests)
+      } catch (error) {
+        console.error('Error inicializando CRM:', error)
+        toast({
+          title: 'No se pudo cargar CRM',
+          description: 'Intenta nuevamente en unos segundos.',
+          variant: 'destructive',
+        })
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    void bootstrap()
+  }, [router])
+
+  const refreshData = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/crm')
-      if (response.ok) {
-        const data = await response.json()
-        setLeads(data)
+      const requests: Promise<unknown>[] = [cargarLeads()]
+      if (isAdmin) {
+        requests.push(cargarVendedores())
       }
+      await Promise.all(requests)
     } catch (error) {
-      console.error('Error al cargar leads:', error)
+      console.error('Error refrescando CRM:', error)
+      toast({
+        title: 'No se pudo actualizar',
+        description: 'Revisa tu conexion e intenta otra vez.',
+        variant: 'destructive',
+      })
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => {
-    cargarLeads()
-  }, [])
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' })
+    } finally {
+      router.replace('/crm/login')
+      router.refresh()
+    }
+  }
+
+  const handleSellerCreated = async () => {
+    if (!isAdmin) return
+    await refreshData()
+  }
+
+  const handleAssignSeller = async (leadId: string, sellerId: string | null) => {
+    const response = await fetch('/api/crm', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        leadId,
+        assignedToId: sellerId,
+      }),
+    })
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}))
+      throw new Error(data.error || 'No se pudo asignar vendedor')
+    }
+
+    await cargarLeads()
+  }
 
   // Manejar inicio de drag
   const handleDragStart = (event: DragStartEvent) => {
@@ -193,7 +314,7 @@ export default function CRMPage() {
     } catch (error) {
       console.error('Error al actualizar lead:', error)
       // Revertir cambios si falla
-      cargarLeads()
+      await cargarLeads()
       toast({
         title: 'No se pudo mover el lead',
         description: 'Hubo un error al guardar el cambio de etapa.',
@@ -277,19 +398,24 @@ Equipo MIMI`)
   }
 
   // Calcular estadísticas
-  const totalLeads = Object.values(leads).reduce((sum, columnLeads) => sum + columnLeads.length, 0)
-  const totalValue = Object.values(leads).flat().reduce((sum, lead) => sum + (lead.valor || 0), 0)
-  const conversionRate = totalLeads > 0 ? ((leads.ganado.length / totalLeads) * 100).toFixed(1) : '0'
+  const totalLeads = Object.values(visibleLeads).reduce((sum, columnLeads) => sum + columnLeads.length, 0)
+  const totalValue = Object.values(visibleLeads).flat().reduce((sum, lead) => sum + (lead.valor || 0), 0)
+  const conversionRate = totalLeads > 0 ? ((visibleLeads.ganado.length / totalLeads) * 100).toFixed(1) : '0'
 
   // Renderizado condicional: móvil vs desktop
   if (isMobile) {
     return (
       <MobileCRM
-        leads={leads}
+        leads={visibleLeads}
         onCall={handleCall}
         onWhatsApp={handleWhatsApp}
         onEmail={handleEmail}
-        onRefresh={cargarLeads}
+        onRefresh={refreshData}
+        onLogout={handleLogout}
+        onSellerCreated={handleSellerCreated}
+        onAssignSeller={handleAssignSeller}
+        currentUserRole={currentUser?.role || 'VENDEDOR'}
+        sellers={sellers}
         loading={loading}
       />
     )
@@ -315,18 +441,49 @@ Equipo MIMI`)
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">CRM MIMI</h1>
-              <p className="text-gray-600">Gestión de Leads y Oportunidades</p>
+              <p className="text-gray-600">
+                Gestión de Leads y Oportunidades
+                {currentUser ? ` · ${currentUser.name}` : ''}
+              </p>
             </div>
             <div className="flex items-center space-x-3">
-              <CreateLeadModal onLeadCreated={cargarLeads} />
-              <Button onClick={cargarLeads} variant="outline">
+              {isAdmin ? <CreateSellerModal onSellerCreated={handleSellerCreated} /> : null}
+              <CreateLeadModal onLeadCreated={refreshData} />
+              <Button onClick={refreshData} variant="outline">
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Actualizar
+              </Button>
+              <Button onClick={handleLogout} variant="outline">
+                <LogOut className="h-4 w-4 mr-2" />
+                Salir
               </Button>
             </div>
           </div>
         </div>
       </div>
+
+      {isAdmin ? (
+        <div className="bg-white border-b">
+          <div className="max-w-7xl mx-auto px-4 py-3">
+            <div className="w-full max-w-sm">
+              <Select value={sellerFilter} onValueChange={setSellerFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Filtrar por vendedor" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los vendedores</SelectItem>
+                  <SelectItem value={UNASSIGNED_OPTION}>Sin asignar</SelectItem>
+                  {sellers.map((seller) => (
+                    <SelectItem key={seller.id} value={seller.id}>
+                      {seller.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {/* Estadísticas */}
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -377,12 +534,15 @@ Equipo MIMI`)
                 <KanbanColumn
                   id={columna.id}
                   title={columna.title}
-                  leads={leads[columna.id as keyof LeadsPorEtapa]}
+                  leads={visibleLeads[columna.id as keyof LeadsPorEtapa]}
                   color={columna.color}
                   icon={columna.icon}
                   onCall={handleCall}
                   onWhatsApp={handleWhatsApp}
                   onEmail={handleEmail}
+                  isAdmin={isAdmin}
+                  sellers={sellers}
+                  onAssignSeller={handleAssignSeller}
                 />
               </div>
             ))}
@@ -391,7 +551,12 @@ Equipo MIMI`)
           <DragOverlay>
             {activeId ? (
               <div className="opacity-90 rotate-3 scale-105">
-                <LeadCard lead={getActiveLead()!} />
+                <LeadCard
+                  lead={getActiveLead()!}
+                  isAdmin={isAdmin}
+                  sellers={sellers}
+                  onAssignSeller={handleAssignSeller}
+                />
               </div>
             ) : null}
           </DragOverlay>

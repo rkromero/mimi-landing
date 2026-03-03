@@ -1,8 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { CrmRole } from '@prisma/client'
+import { requireAuth } from '@/lib/auth'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { error } = await requireAuth(request, [CrmRole.ADMIN])
+    if (error) return error
+
+    if (process.env.ENABLE_DB_ADMIN_ENDPOINTS !== 'true') {
+      return NextResponse.json(
+        { error: 'Endpoint deshabilitado en este entorno' },
+        { status: 403 }
+      )
+    }
+
     console.log('🔄 Actualizando estructura de base de datos...')
     
     // Intentar agregar las nuevas columnas

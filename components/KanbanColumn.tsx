@@ -6,6 +6,7 @@ import { LeadCard } from './LeadCard'
 import { Badge } from '@/components/ui/badge'
 import { Lead } from '@/types/lead'
 import { LucideIcon, Inbox } from 'lucide-react'
+import { CrmSeller } from '@/types/auth'
 
 interface KanbanColumnProps {
   id: string
@@ -16,6 +17,9 @@ interface KanbanColumnProps {
   onCall?: (lead: Lead) => void
   onWhatsApp?: (lead: Lead) => void
   onEmail?: (lead: Lead) => void
+  isAdmin?: boolean
+  sellers?: CrmSeller[]
+  onAssignSeller?: (leadId: string, sellerId: string | null) => Promise<void>
 }
 
 export function KanbanColumn({ 
@@ -26,7 +30,10 @@ export function KanbanColumn({
   icon,
   onCall,
   onWhatsApp,
-  onEmail
+  onEmail,
+  isAdmin = false,
+  sellers = [],
+  onAssignSeller,
 }: KanbanColumnProps) {
   const Icon = icon
   const { setNodeRef, isOver } = useDroppable({
@@ -76,6 +83,9 @@ export function KanbanColumn({
                 onCall={onCall}
                 onWhatsApp={onWhatsApp}
                 onEmail={onEmail}
+                isAdmin={isAdmin}
+                sellers={sellers}
+                onAssignSeller={onAssignSeller}
               />
             ))
           )}

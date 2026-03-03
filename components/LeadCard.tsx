@@ -6,19 +6,36 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Phone, MessageCircle, Mail, MapPin, Package, Calendar, DollarSign, User, Building, X, Clock, MessageSquare, FileText } from 'lucide-react'
 import { useState } from 'react'
 import { Lead } from '@/types/lead'
+import { CrmSeller } from '@/types/auth'
 
 interface LeadCardProps {
   lead: Lead
   onCall?: (lead: Lead) => void
   onWhatsApp?: (lead: Lead) => void
   onEmail?: (lead: Lead) => void
+  isAdmin?: boolean
+  sellers?: CrmSeller[]
+  onAssignSeller?: (leadId: string, sellerId: string | null) => Promise<void>
 }
 
-export function LeadCard({ lead, onCall, onWhatsApp, onEmail }: LeadCardProps) {
+const UNASSIGNED_OPTION = '__UNASSIGNED__'
+
+export function LeadCard({
+  lead,
+  onCall,
+  onWhatsApp,
+  onEmail,
+  isAdmin = false,
+  sellers = [],
+  onAssignSeller,
+}: LeadCardProps) {
   const [showDetails, setShowDetails] = useState(false)
+  const [assigningSeller, setAssigningSeller] = useState(false)
   
   const {
     attributes,
@@ -160,6 +177,12 @@ export function LeadCard({ lead, onCall, onWhatsApp, onEmail }: LeadCardProps) {
               <span>{getCantidadText(lead.cantidad)}</span>
             </div>
           </div>
+
+          {lead.assignedToName ? (
+            <div className="text-xs text-gray-600 mb-2">
+              Asignado a: <span className="font-medium text-gray-800">{lead.assignedToName}</span>
+            </div>
+          ) : null}
 
           {/* Etapa original */}
           <Badge variant="secondary" className={`text-xs mb-2 ${getEtapaColor(lead.etapa)}`}>
@@ -310,6 +333,39 @@ export function LeadCard({ lead, onCall, onWhatsApp, onEmail }: LeadCardProps) {
           </DialogHeader>
           
           <div className="space-y-6 py-4">
+            {isAdmin && onAssignSeller ? (
+              <div className="bg-white border border-gray-200 rounded-xl p-6">
+                <div className="space-y-2">
+                  <Label>Vendedor asignado</Label>
+                  <Select
+                    value={lead.assignedToId ?? UNASSIGNED_OPTION}
+                    onValueChange={async (value) => {
+                      const nextSellerId = value === UNASSIGNED_OPTION ? null : value
+                      try {
+                        setAssigningSeller(true)
+                        await onAssignSeller(lead.id, nextSellerId)
+                      } finally {
+                        setAssigningSeller(false)
+                      }
+                    }}
+                    disabled={assigningSeller}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar vendedor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={UNASSIGNED_OPTION}>Sin asignar</SelectItem>
+                      {sellers.map((seller) => (
+                        <SelectItem key={seller.id} value={seller.id}>
+                          {seller.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            ) : null}
+
             {/* Información principal con gradiente */}
             <div className="bg-gradient-to-r from-[#E65C37] to-orange-500 text-white rounded-xl p-6">
               <div className="grid md:grid-cols-2 gap-6">

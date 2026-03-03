@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -20,8 +21,15 @@ interface ContactForm {
 }
 
 export default function AdminPage() {
+  const router = useRouter()
   const [forms, setForms] = useState<ContactForm[]>([])
   const [loading, setLoading] = useState(true)
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' })
+    router.replace('/crm/login?next=/admin')
+    router.refresh()
+  }
+
 
   useEffect(() => {
     fetchForms()
@@ -107,9 +115,14 @@ export default function AdminPage() {
           <h1 className="text-3xl font-bold text-gray-900">
             Panel de Administración - Formularios de Contacto
           </h1>
-          <Button onClick={fetchForms} className="bg-[#E65C37] hover:bg-[#E65C37]/90">
-            Actualizar
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={fetchForms} className="bg-[#E65C37] hover:bg-[#E65C37]/90">
+              Actualizar
+            </Button>
+            <Button onClick={handleLogout} variant="outline">
+              Salir
+            </Button>
+          </div>
         </div>
 
         <div className="mb-6">

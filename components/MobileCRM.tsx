@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -29,11 +29,14 @@ import {
   PhoneCall,
   RefreshCcw,
   CircleCheck,
-  CircleX
+  CircleX,
+  LogOut
 } from 'lucide-react'
 import { Lead, LeadsPorEtapa } from '@/types/lead'
 import { CreateLeadModal } from '@/components/CreateLeadModal'
+import { CreateSellerModal } from '@/components/CreateSellerModal'
 import { LucideIcon } from 'lucide-react'
+import { CrmRole, CrmSeller } from '@/types/auth'
 
 interface MobileCRMProps {
   leads: LeadsPorEtapa
@@ -41,6 +44,11 @@ interface MobileCRMProps {
   onWhatsApp: (lead: Lead) => void
   onEmail: (lead: Lead) => void
   onRefresh: () => void
+  onLogout: () => void
+  onSellerCreated: () => void
+  onAssignSeller: (leadId: string, sellerId: string | null) => Promise<void>
+  currentUserRole: CrmRole
+  sellers: CrmSeller[]
   loading: boolean
 }
 
@@ -57,11 +65,50 @@ const ETAPAS = [
   color: string
 }>
 
-export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loading }: MobileCRMProps) {
+const UNASSIGNED_OPTION = '__UNASSIGNED__'
+
+const filterLeadsBySeller = (leads: LeadsPorEtapa, sellerFilter: string) => {
+  if (sellerFilter === 'all') return leads
+
+  const isUnassigned = sellerFilter === UNASSIGNED_OPTION
+  const filterColumn = (columnLeads: Lead[]) =>
+    columnLeads.filter((lead) =>
+      isUnassigned ? !lead.assignedToId : lead.assignedToId === sellerFilter
+    )
+
+  return {
+    entrante: filterColumn(leads.entrante),
+    'primer-llamado': filterColumn(leads['primer-llamado']),
+    seguimiento: filterColumn(leads.seguimiento),
+    ganado: filterColumn(leads.ganado),
+    perdido: filterColumn(leads.perdido),
+  }
+}
+
+export function MobileCRM({
+  leads,
+  onCall,
+  onWhatsApp,
+  onEmail,
+  onRefresh,
+  onLogout,
+  onSellerCreated,
+  onAssignSeller,
+  currentUserRole,
+  sellers,
+  loading,
+}: MobileCRMProps) {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
   const [updatingLead, setUpdatingLead] = useState(false)
   const [updateMessage, setUpdateMessage] = useState<string | null>(null)
   const [deletingLead, setDeletingLead] = useState(false)
+  const [sellerFilter, setSellerFilter] = useState('all')
+
+  const isAdmin = currentUserRole === 'ADMIN'
+  const visibleLeads = useMemo(
+    () => (isAdmin ? filterLeadsBySeller(leads, sellerFilter) : leads),
+    [isAdmin, leads, sellerFilter]
+  )
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-AR', {
@@ -183,10 +230,33 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
     }
   }
 
+  const handleAssignSeller = async (sellerId: string) => {
+    if (!selectedLead || !isAdmin) return
+    setUpdatingLead(true)
+    setUpdateMessage(null)
+
+    try {
+      await onAssignSeller(
+        selectedLead.id,
+        sellerId === UNASSIGNED_OPTION ? null : sellerId
+      )
+      setUpdateMessage('Vendedor actualizado')
+      setTimeout(() => {
+        onRefresh()
+        setUpdateMessage(null)
+      }, 1000)
+    } catch {
+      setUpdateMessage('Error al actualizar vendedor')
+      setTimeout(() => setUpdateMessage(null), 2500)
+    } finally {
+      setUpdatingLead(false)
+    }
+  }
+
   // Calcular estadísticas
-  const totalLeads = Object.values(leads).reduce((sum, columnLeads) => sum + columnLeads.length, 0)
-  const totalValue = Object.values(leads).flat().reduce((sum, lead) => sum + (lead.valor || 0), 0)
-  const conversionRate = totalLeads > 0 ? ((leads.ganado.length / totalLeads) * 100).toFixed(1) : '0'
+  const totalLeads = Object.values(visibleLeads).reduce((sum, columnLeads) => sum + columnLeads.length, 0)
+  const totalValue = Object.values(visibleLeads).flat().reduce((sum, lead) => sum + (lead.valor || 0), 0)
+  const conversionRate = totalLeads > 0 ? ((visibleLeads.ganado.length / totalLeads) * 100).toFixed(1) : '0'
 
   if (loading) {
     return (
@@ -222,52 +292,54 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
                 <p className="text-sm text-gray-600 truncate">{selectedLead.negocio}</p>
               </div>
               {/* Botón Eliminar en el header */}
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50"
-                  >
-                    <Trash2 className="h-5 w-5" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent className="mx-4">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle className="flex items-center gap-2 text-red-600">
-                      <Trash2 className="h-5 w-5" />
-                      Eliminar Lead
-                    </AlertDialogTitle>
-                    <AlertDialogDescription className="text-gray-600">
-                      ¿Estás seguro de que querés eliminar el lead de <span className="font-semibold">{selectedLead.nombre}</span>? 
-                      <br /><br />
-                      Esta acción no se puede deshacer y se perderán todos los datos del lead.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-                    <AlertDialogCancel className="w-full sm:w-auto">
-                      No, cancelar
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleDeleteLead}
-                      disabled={deletingLead}
-                      className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white"
+              {isAdmin ? (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
-                      {deletingLead ? (
-                        <>
-                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                          Eliminando...
-                        </>
-                      ) : (
-                        <>
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Sí, eliminar
-                        </>
-                      )}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+                      <Trash2 className="h-5 w-5" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="mx-4">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+                        <Trash2 className="h-5 w-5" />
+                        Eliminar Lead
+                      </AlertDialogTitle>
+                      <AlertDialogDescription className="text-gray-600">
+                        ¿Estás seguro de que querés eliminar el lead de <span className="font-semibold">{selectedLead.nombre}</span>? 
+                        <br /><br />
+                        Esta acción no se puede deshacer y se perderán todos los datos del lead.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                      <AlertDialogCancel className="w-full sm:w-auto">
+                        No, cancelar
+                      </AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDeleteLead}
+                        disabled={deletingLead}
+                        className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white"
+                      >
+                        {deletingLead ? (
+                          <>
+                            <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                            Eliminando...
+                          </>
+                        ) : (
+                          <>
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Sí, eliminar
+                          </>
+                        )}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              ) : null}
             </div>
           </div>
         </div>
@@ -330,6 +402,29 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
                   </SelectContent>
                 </Select>
               </div>
+
+              {isAdmin ? (
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-2">Vendedor asignado:</p>
+                  <Select
+                    value={selectedLead.assignedToId ?? UNASSIGNED_OPTION}
+                    onValueChange={handleAssignSeller}
+                    disabled={updatingLead || deletingLead}
+                  >
+                    <SelectTrigger className="w-full h-12 text-left bg-white">
+                      <SelectValue placeholder="Seleccionar vendedor..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={UNASSIGNED_OPTION}>Sin asignar</SelectItem>
+                      {sellers.map((seller) => (
+                        <SelectItem key={seller.id} value={seller.id}>
+                          {seller.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : null}
 
               {(updatingLead || deletingLead) && (
                 <div className="flex items-center gap-2 text-sm text-blue-600">
@@ -439,54 +534,56 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
             )}
 
             {/* Botón de Eliminar grande y destacado */}
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  size="lg"
-                  variant="destructive"
-                  className="w-full h-14 text-base bg-red-600 hover:bg-red-700"
-                  disabled={deletingLead}
-                >
-                  <Trash2 className="h-5 w-5 mr-3" />
-                  Eliminar Lead
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="mx-4">
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="flex items-center gap-2 text-red-600">
-                    <AlertCircle className="h-5 w-5" />
-                    ¿Eliminar este lead?
-                  </AlertDialogTitle>
-                  <AlertDialogDescription className="text-gray-600">
-                    ¿Estás seguro de que querés eliminar el lead de <span className="font-semibold text-gray-900">{selectedLead.nombre}</span>? 
-                    <br /><br />
-                    <span className="text-red-600 font-medium">Esta acción no se puede deshacer</span> y se perderán todos los datos del lead.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-                  <AlertDialogCancel className="w-full sm:w-auto order-2 sm:order-1">
-                    No, cancelar
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleDeleteLead}
+            {isAdmin ? (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    size="lg"
+                    variant="destructive"
+                    className="w-full h-14 text-base bg-red-600 hover:bg-red-700"
                     disabled={deletingLead}
-                    className="w-full sm:w-auto order-1 sm:order-2 bg-red-600 hover:bg-red-700 text-white"
                   >
-                    {deletingLead ? (
-                      <>
-                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                        Eliminando...
-                      </>
-                    ) : (
-                      <>
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Sí, eliminar
-                      </>
-                    )}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                    <Trash2 className="h-5 w-5 mr-3" />
+                    Eliminar Lead
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="mx-4">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+                      <AlertCircle className="h-5 w-5" />
+                      ¿Eliminar este lead?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription className="text-gray-600">
+                      ¿Estás seguro de que querés eliminar el lead de <span className="font-semibold text-gray-900">{selectedLead.nombre}</span>? 
+                      <br /><br />
+                      <span className="text-red-600 font-medium">Esta acción no se puede deshacer</span> y se perderán todos los datos del lead.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                    <AlertDialogCancel className="w-full sm:w-auto order-2 sm:order-1">
+                      No, cancelar
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleDeleteLead}
+                      disabled={deletingLead}
+                      className="w-full sm:w-auto order-1 sm:order-2 bg-red-600 hover:bg-red-700 text-white"
+                    >
+                      {deletingLead ? (
+                        <>
+                          <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                          Eliminando...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Sí, eliminar
+                        </>
+                      )}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            ) : null}
           </div>
         </div>
       </div>
@@ -505,14 +602,39 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
               <p className="text-sm text-gray-600">Gestión de Leads</p>
             </div>
             <div className="flex items-center space-x-2">
+              {isAdmin ? <CreateSellerModal onSellerCreated={onSellerCreated} /> : null}
               <CreateLeadModal onLeadCreated={onRefresh} />
               <Button onClick={onRefresh} variant="outline" size="sm">
                 <RefreshCw className="h-4 w-4" />
+              </Button>
+              <Button onClick={onLogout} variant="outline" size="sm">
+                <LogOut className="h-4 w-4" />
               </Button>
             </div>
           </div>
         </div>
       </div>
+
+      {isAdmin ? (
+        <div className="bg-white border-b">
+          <div className="px-4 py-3">
+            <Select value={sellerFilter} onValueChange={setSellerFilter}>
+              <SelectTrigger className="w-full bg-white">
+                <SelectValue placeholder="Filtrar por vendedor" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos los vendedores</SelectItem>
+                <SelectItem value={UNASSIGNED_OPTION}>Sin asignar</SelectItem>
+                {sellers.map((seller) => (
+                  <SelectItem key={seller.id} value={seller.id}>
+                    {seller.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      ) : null}
 
       {/* Estadísticas compactas */}
       <div className="bg-white border-b">
@@ -546,7 +668,7 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
               <etapa.icon className="h-4 w-4" aria-hidden="true" />
               <span className="text-xs font-medium truncate">{etapa.title}</span>
               <Badge variant="secondary" className="text-xs">
-                {leads[etapa.id as keyof LeadsPorEtapa].length}
+                {visibleLeads[etapa.id as keyof LeadsPorEtapa].length}
               </Badge>
             </TabsTrigger>
           ))}
@@ -559,13 +681,13 @@ export function MobileCRM({ leads, onCall, onWhatsApp, onEmail, onRefresh, loadi
             className="flex-1 mt-0 overflow-y-auto"
           >
             <div className="p-4 space-y-3">
-              {leads[etapa.id as keyof LeadsPorEtapa].length === 0 ? (
+              {visibleLeads[etapa.id as keyof LeadsPorEtapa].length === 0 ? (
                 <div className="text-center py-12">
                   <etapa.icon className="h-10 w-10 mx-auto mb-3 text-gray-400" aria-hidden="true" />
                   <p className="text-gray-500">No hay leads en esta etapa</p>
                 </div>
               ) : (
-                leads[etapa.id as keyof LeadsPorEtapa].map((lead) => (
+                visibleLeads[etapa.id as keyof LeadsPorEtapa].map((lead) => (
                   <Card
                     key={lead.id}
                     className="cursor-pointer hover:shadow-md transition-shadow border-l-4 border-l-orange-400"

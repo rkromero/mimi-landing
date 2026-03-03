@@ -11,6 +11,7 @@
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
+    "seed:admin": "node scripts/seed-admin.js",
     "optimize": "node scripts/optimize-conversion.js",
     "check-conversion": "node scripts/optimize-conversion.js",
     "precommit": "npm run lint && npm run optimize"
@@ -50,6 +51,7 @@
     "@radix-ui/react-toggle-group": "1.1.1",
     "@radix-ui/react-tooltip": "1.1.6",
     "autoprefixer": "^10.4.20",
+    "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",

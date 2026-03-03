@@ -13,6 +13,34 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum CrmRole {
+  ADMIN
+  VENDEDOR
+}
+
+model CrmUser {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  name         String
+  passwordHash String
+  role         CrmRole
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  assignedLeads ContactForm[] @relation("LeadAssignee")
+  updatedLeads ContactForm[] @relation("LeadUpdater")
+  sessions     CrmSession[]
+}
+
+model CrmSession {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      CrmUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
 model ContactForm {
   id                String   @id @default(cuid())
   nombre            String
@@ -28,9 +56,13 @@ model ContactForm {
   comentarios       String?
   notas             String?  // notas del CRM
   valor             Float?   // valor estimado del lead
+  assignedToId      String?
+  updatedByUserId   String?
   esBajoVolumen     Boolean  @default(false) // marca si es un lead de bajo volumen (menos de 24 docenas)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  assignedTo        CrmUser? @relation("LeadAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  updatedByUser     CrmUser? @relation("LeadUpdater", fields: [updatedByUserId], references: [id], onDelete: SetNull)
 
   @@map("contact_forms")
 }

@@ -1,11 +1,24 @@
 import { NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 import { exec } from 'child_process'
 import { promisify } from 'util'
+import { CrmRole } from '@prisma/client'
+import { requireAuth } from '@/lib/auth'
 
 const execAsync = promisify(exec)
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
+    const { error } = await requireAuth(request, [CrmRole.ADMIN])
+    if (error) return error
+
+    if (process.env.ENABLE_DB_ADMIN_ENDPOINTS !== 'true') {
+      return NextResponse.json(
+        { error: 'Endpoint deshabilitado en este entorno' },
+        { status: 403 }
+      )
+    }
+
     console.log('🔧 Iniciando configuración de base de datos...')
     
     // Verificar que tenemos DATABASE_URL
@@ -20,7 +33,7 @@ export async function POST() {
 
     // Ejecutar prisma db push
     console.log('🚀 Ejecutando prisma db push...')
-    const { stdout, stderr } = await execAsync('npx prisma db push --accept-data-loss')
+    const { stdout, stderr } = await execAsync('npx prisma db push')
     
     console.log('✅ Stdout:', stdout)
     if (stderr) {

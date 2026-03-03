@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { CrmRole } from '@prisma/client'
+import { getAuthUserFromRequest, requireAuth } from '@/lib/auth'
 import { Resend } from 'resend'
 import { createEmailTemplate } from '@/lib/email-template'
 
@@ -31,6 +33,8 @@ export async function POST(request: NextRequest) {
     // Determinar si es un lead de bajo volumen
     const esBajoVolumen = cantidad === 'menos-24'
     
+    const auth = await getAuthUserFromRequest(request)
+
     // Guardar en la base de datos
     console.log('💾 Guardando en base de datos...')
     const contactForm = await prisma.contactForm.create({
@@ -46,6 +50,8 @@ export async function POST(request: NextRequest) {
         email,
         comentarios,
         esBajoVolumen,
+        ...(auth?.user.role === CrmRole.VENDEDOR && { assignedToId: auth.user.id }),
+        ...(auth && { updatedByUserId: auth.user.id }),
       },
     })
 
@@ -112,8 +118,11 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { error } = await requireAuth(request, [CrmRole.ADMIN])
+    if (error) return error
+
     const forms = await prisma.contactForm.findMany({
       orderBy: {
         createdAt: 'desc'
