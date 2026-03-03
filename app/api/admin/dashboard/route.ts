@@ -67,6 +67,7 @@ export async function GET(request: NextRequest) {
           notas: true,
           createdAt: true,
           updatedAt: true,
+          primerLlamadoAt: true,
         },
       }),
     ])
@@ -119,8 +120,17 @@ export async function GET(request: NextRequest) {
       }
 
       const leadTimesToFirstCallMs = sellerLeads
-        .filter((lead) => lead.etapaCrm === 'primer-llamado')
-        .map((lead) => Math.max(0, lead.updatedAt.getTime() - lead.createdAt.getTime()))
+        .filter((lead) => {
+          if (lead.primerLlamadoAt) return true
+          if (lead.etapaCrm === 'primer-llamado') return true
+          return false
+        })
+        .map((lead) => {
+          if (lead.primerLlamadoAt) {
+            return Math.max(0, lead.primerLlamadoAt.getTime() - lead.createdAt.getTime())
+          }
+          return Math.max(0, lead.updatedAt.getTime() - lead.createdAt.getTime())
+        })
 
       const averageMsToFirstTouch =
         leadTimesToFirstCallMs.length > 0
@@ -156,7 +166,7 @@ export async function GET(request: NextRequest) {
       lostReasonLabels: LOST_REASON_LABELS,
       notes: {
         firstTouchTime:
-          'Promedio del tiempo desde entrante hasta primer llamado (solo leads actualmente en primer-llamado).',
+          'Promedio del tiempo desde creación hasta primer llamado. Se registra el momento exacto al pasar a primer-llamado.',
       },
     })
   } catch (error) {

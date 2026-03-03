@@ -18,12 +18,10 @@ export async function GET(request: NextRequest) {
     console.log('🔄 Actualizando estructura de base de datos...')
     
     // Intentar agregar las nuevas columnas
-    await prisma.$executeRaw`
-      ALTER TABLE contact_forms 
-      ADD COLUMN IF NOT EXISTS "etapaCrm" TEXT DEFAULT 'entrante',
-      ADD COLUMN IF NOT EXISTS "notas" TEXT,
-      ADD COLUMN IF NOT EXISTS "valor" DECIMAL(10,2)
-    `
+    await prisma.$executeRaw`ALTER TABLE contact_forms ADD COLUMN IF NOT EXISTS "etapaCrm" TEXT DEFAULT 'entrante'`
+    await prisma.$executeRaw`ALTER TABLE contact_forms ADD COLUMN IF NOT EXISTS "notas" TEXT`
+    await prisma.$executeRaw`ALTER TABLE contact_forms ADD COLUMN IF NOT EXISTS "valor" DECIMAL(10,2)`
+    await prisma.$executeRaw`ALTER TABLE contact_forms ADD COLUMN IF NOT EXISTS "primerLlamadoAt" TIMESTAMPTZ`
     
     console.log('✅ Estructura de base de datos actualizada')
     

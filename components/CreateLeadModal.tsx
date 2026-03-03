@@ -50,7 +50,7 @@ export function CreateLeadModal({ onLeadCreated, compact = false, triggerClassNa
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     // Validar cantidad mínima
     if (formData.cantidad === 'menos-24') {
       toast({
@@ -60,10 +60,10 @@ export function CreateLeadModal({ onLeadCreated, compact = false, triggerClassNa
       })
       return
     }
-    
+
     // Validar campos obligatorios
-    if (!formData.nombre || !formData.negocio || !formData.provincia || 
-        !formData.localidad || !formData.cantidad || !formData.whatsapp) {
+    if (!formData.nombre || !formData.negocio || !formData.provincia ||
+      !formData.localidad || !formData.cantidad || !formData.whatsapp) {
       toast({
         title: "Error",
         description: "Por favor completa todos los campos obligatorios",
@@ -74,7 +74,7 @@ export function CreateLeadModal({ onLeadCreated, compact = false, triggerClassNa
 
     try {
       setLoading(true)
-      
+
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
@@ -122,33 +122,38 @@ export function CreateLeadModal({ onLeadCreated, compact = false, triggerClassNa
           {compact ? null : 'Crear Nuevo Lead'}
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-full sm:max-w-xl overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>Crear Nuevo Lead</SheetTitle>
+      <SheetContent side="right" className="w-full sm:max-w-xl overflow-y-auto bg-[#0b1328] text-slate-100 border-white/10">
+        <SheetHeader className="pb-6 border-b border-white/10">
+          <SheetTitle className="text-2xl font-bold italic text-white flex items-center gap-3">
+            <div className="w-10 h-10 bg-brand-orange rounded-xl flex items-center justify-center">
+              <Plus className="h-6 w-6 text-white" />
+            </div>
+            Crear Nuevo Lead
+          </SheetTitle>
         </SheetHeader>
-        
-        <form onSubmit={handleSubmit} className="space-y-6 mt-4">
+
+        <form onSubmit={handleSubmit} className="space-y-6 mt-8">
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="nombre">Nombre *</Label>
+              <Label htmlFor="nombre" className="text-slate-300 ml-1">Nombre *</Label>
               <Input
                 id="nombre"
                 name="nombre"
                 placeholder="Nombre completo"
-                className="h-12"
+                className="h-12 bg-[#0f1932] border-slate-700/60 text-slate-100 placeholder:text-slate-500 focus:ring-brand-orange/50 focus:border-brand-orange"
                 value={formData.nombre}
                 onChange={handleInputChange}
                 required
               />
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="negocio">Nombre del Negocio *</Label>
+              <Label htmlFor="negocio" className="text-slate-300 ml-1">Nombre del Negocio *</Label>
               <Input
                 id="negocio"
                 name="negocio"
                 placeholder="Nombre de tu negocio"
-                className="h-12"
+                className="h-12 bg-[#0f1932] border-slate-700/60 text-slate-100 placeholder:text-slate-500 focus:ring-brand-orange/50 focus:border-brand-orange"
                 value={formData.negocio}
                 onChange={handleInputChange}
                 required
@@ -158,12 +163,12 @@ export function CreateLeadModal({ onLeadCreated, compact = false, triggerClassNa
 
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="provincia">Provincia *</Label>
+              <Label htmlFor="provincia" className="text-slate-300 ml-1">Provincia *</Label>
               <Select value={formData.provincia} onValueChange={(value) => handleSelectChange('provincia', value)} required>
-                <SelectTrigger className="h-12">
+                <SelectTrigger className="h-12 bg-[#0f1932] border-slate-700/60 text-slate-100 focus:ring-brand-orange/50">
                   <SelectValue placeholder="Seleccioná tu provincia" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-[#0b1328] border-slate-700 text-slate-100">
                   {provinciasArgentina.map((provincia) => (
                     <SelectItem key={provincia} value={provincia}>
                       {provincia}
@@ -172,14 +177,14 @@ export function CreateLeadModal({ onLeadCreated, compact = false, triggerClassNa
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="localidad">Localidad *</Label>
+              <Label htmlFor="localidad" className="text-slate-300 ml-1">Localidad *</Label>
               <Input
                 id="localidad"
                 name="localidad"
                 placeholder="Tu ciudad o localidad"
-                className="h-12"
+                className="h-12 bg-[#0f1932] border-slate-700/60 text-slate-100 placeholder:text-slate-500 focus:ring-brand-orange/50 focus:border-brand-orange"
                 value={formData.localidad}
                 onChange={handleInputChange}
                 required
@@ -188,12 +193,12 @@ export function CreateLeadModal({ onLeadCreated, compact = false, triggerClassNa
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="cantidad">Cantidad estimada mensual *</Label>
+            <Label htmlFor="cantidad" className="text-slate-300 ml-1">Cantidad estimada mensual *</Label>
             <Select value={formData.cantidad} onValueChange={(value) => handleSelectChange('cantidad', value)} required>
-              <SelectTrigger className="h-12">
+              <SelectTrigger className="h-12 bg-[#0f1932] border-slate-700/60 text-slate-100 focus:ring-brand-orange/50">
                 <SelectValue placeholder="Seleccioná tu volumen estimado" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-[#0b1328] border-slate-700 text-slate-100">
                 <SelectItem value="menos-24">Menos de 24 docenas</SelectItem>
                 <SelectItem value="24-100">Entre 24 docenas y 100 docenas</SelectItem>
                 <SelectItem value="mas-100">Más de 100 docenas</SelectItem>
@@ -203,26 +208,26 @@ export function CreateLeadModal({ onLeadCreated, compact = false, triggerClassNa
 
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="whatsapp">WhatsApp *</Label>
+              <Label htmlFor="whatsapp" className="text-slate-300 ml-1">WhatsApp *</Label>
               <Input
                 id="whatsapp"
                 name="whatsapp"
                 placeholder="+54 9 11 1234-5678"
-                className="h-12"
+                className="h-12 bg-[#0f1932] border-slate-700/60 text-slate-100 placeholder:text-slate-500 focus:ring-brand-orange/50 focus:border-brand-orange"
                 value={formData.whatsapp}
                 onChange={handleInputChange}
                 required
               />
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-slate-300 ml-1">Email</Label>
               <Input
                 id="email"
                 name="email"
                 type="email"
                 placeholder="tu@email.com"
-                className="h-12"
+                className="h-12 bg-[#0f1932] border-slate-700/60 text-slate-100 placeholder:text-slate-500 focus:ring-brand-orange/50 focus:border-brand-orange"
                 value={formData.email}
                 onChange={handleInputChange}
               />
@@ -230,22 +235,31 @@ export function CreateLeadModal({ onLeadCreated, compact = false, triggerClassNa
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="comentarios">Comentarios adicionales</Label>
+            <Label htmlFor="comentarios" className="text-slate-300 ml-1">Comentarios adicionales</Label>
             <Textarea
               id="comentarios"
               name="comentarios"
               placeholder="Información adicional sobre tu consulta..."
-              className="min-h-[100px]"
+              className="min-h-[100px] bg-[#0f1932] border-slate-700/60 text-slate-100 placeholder:text-slate-500 focus:ring-brand-orange/50 focus:border-brand-orange transition-all"
               value={formData.comentarios}
               onChange={handleInputChange}
             />
           </div>
 
-          <div className="flex justify-end space-x-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+          <div className="flex justify-end space-x-4 pt-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+              className="border-slate-700 text-slate-400 hover:bg-slate-800 hover:text-white"
+            >
               Cancelar
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="bg-brand-orange hover:bg-brand-orange/90 text-white font-bold px-8 shadow-lg shadow-brand-orange/20"
+            >
               {loading ? 'Creando...' : 'Crear Lead'}
             </Button>
           </div>

@@ -39,11 +39,11 @@ interface KanbanColumnProps {
   ) => Promise<void>
 }
 
-export function KanbanColumn({ 
-  id, 
-  title, 
-  leads, 
-  color, 
+export function KanbanColumn({
+  id,
+  title,
+  leads,
+  color,
   icon,
   onCall,
   onWhatsApp,
@@ -67,9 +67,9 @@ export function KanbanColumn({
       <div className="p-3 text-white border-b border-slate-800/80 bg-[#0a1020]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className={`w-2 h-2 rounded-full ${color}`} />
-            <Icon className="h-3.5 w-3.5 text-slate-300" aria-hidden="true" />
-            <h3 className="font-medium text-xs tracking-wide text-slate-200">{title}</h3>
+            <span className={`w-2.5 h-2.5 rounded-full ring-2 ring-white/10 ${color}`} />
+            <Icon className="h-4 w-4 text-slate-300 group-hover:text-brand-orange transition-colors" aria-hidden="true" />
+            <h3 className="font-bold text-xs tracking-wider text-slate-200 uppercase">{title}</h3>
           </div>
           <Badge variant="secondary" className="bg-slate-700/30 text-slate-200 border border-slate-700/60 text-[10px]">
             {leads.length}
@@ -85,9 +85,8 @@ export function KanbanColumn({
       {/* Área de drop */}
       <div
         ref={setNodeRef}
-        className={`flex-1 min-h-0 p-3 overflow-y-auto crm-scrollbar transition-colors ${
-          isOver ? 'bg-indigo-500/10' : 'bg-[#0b1328]'
-        }`}
+        className={`flex-1 min-h-0 p-3 overflow-y-auto crm-scrollbar transition-all duration-300 ${isOver ? 'bg-indigo-500/5' : 'bg-[#0b1328]/50'
+          }`}
       >
         <SortableContext items={leads.map(lead => lead.id)} strategy={verticalListSortingStrategy}>
           {leads.length === 0 ? (

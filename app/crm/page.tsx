@@ -284,7 +284,7 @@ export default function CRMPage() {
   // Manejar fin de drag
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
-    
+
     if (!over) {
       setActiveId(null)
       return
@@ -341,19 +341,19 @@ export default function CRMPage() {
     // Actualizar estado local inmediatamente
     setLeads(prev => {
       const newLeads = { ...prev }
-      
+
       // Remover de la columna origen
       newLeads[fromColumn as keyof LeadsPorEtapa] = newLeads[fromColumn as keyof LeadsPorEtapa].filter(
         l => l.id !== activeId
       )
-      
+
       // Agregar a la columna destino
       const updatedLead = { ...leadToMove!, etapaCrm: toColumn }
       newLeads[toColumn as keyof LeadsPorEtapa] = [
         ...newLeads[toColumn as keyof LeadsPorEtapa],
         updatedLead
       ]
-      
+
       return newLeads
     })
 
@@ -391,7 +391,7 @@ export default function CRMPage() {
   // Obtener el lead activo para el overlay
   const getActiveLead = (): Lead | null => {
     if (!activeId) return null
-    
+
     for (const columnLeads of Object.values(leads)) {
       const lead = columnLeads.find((l: Lead) => l.id === activeId)
       if (lead) return lead
@@ -583,38 +583,38 @@ Equipo MIMI`)
             </div>
           </div>
 
-          <div className="flex-1 min-h-0 overflow-hidden px-4 md:px-6 py-4 flex flex-col gap-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <Card className="bg-[#0b1328] border-slate-800/80 text-slate-100">
+          <div className="flex-1 min-h-0 overflow-y-auto px-4 md:px-6 py-6 flex flex-col gap-6 crm-scrollbar">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 shrink-0">
+              <Card className="bg-[#0b1328]/40 backdrop-blur-md border-white/5 text-slate-100 shadow-xl group hover:border-brand-orange/30 transition-all">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
-                  <CardTitle className="text-xs font-medium text-slate-400">Total Leads</CardTitle>
-                  <Users className="h-4 w-4 text-slate-500" />
+                  <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-400 group-hover:text-brand-orange transition-colors">Total Leads</CardTitle>
+                  <Users className="h-4 w-4 text-slate-500 group-hover:text-brand-orange transition-colors" />
                 </CardHeader>
-                <CardContent className="pt-1">
-                  <div className="text-xl font-semibold">{totalLeads}</div>
-                  <p className="text-xs text-slate-500">leads activos</p>
+                <CardContent className="pt-2">
+                  <div className="text-3xl font-black italic tracking-tighter text-white">{totalLeads}</div>
+                  <p className="text-[10px] text-slate-500 font-medium uppercase mt-1">leads activos en sistema</p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-[#0b1328] border-slate-800/80 text-slate-100">
+              <Card className="bg-[#0b1328]/40 backdrop-blur-md border-white/5 text-slate-100 shadow-xl group hover:border-brand-teal/30 transition-all">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
-                  <CardTitle className="text-xs font-medium text-slate-400">Valor Total</CardTitle>
-                  <BarChart3 className="h-4 w-4 text-slate-500" />
+                  <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-400 group-hover:text-brand-teal transition-colors">Valor Total</CardTitle>
+                  <BarChart3 className="h-4 w-4 text-slate-500 group-hover:text-brand-teal transition-colors" />
                 </CardHeader>
-                <CardContent className="pt-1">
-                  <div className="text-xl font-semibold">${totalValue.toLocaleString()}</div>
-                  <p className="text-xs text-slate-500">valor estimado</p>
+                <CardContent className="pt-2">
+                  <div className="text-3xl font-black italic tracking-tighter text-brand-teal">${totalValue.toLocaleString()}</div>
+                  <p className="text-[10px] text-slate-500 font-medium uppercase mt-1">valor proyectado de ventas</p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-[#0b1328] border-slate-800/80 text-slate-100">
+              <Card className="bg-[#0b1328]/40 backdrop-blur-md border-white/5 text-slate-100 shadow-xl group hover:border-brand-orange/30 transition-all">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
-                  <CardTitle className="text-xs font-medium text-slate-400">Conversión</CardTitle>
-                  <TrendingUp className="h-4 w-4 text-slate-500" />
+                  <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-400 group-hover:text-brand-orange transition-colors">Conversión</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-slate-500 group-hover:text-brand-orange transition-colors" />
                 </CardHeader>
-                <CardContent className="pt-1">
-                  <div className="text-xl font-semibold">{conversionRate}%</div>
-                  <p className="text-xs text-slate-500">tasa de conversión</p>
+                <CardContent className="pt-2">
+                  <div className="text-3xl font-black italic tracking-tighter text-white">{conversionRate}%</div>
+                  <p className="text-[10px] text-slate-500 font-medium uppercase mt-1">tasa de cierre exitoso</p>
                 </CardContent>
               </Card>
             </div>
@@ -624,30 +624,32 @@ Equipo MIMI`)
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
             >
-              <div className="grid grid-cols-1 xl:grid-cols-5 gap-3 flex-1 min-h-0 overflow-hidden">
-                {COLUMNAS.map((columna) => (
-                  <KanbanColumn
-                    key={columna.id}
-                    id={columna.id}
-                    title={columna.title}
-                    leads={visibleLeads[columna.id as keyof LeadsPorEtapa]}
-                    color={columna.color}
-                    icon={columna.icon}
-                    onCall={handleCall}
-                    onWhatsApp={handleWhatsApp}
-                    onEmail={handleEmail}
-                    isAdmin={isAdmin}
-                    sellers={sellers}
-                    onAssignSeller={handleAssignSeller}
-                    onDeleteLead={handleDeleteLead}
-                    onUpdateLead={handleUpdateLead}
-                  />
-                ))}
+              <div className="flex-1 min-h-0 overflow-x-auto overflow-y-hidden pb-4 crm-scrollbar">
+                <div className="flex gap-4 h-full min-w-max xl:min-w-0 xl:grid xl:grid-cols-5">
+                  {COLUMNAS.map((columna) => (
+                    <KanbanColumn
+                      key={columna.id}
+                      id={columna.id}
+                      title={columna.title}
+                      leads={visibleLeads[columna.id as keyof LeadsPorEtapa]}
+                      color={columna.color}
+                      icon={columna.icon}
+                      onCall={handleCall}
+                      onWhatsApp={handleWhatsApp}
+                      onEmail={handleEmail}
+                      isAdmin={isAdmin}
+                      sellers={sellers}
+                      onAssignSeller={handleAssignSeller}
+                      onDeleteLead={handleDeleteLead}
+                      onUpdateLead={handleUpdateLead}
+                    />
+                  ))}
+                </div>
               </div>
 
               <DragOverlay>
                 {activeId ? (
-                  <div className="opacity-90 rotate-2">
+                  <div className="opacity-90 rotate-2 scale-105 transition-transform duration-200">
                     <LeadCard
                       lead={getActiveLead()!}
                       isAdmin={isAdmin}

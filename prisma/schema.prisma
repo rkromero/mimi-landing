@@ -50,6 +50,7 @@ model ContactForm {
   cantidad          String
   etapa             String   // etapa original del formulario
   etapaCrm          String   @default("entrante") // etapa del CRM: entrante, primer-llamado, seguimiento, ganado, perdido
+  primerLlamadoAt   DateTime? // cuando pasó de entrante a primer-llamado (para métricas)
   whatsapp          String
   cuit              String?  // CUIT opcional
   email             String?

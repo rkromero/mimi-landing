@@ -207,6 +207,8 @@ export async function PUT(request: NextRequest) {
         id: true,
         assignedToId: true,
         notas: true,
+        etapaCrm: true,
+        primerLlamadoAt: true,
       },
     })
 
@@ -300,10 +302,16 @@ export async function PUT(request: NextRequest) {
       }
     }
 
+    const setPrimerLlamadoAt =
+      nuevaEtapa === 'primer-llamado' && !existingLead.primerLlamadoAt
+        ? { primerLlamadoAt: new Date() }
+        : {}
+
     const leadActualizado = await prisma.contactForm.update({
       where: { id: trimmedLeadId },
       data: {
         ...(nuevaEtapa !== undefined && { etapaCrm: nuevaEtapa }),
+        ...setPrimerLlamadoAt,
         ...(finalNotas !== undefined && { notas: finalNotas }),
         ...(parsedValor !== undefined && { valor: parsedValor }),
         ...(normalizedAssignedToId !== undefined && { assignedToId: normalizedAssignedToId }),

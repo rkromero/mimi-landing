@@ -193,22 +193,20 @@ export default function AdminPage() {
                 <button
                   key={p}
                   onClick={() => applyPreset(p)}
-                  className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                    preset === p
+                  className={`px-3 py-1 rounded text-xs font-medium transition-colors ${preset === p
                       ? 'bg-indigo-600 text-white'
                       : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-slate-200'
-                  }`}
+                    }`}
                 >
                   {p === '7d' ? 'Última semana' : p === '30d' ? 'Últimos 30 días' : 'Este mes'}
                 </button>
               ))}
               <button
                 onClick={() => setPreset('custom')}
-                className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
-                  preset === 'custom'
+                className={`px-3 py-1 rounded text-xs font-medium transition-colors ${preset === 'custom'
                     ? 'bg-indigo-600 text-white'
                     : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-slate-200'
-                }`}
+                  }`}
               >
                 Personalizado
               </button>
@@ -264,91 +262,113 @@ export default function AdminPage() {
                   </Card>
                 </div>
 
-                <Card className="bg-[#0b1328] border-white/10 text-slate-100">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <BarChart3 className="h-4 w-4" />
+                <Card className="bg-[#0b1328]/40 backdrop-blur-md border-white/5 text-slate-100 shadow-2xl overflow-hidden group hover:border-brand-orange/20 transition-all">
+                  <CardHeader className="border-b border-white/5 bg-white/5">
+                    <CardTitle className="flex items-center gap-3 text-xs font-black uppercase tracking-widest text-white">
+                      <BarChart3 className="h-4 w-4 text-brand-orange" />
                       Leads creados por día
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="pt-8 pb-4">
                     <div
-                      className="grid gap-1 items-end h-28"
+                      className="grid gap-2 items-end h-32"
                       style={{ gridTemplateColumns: `repeat(${dashboard.leadsByDay.length}, minmax(0, 1fr))` }}
                     >
                       {dashboard.leadsByDay.map((item) => (
                         <div key={item.date} className="group relative flex flex-col items-center justify-end h-full">
                           <div
-                            className="w-full rounded-t bg-[#E65C37]/80 hover:bg-[#E65C37] transition-colors"
-                            style={{ height: `${Math.max(6, (item.count / maxLeadsPerDay) * 100)}%` }}
+                            className="w-full rounded-full bg-gradient-to-t from-brand-orange/40 to-brand-orange hover:from-brand-orange hover:to-[#ff8c00] transition-all duration-300 shadow-lg shadow-brand-orange/10"
+                            style={{ height: `${Math.max(8, (item.count / maxLeadsPerDay) * 100)}%` }}
                           />
-                          <span className="absolute -top-6 text-[10px] px-1 py-0.5 rounded bg-slate-900 text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                            {formatDateLabel(item.date)}: {item.count}
-                          </span>
+                          <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-xl bg-brand-orange text-white text-[10px] font-black italic shadow-2xl opacity-0 group-hover:opacity-100 transition-all pointer-events-none z-10 scale-90 group-hover:scale-100 origin-bottom">
+                            {formatDateLabel(item.date)}
+                            <div className="mt-0.5 pt-0.5 border-t border-white/20 text-center">{item.count} leads</div>
+                            <div className="absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-2 h-2 bg-brand-orange rotate-45" />
+                          </div>
                         </div>
                       ))}
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="bg-[#0b1328] border-white/10 text-slate-100">
-                  <CardHeader>
-                    <CardTitle>Comparativa por vendedor</CardTitle>
+                <Card className="bg-[#0b1328]/40 backdrop-blur-md border-white/5 text-slate-100 shadow-2xl group hover:border-brand-teal/20 transition-all">
+                  <CardHeader className="border-b border-white/5 bg-white/5">
+                    <CardTitle className="text-xs font-black uppercase tracking-widest text-white flex items-center gap-3">
+                      <TrendingUp className="h-4 w-4 text-brand-teal" />
+                      Comparativa por vendedor
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-6 pt-6">
                     {dashboard.sellersMetrics.length === 0 ? (
-                      <p className="text-sm text-slate-500">No hay vendedores para comparar.</p>
+                      <div className="text-center py-12 border border-dashed border-white/10 rounded-2xl">
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">No hay vendedores para comparar.</p>
+                      </div>
                     ) : (
                       dashboard.sellersMetrics.map((seller) => (
-                        <div key={seller.sellerId} className="rounded-lg border border-white/10 bg-[#0f1a34] p-4 space-y-3">
+                        <div key={seller.sellerId} className="rounded-2xl border border-white/5 bg-white/5 p-6 space-y-4 hover:border-white/10 transition-all group/card shadow-xl">
                           <div className="flex items-center justify-between">
-                            <div>
-                              <p className="font-semibold text-slate-100">{seller.sellerName}</p>
-                              <p className="text-xs text-slate-500">{seller.sellerEmail}</p>
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-xl font-black italic text-white shadow-lg">
+                                {seller.sellerName[0]}
+                              </div>
+                              <div>
+                                <p className="font-black italic text-white group-hover/card:text-brand-orange transition-colors">{seller.sellerName}</p>
+                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{seller.sellerEmail}</p>
+                              </div>
                             </div>
-                            <Badge variant="outline" className="border-white/20 text-slate-200">Leads: {seller.totalLeads}</Badge>
+                            <Badge variant="outline" className="bg-brand-orange/10 border-brand-orange/20 text-brand-orange font-black px-3 py-1">
+                              LEADS: {seller.totalLeads}
+                            </Badge>
                           </div>
 
-                          <div className="grid md:grid-cols-3 gap-3 text-sm">
-                            <div className="rounded-md bg-green-500/15 text-green-300 p-3 border border-green-500/20">
-                              <p className="flex items-center gap-1 font-medium">
-                                <TrendingUp className="h-4 w-4" />
-                                Tasa de conversión
+                          <div className="grid md:grid-cols-3 gap-4 text-sm font-bold">
+                            <div className="rounded-2xl bg-brand-teal/5 text-brand-teal p-4 border border-brand-teal/10 shadow-inner group/stat">
+                              <p className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black mb-1 opacity-60 group-hover/stat:opacity-100 transition-opacity">
+                                <TrendingUp className="h-3 w-3" />
+                                Conversión
                               </p>
-                              <p className="text-xl font-bold">{seller.conversionRate.toFixed(1)}%</p>
-                              <p className="text-xs">Ganados: {seller.ganados}</p>
+                              <p className="text-2xl font-black italic">{seller.conversionRate.toFixed(1)}%</p>
+                              <p className="text-[10px] font-medium mt-1 uppercase">Ganados: {seller.ganados}</p>
                             </div>
-                            <div className="rounded-md bg-red-500/15 text-red-300 p-3 border border-red-500/20">
-                              <p className="flex items-center gap-1 font-medium">
-                                <TrendingDown className="h-4 w-4" />
-                                Tasa de perdido
+                            <div className="rounded-2xl bg-red-500/5 text-red-400 p-4 border border-red-500/10 shadow-inner group/stat">
+                              <p className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black mb-1 opacity-60 group-hover/stat:opacity-100 transition-opacity">
+                                <TrendingDown className="h-3 w-3" />
+                                Perdidos
                               </p>
-                              <p className="text-xl font-bold">{seller.lostRate.toFixed(1)}%</p>
-                              <p className="text-xs">Perdidos: {seller.perdidos}</p>
+                              <p className="text-2xl font-black italic">{seller.lostRate.toFixed(1)}%</p>
+                              <p className="text-[10px] font-medium mt-1 uppercase">Perdidos: {seller.perdidos}</p>
                             </div>
-                            <div className="rounded-md bg-blue-500/15 text-blue-300 p-3 border border-blue-500/20">
-                              <p className="flex items-center gap-1 font-medium">
-                                <Clock3 className="h-4 w-4" />
-                                Tiempo a primer llamado
+                            <div className="rounded-2xl bg-brand-orange/5 text-brand-orange p-4 border border-brand-orange/10 shadow-inner group/stat">
+                              <p className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black mb-1 opacity-60 group-hover/stat:opacity-100 transition-opacity">
+                                <Clock3 className="h-3 w-3" />
+                                Respuesta
                               </p>
-                              <p className="text-xl font-bold">{formatHours(seller.averageHoursToFirstTouch)}</p>
+                              <p className="text-2xl font-black italic">{formatHours(seller.averageHoursToFirstTouch)}</p>
+                              <p className="text-[10px] font-medium mt-1 uppercase tracking-tighter italic opacity-60">Tiempo a 1º llamado</p>
                             </div>
                           </div>
 
-                          <div className="text-sm">
-                            <p className="font-medium text-slate-300 mb-1">Motivos de pérdida</p>
-                            <div className="grid md:grid-cols-5 gap-2 text-xs">
-                              <div className="rounded bg-[#0b1328] border border-white/10 p-2">Precio: {seller.lostReasonPercentages.precio.toFixed(1)}%</div>
-                              <div className="rounded bg-[#0b1328] border border-white/10 p-2">Minorista: {seller.lostReasonPercentages.minorista.toFixed(1)}%</div>
-                              <div className="rounded bg-[#0b1328] border border-white/10 p-2">En otro momento: {seller.lostReasonPercentages['en-otro-momento'].toFixed(1)}%</div>
-                              <div className="rounded bg-[#0b1328] border border-white/10 p-2">Pago anticipado: {seller.lostReasonPercentages['pago-anticipado'].toFixed(1)}%</div>
-                              <div className="rounded bg-[#0b1328] border border-white/10 p-2">Sin motivo: {seller.lostReasonPercentages['sin-motivo'].toFixed(1)}%</div>
+                          <div className="pt-4 border-t border-white/5">
+                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Motivos de pérdida</p>
+                            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                              {Object.entries({
+                                Precio: seller.lostReasonPercentages.precio,
+                                Minorista: seller.lostReasonPercentages.minorista,
+                                'En otro momento': seller.lostReasonPercentages['en-otro-momento'],
+                                'Pago anticipado': seller.lostReasonPercentages['pago-anticipado'],
+                                'Sin motivo': seller.lostReasonPercentages['sin-motivo']
+                              }).map(([label, value]) => (
+                                <div key={label} className="rounded-xl bg-[#0b1328] border border-white/5 p-3 text-center group/reason hover:border-brand-orange/30 transition-all">
+                                  <p className="text-[9px] font-black uppercase text-slate-500 group-hover/reason:text-slate-300 transition-colors">{label}</p>
+                                  <p className="text-sm font-black italic text-white mt-1">{value.toFixed(1)}%</p>
+                                </div>
+                              ))}
                             </div>
                           </div>
                         </div>
                       ))
                     )}
-                    <p className="text-xs text-slate-500">{dashboard.notes.firstTouchTime}</p>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest text-right mt-4 italic opacity-0 hover:opacity-100 transition-opacity">{dashboard.notes.firstTouchTime}</p>
                   </CardContent>
                 </Card>
               </div>

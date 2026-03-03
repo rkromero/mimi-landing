@@ -108,7 +108,7 @@ export function LeadCard({
     cantidad: lead.cantidad,
     etapa: lead.etapa,
   })
-  
+
   const {
     attributes,
     listeners,
@@ -225,23 +225,22 @@ export function LeadCard({
       <Card
         ref={setNodeRef}
         style={style}
-        className={`mb-2 border-white/10 bg-[#10182b] text-slate-100 hover:border-indigo-500/40 hover:bg-[#121d33] transition-colors duration-200 ${
-          isDragging ? 'shadow-lg ring-1 ring-indigo-500/50' : ''
-        }`}
+        className={`mb-3 border-white/5 bg-[#0f172a]/40 backdrop-blur-sm text-slate-100 hover:border-brand-orange/30 hover:bg-[#1e293b]/60 transition-all duration-300 group cursor-pointer ${isDragging ? 'shadow-2xl ring-2 ring-brand-orange/50 scale-[1.02] z-50' : 'shadow-md hover:shadow-brand-orange/10'
+          }`}
       >
         {/* Área de drag and drop */}
         <div
           {...attributes}
           {...listeners}
-          className="cursor-grab active:cursor-grabbing p-1"
+          className="cursor-grab active:cursor-grabbing p-2 flex justify-center"
         >
-          <div className="w-full h-1 bg-white/10 rounded-full mb-2"></div>
+          <div className="w-8 h-1 bg-white/10 rounded-full group-hover:bg-brand-orange/40 transition-colors"></div>
         </div>
         <CardContent className="p-3">
           <div className="flex items-start justify-between mb-2">
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-sm text-slate-100 truncate">{lead.nombre}</h3>
-              <p className="text-xs text-slate-400 truncate">{lead.negocio}</p>
+              <h3 className="font-bold text-sm text-white group-hover:text-brand-orange transition-colors truncate">{lead.nombre}</h3>
+              <p className="text-[11px] text-slate-400 font-medium truncate uppercase tracking-wider">{lead.negocio}</p>
             </div>
             <div className="flex items-center gap-1.5">
               {isAdmin && onDeleteLead ? (
@@ -250,7 +249,7 @@ export function LeadCard({
                     <button
                       type="button"
                       aria-label={`Eliminar lead ${lead.nombre}`}
-                      className="h-6 w-6 rounded-md border border-red-400/30 bg-red-500/10 text-red-300 hover:bg-red-500/20 hover:text-red-200 transition-colors flex items-center justify-center"
+                      className="h-6 w-6 rounded-md border border-red-400/30 bg-red-500/10 text-red-300 hover:bg-red-500/20 hover:text-red-200 transition-all flex items-center justify-center"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -296,7 +295,7 @@ export function LeadCard({
                 </AlertDialog>
               ) : null}
               {lead.valor ? (
-                <div className="text-[11px] text-slate-300 bg-white/10 px-2 py-0.5 rounded">
+                <div className="text-[11px] font-bold text-brand-teal bg-brand-teal/10 px-2 py-0.5 rounded-full border border-brand-teal/20">
                   ${lead.valor.toLocaleString()}
                 </div>
               ) : null}
@@ -322,12 +321,12 @@ export function LeadCard({
 
           <Button
             size="sm"
-            variant="outline"
-            className="w-full text-xs h-8 px-2 border-white/10 bg-white/5 text-indigo-300 hover:text-indigo-100 hover:bg-indigo-500/20 hover:border-indigo-300/40 transition-colors"
+            variant="ghost"
+            className="w-full text-xs h-8 px-2 border border-white/10 bg-white/5 text-slate-300 hover:text-white hover:bg-brand-orange/20 hover:border-brand-orange/40 transition-all font-medium"
             onClick={handleDetailsClick}
           >
-            Ver lead
-            <ArrowRight className="h-3 w-3 ml-1" aria-hidden="true" />
+            Detalles
+            <ArrowRight className="h-3 w-3 ml-2 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
           </Button>
         </CardContent>
       </Card>
@@ -348,7 +347,7 @@ export function LeadCard({
               </div>
             </SheetTitle>
           </SheetHeader>
-          
+
           <div className="space-y-6 py-4">
             <div className="bg-[#0f1a34] border border-white/10 rounded-xl p-5">
               <h3 className="text-base font-semibold text-slate-100 mb-4">Gestión del lead</h3>
