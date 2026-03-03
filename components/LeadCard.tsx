@@ -126,8 +126,8 @@ export function LeadCard({
       <Card
         ref={setNodeRef}
         style={style}
-        className={`mb-2 hover:shadow-md transition-shadow duration-200 ${
-          isDragging ? 'shadow-lg' : ''
+        className={`mb-2 border-white/10 bg-[#10182b] text-slate-100 hover:border-indigo-500/40 hover:bg-[#121d33] transition-colors duration-200 ${
+          isDragging ? 'shadow-lg ring-1 ring-indigo-500/50' : ''
         }`}
       >
         {/* Área de drag and drop */}
@@ -136,14 +136,14 @@ export function LeadCard({
           {...listeners}
           className="cursor-grab active:cursor-grabbing p-1"
         >
-          <div className="w-full h-1 bg-gray-200 rounded-full mb-2"></div>
+          <div className="w-full h-1 bg-white/10 rounded-full mb-2"></div>
         </div>
         <CardContent className="p-3">
           {/* Header con nombre y valor */}
           <div className="flex items-start justify-between mb-2">
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-sm text-gray-900 truncate">{lead.nombre}</h3>
-              <p className="text-xs text-gray-600 truncate">{lead.negocio}</p>
+              <h3 className="font-semibold text-sm text-slate-100 truncate">{lead.nombre}</h3>
+              <p className="text-xs text-slate-400 truncate">{lead.negocio}</p>
             </div>
             <div className="flex items-center gap-2">
               {lead.valor && (
@@ -155,11 +155,11 @@ export function LeadCard({
                 </div>
               )}
               <div 
-                className="text-xs text-gray-400 hover:text-[#E65C37] transition-colors cursor-pointer" 
+                className="text-xs text-slate-500 hover:text-indigo-300 transition-colors cursor-pointer"
                 title="Haz clic para ver detalles completos"
                 onClick={handleDetailsClick}
               >
-                <div className="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center hover:bg-[#E65C37] hover:text-white transition-colors">
+                <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center hover:bg-indigo-500/30 hover:text-indigo-100 transition-colors">
                   <FileText className="h-3 w-3" aria-hidden="true" />
                 </div>
               </div>
@@ -168,19 +168,19 @@ export function LeadCard({
 
           {/* Info compacta */}
           <div className="space-y-1 mb-2">
-            <div className="flex items-center gap-2 text-xs text-gray-600">
+            <div className="flex items-center gap-2 text-xs text-slate-400">
               <MapPin className="h-3 w-3 flex-shrink-0" />
                               <span className="truncate">{lead.provincia}, {lead.localidad}</span>
             </div>
-            <div className="flex items-center gap-2 text-xs text-gray-600">
+            <div className="flex items-center gap-2 text-xs text-slate-400">
               <Package className="h-3 w-3 flex-shrink-0" />
               <span>{getCantidadText(lead.cantidad)}</span>
             </div>
           </div>
 
           {lead.assignedToName ? (
-            <div className="text-xs text-gray-600 mb-2">
-              Asignado a: <span className="font-medium text-gray-800">{lead.assignedToName}</span>
+            <div className="text-xs text-slate-400 mb-2">
+              Asignado a: <span className="font-medium text-slate-200">{lead.assignedToName}</span>
             </div>
           ) : null}
 
@@ -194,18 +194,18 @@ export function LeadCard({
 
           {/* Comentarios compactos - clickeable */}
           {lead.comentarios && (
-            <div 
-              className="text-xs text-gray-600 bg-gray-50 p-2 rounded mb-2 line-clamp-2 cursor-pointer hover:bg-gray-100 transition-colors border border-gray-200 hover:border-[#E65C37]"
+            <div
+              className="text-xs text-slate-300 bg-white/5 p-2 rounded mb-2 line-clamp-2 cursor-pointer hover:bg-white/10 transition-colors border border-white/10 hover:border-indigo-400/50"
               onClick={handleDetailsClick}
               title="Haz clic para ver detalles completos"
             >
               <div className="flex items-start gap-2">
-                <MessageSquare className="h-3 w-3 mt-0.5 text-[#E65C37]" aria-hidden="true" />
+                <MessageSquare className="h-3 w-3 mt-0.5 text-indigo-300" aria-hidden="true" />
                 <span className="flex-1">
                   "{lead.comentarios.length > 50 ? lead.comentarios.substring(0, 50) + '...' : lead.comentarios}"
                 </span>
               </div>
-              <div className="text-[10px] text-[#E65C37] mt-1 font-medium">
+              <div className="text-[10px] text-indigo-300 mt-1 font-medium">
                 Haz clic para ver completo →
               </div>
             </div>
@@ -213,25 +213,25 @@ export function LeadCard({
 
           {/* Notas del CRM compactas - clickeable */}
           {lead.notas && (
-            <div 
-              className="text-xs text-blue-600 bg-blue-50 p-2 rounded mb-2 line-clamp-1 cursor-pointer hover:bg-blue-100 transition-colors border border-blue-200 hover:border-blue-400"
+            <div
+              className="text-xs text-blue-200 bg-blue-500/10 p-2 rounded mb-2 line-clamp-1 cursor-pointer hover:bg-blue-500/15 transition-colors border border-blue-400/20 hover:border-blue-300/40"
               onClick={handleDetailsClick}
               title="Haz clic para ver detalles completos"
             >
               <div className="flex items-start gap-2">
-                <MessageSquare className="h-3 w-3 mt-0.5 text-blue-700" aria-hidden="true" />
+                <MessageSquare className="h-3 w-3 mt-0.5 text-blue-300" aria-hidden="true" />
                 <span className="flex-1">
                   {lead.notas.length > 30 ? lead.notas.substring(0, 30) + '...' : lead.notas}
                 </span>
               </div>
-              <div className="text-[10px] text-blue-700 mt-1 font-medium">
+              <div className="text-[10px] text-blue-300 mt-1 font-medium">
                 Haz clic para ver completo →
               </div>
             </div>
           )}
 
           {/* Fecha compacta */}
-          <div className="flex items-center gap-1 text-xs text-gray-500 mb-2">
+          <div className="flex items-center gap-1 text-xs text-slate-500 mb-2">
             <Calendar className="h-3 w-3" />
             <span>{formatDate(lead.createdAt)}</span>
           </div>
@@ -241,7 +241,7 @@ export function LeadCard({
             <Button
               size="sm"
               variant="outline"
-              className="text-xs h-7 px-2 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300 transition-colors"
+              className="text-xs h-7 px-2 border-white/10 bg-white/5 text-slate-100 hover:bg-blue-500/20 hover:text-blue-100 hover:border-blue-300/40 transition-colors"
               onClick={(e) => {
                 e.stopPropagation()
                 e.preventDefault()
@@ -257,7 +257,7 @@ export function LeadCard({
             <Button
               size="sm"
               variant="outline"
-              className="text-xs h-7 px-2 text-green-600 hover:text-green-700 hover:bg-green-50 hover:border-green-300 transition-colors"
+              className="text-xs h-7 px-2 border-white/10 bg-white/5 text-green-300 hover:text-green-200 hover:bg-green-500/20 hover:border-green-300/40 transition-colors"
               onClick={(e) => {
                 e.stopPropagation()
                 e.preventDefault()
@@ -275,7 +275,7 @@ export function LeadCard({
             <Button
               size="sm"
               variant="outline"
-              className="w-full text-xs h-7 px-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 hover:border-blue-300 mt-1 transition-colors"
+              className="w-full text-xs h-7 px-2 border-white/10 bg-white/5 text-blue-300 hover:text-blue-100 hover:bg-blue-500/20 hover:border-blue-300/40 mt-1 transition-colors"
               onClick={(e) => {
                 e.stopPropagation()
                 e.preventDefault()
@@ -292,7 +292,7 @@ export function LeadCard({
           <Button
             size="sm"
             variant="outline"
-            className="w-full text-xs h-7 px-2 text-[#E65C37] hover:text-white hover:bg-[#E65C37] hover:border-[#E65C37] mt-2 transition-colors"
+            className="w-full text-xs h-7 px-2 border-white/10 bg-white/5 text-indigo-300 hover:text-indigo-100 hover:bg-indigo-500/20 hover:border-indigo-300/40 mt-2 transition-colors"
             onClick={handleDetailsClick}
           >
             <FileText className="h-3 w-3 mr-1" aria-hidden="true" />

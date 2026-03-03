@@ -43,20 +43,21 @@ export function KanbanColumn({
   const totalValue = leads.reduce((sum, lead) => sum + (lead.valor || 0), 0)
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full rounded-xl border border-white/10 bg-[#0b1020] overflow-hidden">
       {/* Header de la columna */}
-      <div className={`${color} rounded-t-lg p-3 text-white`}>
+      <div className="p-3 text-white border-b border-white/10 bg-[#0d1325]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Icon className="h-4 w-4" aria-hidden="true" />
-            <h3 className="font-semibold text-xs">{title}</h3>
+            <span className={`w-2 h-2 rounded-full ${color}`} />
+            <Icon className="h-3.5 w-3.5 text-slate-300" aria-hidden="true" />
+            <h3 className="font-medium text-xs tracking-wide text-slate-200">{title}</h3>
           </div>
-          <Badge variant="secondary" className="bg-white/20 text-white text-xs">
+          <Badge variant="secondary" className="bg-white/10 text-slate-200 border border-white/10 text-[10px]">
             {leads.length}
           </Badge>
         </div>
         {totalValue > 0 && (
-          <div className="mt-1 text-xs opacity-90">
+          <div className="mt-1 text-[11px] text-slate-400">
             ${totalValue.toLocaleString()}
           </div>
         )}
@@ -65,15 +66,15 @@ export function KanbanColumn({
       {/* Área de drop */}
       <div
         ref={setNodeRef}
-        className={`flex-1 p-3 bg-gray-50 min-h-[400px] max-h-[600px] overflow-y-auto transition-colors ${
-          isOver ? 'bg-blue-50 border-2 border-blue-300 border-dashed' : ''
+        className={`flex-1 p-3 min-h-[400px] max-h-[600px] overflow-y-auto transition-colors ${
+          isOver ? 'bg-indigo-500/10' : 'bg-[#0b1020]'
         }`}
       >
         <SortableContext items={leads.map(lead => lead.id)} strategy={verticalListSortingStrategy}>
           {leads.length === 0 ? (
-            <div className="text-center text-gray-400 mt-8">
-              <Inbox className="h-10 w-10 mx-auto mb-2" aria-hidden="true" />
-              <p className="text-sm">No hay leads en esta etapa</p>
+            <div className="text-center text-slate-500 mt-8 border border-dashed border-white/10 rounded-lg py-6">
+              <Inbox className="h-8 w-8 mx-auto mb-2 opacity-60" aria-hidden="true" />
+              <p className="text-xs">Arrastrá leads acá</p>
             </div>
           ) : (
             leads.map((lead) => (

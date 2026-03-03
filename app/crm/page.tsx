@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCorners } from '@dnd-kit/core'
 import { KanbanColumn } from '@/components/KanbanColumn'
@@ -8,14 +9,18 @@ import { LeadCard } from '@/components/LeadCard'
 import { MobileCRM } from '@/components/MobileCRM'
 import { useMobile } from '@/hooks/use-mobile'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from '@/hooks/use-toast'
 import {
+  Search,
   RefreshCw,
   BarChart3,
   Users,
   TrendingUp,
   LogOut,
+  ShieldCheck,
+  KanbanSquare,
   Inbox,
   PhoneCall,
   RefreshCcw,
@@ -423,145 +428,197 @@ Equipo MIMI`)
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-[#070a13] text-slate-200 flex items-center justify-center">
         <div className="text-center">
-          <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2" />
-          <p>Cargando CRM...</p>
+          <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2 text-indigo-400" />
+          <p className="text-sm text-slate-400">Cargando CRM...</p>
         </div>
       </div>
     )
   }
 
-  // Vista desktop (sin cambios)
+  const conversionNumeric = Number(conversionRate)
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">CRM MIMI</h1>
-              <p className="text-gray-600">
-                Gestión de Leads y Oportunidades
-                {currentUser ? ` · ${currentUser.name}` : ''}
-              </p>
+    <div className="min-h-screen bg-[#070a13] text-slate-100">
+      <div className="flex min-h-screen">
+        <aside className="hidden lg:flex w-64 flex-col border-r border-white/10 bg-[#080c1a]">
+          <div className="h-14 px-4 border-b border-white/10 flex items-center gap-2">
+            <div className="w-2.5 h-2.5 rounded-full bg-indigo-400" />
+            <span className="text-sm font-semibold tracking-wide">MIMI CRM</span>
+          </div>
+          <div className="px-4 py-4 border-b border-white/10">
+            <p className="text-xs text-slate-400">Usuario</p>
+            <p className="text-sm font-medium text-slate-100 truncate">{currentUser?.email}</p>
+          </div>
+
+          <nav className="px-3 py-4 space-y-1">
+            <Link
+              href="/crm"
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-md bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 text-sm"
+            >
+              <KanbanSquare className="h-4 w-4" />
+              CRM
+            </Link>
+            {isAdmin ? (
+              <Link
+                href="/admin"
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-slate-300 hover:bg-white/5 border border-transparent hover:border-white/10 text-sm transition-colors"
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Admin
+              </Link>
+            ) : null}
+          </nav>
+
+          <div className="mt-auto p-3 border-t border-white/10">
+            <Button onClick={handleLogout} variant="ghost" className="w-full justify-start text-slate-300 hover:text-white hover:bg-white/5">
+              <LogOut className="h-4 w-4 mr-2" />
+              Cerrar sesión
+            </Button>
+          </div>
+        </aside>
+
+        <main className="flex-1 min-w-0">
+          <div className="h-14 border-b border-white/10 bg-[#080c1a]/70 backdrop-blur px-4 md:px-6 flex items-center justify-between gap-3">
+            <div className="relative w-full max-w-sm">
+              <Search className="h-4 w-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Input
+                className="pl-9 bg-white/5 border-white/10 text-slate-200 placeholder:text-slate-500 h-9"
+                placeholder="Buscar..."
+              />
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center gap-2 shrink-0">
               {isAdmin ? <CreateSellerModal onSellerCreated={handleSellerCreated} /> : null}
               <CreateLeadModal onLeadCreated={refreshData} />
-              <Button onClick={refreshData} variant="outline">
+              <Button onClick={refreshData} variant="outline" className="border-white/15 bg-white/5 text-slate-100 hover:bg-white/10">
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Actualizar
               </Button>
-              <Button onClick={handleLogout} variant="outline">
-                <LogOut className="h-4 w-4 mr-2" />
-                Salir
-              </Button>
             </div>
           </div>
-        </div>
-      </div>
 
-      {isAdmin ? (
-        <div className="bg-white border-b">
-          <div className="max-w-7xl mx-auto px-4 py-3">
-            <div className="w-full max-w-sm">
-              <Select value={sellerFilter} onValueChange={setSellerFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Filtrar por vendedor" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos los vendedores</SelectItem>
-                  <SelectItem value={UNASSIGNED_OPTION}>Sin asignar</SelectItem>
-                  {sellers.map((seller) => (
-                    <SelectItem key={seller.id} value={seller.id}>
-                      {seller.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          <div className="px-4 md:px-6 py-5">
+            <div className="mb-5">
+              <h1 className="text-2xl font-bold text-slate-100">CRM</h1>
+              <p className="text-sm text-slate-400">
+                {totalLeads} leads · {visibleLeads.ganado.length} ganados
+                {currentUser ? ` · ${currentUser.name}` : ''}
+              </p>
+            </div>
+
+            <div className="mb-5 border border-white/10 bg-[#0b1020] rounded-xl p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-slate-100">Embudo de ventas</p>
+                  <p className="text-xs text-slate-400">
+                    {totalLeads} leads · {conversionRate}% conversión
+                  </p>
+                </div>
+                <span className="text-xs px-2 py-1 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                  {conversionNumeric >= 10 ? 'Saludable' : 'En crecimiento'}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-      ) : null}
 
-      {/* Estadísticas */}
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Leads</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalLeads}</div>
-              <p className="text-xs text-muted-foreground">leads activos</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Valor Total</CardTitle>
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">${totalValue.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">valor estimado</p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Conversión</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{conversionRate}%</div>
-              <p className="text-xs text-muted-foreground">tasa de conversión</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Kanban Board */}
-        <DndContext
-          collisionDetection={closestCorners}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-        >
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 h-[calc(100vh-280px)]">
-            {COLUMNAS.map((columna) => (
-              <div key={columna.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
-                <KanbanColumn
-                  id={columna.id}
-                  title={columna.title}
-                  leads={visibleLeads[columna.id as keyof LeadsPorEtapa]}
-                  color={columna.color}
-                  icon={columna.icon}
-                  onCall={handleCall}
-                  onWhatsApp={handleWhatsApp}
-                  onEmail={handleEmail}
-                  isAdmin={isAdmin}
-                  sellers={sellers}
-                  onAssignSeller={handleAssignSeller}
-                />
+          {isAdmin ? (
+            <div className="px-4 md:px-6 pb-4">
+              <div className="w-full max-w-sm">
+                <Select value={sellerFilter} onValueChange={setSellerFilter}>
+                  <SelectTrigger className="bg-[#0b1020] border-white/10 text-slate-200">
+                    <SelectValue placeholder="Filtrar por vendedor" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#0b1020] border-white/10 text-slate-200">
+                    <SelectItem value="all">Todos los vendedores</SelectItem>
+                    <SelectItem value={UNASSIGNED_OPTION}>Sin asignar</SelectItem>
+                    {sellers.map((seller) => (
+                      <SelectItem key={seller.id} value={seller.id}>
+                        {seller.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-            ))}
+            </div>
+          ) : null}
+
+          <div className="px-4 md:px-6 pb-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+              <Card className="bg-[#0b1020] border-white/10 text-slate-100">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-xs font-medium text-slate-300">Total Leads</CardTitle>
+                  <Users className="h-4 w-4 text-slate-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{totalLeads}</div>
+                  <p className="text-xs text-slate-500">leads activos</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-[#0b1020] border-white/10 text-slate-100">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-xs font-medium text-slate-300">Valor Total</CardTitle>
+                  <BarChart3 className="h-4 w-4 text-slate-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">${totalValue.toLocaleString()}</div>
+                  <p className="text-xs text-slate-500">valor estimado</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-[#0b1020] border-white/10 text-slate-100">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-xs font-medium text-slate-300">Conversión</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-slate-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{conversionRate}%</div>
+                  <p className="text-xs text-slate-500">tasa de conversión</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <DndContext
+              collisionDetection={closestCorners}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+            >
+              <div className="grid grid-cols-1 xl:grid-cols-5 gap-3 h-[calc(100vh-320px)] min-h-[520px]">
+                {COLUMNAS.map((columna) => (
+                  <KanbanColumn
+                    key={columna.id}
+                    id={columna.id}
+                    title={columna.title}
+                    leads={visibleLeads[columna.id as keyof LeadsPorEtapa]}
+                    color={columna.color}
+                    icon={columna.icon}
+                    onCall={handleCall}
+                    onWhatsApp={handleWhatsApp}
+                    onEmail={handleEmail}
+                    isAdmin={isAdmin}
+                    sellers={sellers}
+                    onAssignSeller={handleAssignSeller}
+                  />
+                ))}
+              </div>
+
+              <DragOverlay>
+                {activeId ? (
+                  <div className="opacity-90 rotate-2">
+                    <LeadCard
+                      lead={getActiveLead()!}
+                      isAdmin={isAdmin}
+                      sellers={sellers}
+                      onAssignSeller={handleAssignSeller}
+                    />
+                  </div>
+                ) : null}
+              </DragOverlay>
+            </DndContext>
           </div>
-
-          <DragOverlay>
-            {activeId ? (
-              <div className="opacity-90 rotate-3 scale-105">
-                <LeadCard
-                  lead={getActiveLead()!}
-                  isAdmin={isAdmin}
-                  sellers={sellers}
-                  onAssignSeller={handleAssignSeller}
-                />
-              </div>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
+        </main>
       </div>
     </div>
   )
-} 
+}
