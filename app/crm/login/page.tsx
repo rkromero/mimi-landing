@@ -1,7 +1,7 @@
 'use client'
 
 import { FormEvent, useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -10,13 +10,19 @@ import { toast } from '@/hooks/use-toast'
 
 export default function CrmLoginPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const nextPath = searchParams.get('next') || '/crm'
+  const [nextPath, setNextPath] = useState('/crm')
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [checkingSession, setCheckingSession] = useState(true)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      setNextPath(params.get('next') || '/crm')
+    }
+  }, [])
 
   useEffect(() => {
     const checkSession = async () => {
