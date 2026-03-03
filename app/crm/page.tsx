@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, closestCorners } from '@dnd-kit/core'
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, closestCorners, useSensor, useSensors } from '@dnd-kit/core'
 import { KanbanColumn } from '@/components/KanbanColumn'
 import { LeadCard } from '@/components/LeadCard'
 import { MobileCRM } from '@/components/MobileCRM'
@@ -117,6 +117,14 @@ export default function CRMPage() {
   const [leads, setLeads] = useState<LeadsPorEtapa>(emptyLeads())
   const [activeId, setActiveId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      // El drag solo se activa si el puntero se mueve al menos 8px
+      // Esto permite que los clicks cortos abran el panel de detalles
+      activationConstraint: { distance: 8 },
+    })
+  )
 
   const isAdmin = currentUser?.role === 'ADMIN'
   const visibleLeads = useMemo(
@@ -620,6 +628,7 @@ Equipo MIMI`)
             </div>
 
             <DndContext
+              sensors={sensors}
               collisionDetection={closestCorners}
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
