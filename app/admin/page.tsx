@@ -6,13 +6,15 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { BarChart3, TrendingDown, TrendingUp, Clock3, KanbanSquare, ShieldCheck, LogOut, RefreshCw } from 'lucide-react'
+import { Input } from "@/components/ui/input"
+import { BarChart3, TrendingDown, TrendingUp, Clock3, KanbanSquare, ShieldCheck, LogOut, RefreshCw, CalendarDays } from 'lucide-react'
 
 interface DashboardResponse {
   summary: {
     totalLeads: number
-    leadsToday: number
-    avgDailyLast7Days: number
+    avgDailyInRange: number
+    dateFrom: string
+    dateTo: string
   }
   leadsByDay: Array<{
     date: string
@@ -41,22 +43,41 @@ interface DashboardResponse {
   }
 }
 
+const toDateStr = (d: Date) => d.toISOString().slice(0, 10)
+
+const getPresetDates = (preset: string): { from: string; to: string } => {
+  const to = new Date()
+  const from = new Date()
+  if (preset === '7d') {
+    from.setDate(from.getDate() - 6)
+  } else if (preset === '30d') {
+    from.setDate(from.getDate() - 29)
+  } else if (preset === 'month') {
+    from.setDate(1)
+  }
+  return { from: toDateStr(from), to: toDateStr(to) }
+}
+
 export default function AdminPage() {
   const router = useRouter()
   const [dashboard, setDashboard] = useState<DashboardResponse | null>(null)
   const [loading, setLoading] = useState(true)
+  const [preset, setPreset] = useState<'7d' | '30d' | 'month' | 'custom'>('7d')
+  const defaultDates = getPresetDates('7d')
+  const [dateFrom, setDateFrom] = useState(defaultDates.from)
+  const [dateTo, setDateTo] = useState(defaultDates.to)
+
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' })
     router.replace('/crm/login?next=/admin')
     router.refresh()
   }
 
-
   useEffect(() => {
     void fetchAll()
   }, [])
 
-  const fetchAll = async () => {
+  const fetchAll = async (from = dateFrom, to = dateTo) => {
     try {
       setLoading(true)
       const meResponse = await fetch('/api/auth/me')
@@ -69,15 +90,15 @@ export default function AdminPage() {
         router.replace('/crm')
         return
       }
-      await fetchDashboard()
+      await fetchDashboard(from, to)
     } finally {
       setLoading(false)
     }
   }
 
-  const fetchDashboard = async () => {
+  const fetchDashboard = async (from = dateFrom, to = dateTo) => {
     try {
-      const response = await fetch('/api/admin/dashboard')
+      const response = await fetch(`/api/admin/dashboard?dateFrom=${from}&dateTo=${to}`)
       if (!response.ok) return
       const data = (await response.json()) as DashboardResponse
       setDashboard(data)
@@ -86,13 +107,30 @@ export default function AdminPage() {
     }
   }
 
+  const applyPreset = (p: '7d' | '30d' | 'month') => {
+    const dates = getPresetDates(p)
+    setPreset(p)
+    setDateFrom(dates.from)
+    setDateTo(dates.to)
+    void fetchDashboard(dates.from, dates.to)
+  }
+
+  const applyCustom = () => {
+    void fetchDashboard(dateFrom, dateTo)
+  }
+
   const formatHours = (hours: number | null) => {
     if (hours === null) return 'Sin datos'
     if (hours < 1) return `${Math.round(hours * 60)} min`
     return `${hours.toFixed(1)} h`
   }
 
-  const maxLeadsPerDay = Math.max(...(dashboard?.leadsByDay.map((item) => item.count) ?? [1]))
+  const formatDateLabel = (dateStr: string) => {
+    const [year, month, day] = dateStr.split('-')
+    return `${day}/${month}/${year}`
+  }
+
+  const maxLeadsPerDay = Math.max(...(dashboard?.leadsByDay.map((item) => item.count) ?? [1]), 1)
 
   if (loading) {
     return (
@@ -142,40 +180,86 @@ export default function AdminPage() {
               <p className="text-sm text-slate-400">Panel</p>
               <h1 className="text-base font-semibold text-slate-100">Admin Dashboard</h1>
             </div>
-            <div className="flex gap-2">
-              <Button onClick={fetchAll} className="h-9 bg-[#E65C37] hover:bg-[#E65C37]/90 text-white">
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Actualizar
-              </Button>
+            <Button onClick={() => fetchAll()} variant="ghost" size="sm" className="text-slate-400 hover:text-white">
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* Filtro de fechas */}
+          <div className="border-b border-white/10 bg-[#080c1a] px-4 md:px-6 py-3 flex flex-wrap items-center gap-3">
+            <CalendarDays className="h-4 w-4 text-slate-400 shrink-0" />
+            <div className="flex gap-1">
+              {(['7d', '30d', 'month'] as const).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => applyPreset(p)}
+                  className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                    preset === p
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-slate-200'
+                  }`}
+                >
+                  {p === '7d' ? 'Última semana' : p === '30d' ? 'Últimos 30 días' : 'Este mes'}
+                </button>
+              ))}
+              <button
+                onClick={() => setPreset('custom')}
+                className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                  preset === 'custom'
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-white/5 text-slate-400 hover:bg-white/10 hover:text-slate-200'
+                }`}
+              >
+                Personalizado
+              </button>
             </div>
+
+            {preset === 'custom' && (
+              <div className="flex items-center gap-2">
+                <Input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(e) => setDateFrom(e.target.value)}
+                  className="h-7 w-36 bg-[#0b1328] border-white/20 text-slate-200 text-xs"
+                />
+                <span className="text-slate-500 text-xs">→</span>
+                <Input
+                  type="date"
+                  value={dateTo}
+                  onChange={(e) => setDateTo(e.target.value)}
+                  className="h-7 w-36 bg-[#0b1328] border-white/20 text-slate-200 text-xs"
+                />
+                <Button onClick={applyCustom} size="sm" className="h-7 bg-[#E65C37] hover:bg-[#E65C37]/90 text-white text-xs px-3">
+                  Aplicar
+                </Button>
+              </div>
+            )}
+
+            {dashboard && preset !== 'custom' && (
+              <span className="text-xs text-slate-500 ml-auto">
+                {formatDateLabel(dashboard.summary.dateFrom)} – {formatDateLabel(dashboard.summary.dateTo)}
+              </span>
+            )}
           </div>
 
           <div className="flex-1 overflow-y-auto crm-scrollbar px-4 md:px-6 py-4">
             {dashboard ? (
               <div className="grid gap-6 mb-8">
-                <div className="grid md:grid-cols-3 gap-4">
+                <div className="grid md:grid-cols-2 gap-4">
                   <Card className="bg-[#0b1328] border-white/10 text-slate-100">
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-sm text-slate-400">Leads creados hoy</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-3xl font-bold">{dashboard.summary.leadsToday}</div>
-                    </CardContent>
-                  </Card>
-                  <Card className="bg-[#0b1328] border-white/10 text-slate-100">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm text-slate-400">Promedio diario (7 días)</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-3xl font-bold">{dashboard.summary.avgDailyLast7Days.toFixed(1)}</div>
-                    </CardContent>
-                  </Card>
-                  <Card className="bg-[#0b1328] border-white/10 text-slate-100">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm text-slate-400">Leads CRM totales</CardTitle>
+                      <CardTitle className="text-sm text-slate-400">Leads en el período</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="text-3xl font-bold">{dashboard.summary.totalLeads}</div>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-[#0b1328] border-white/10 text-slate-100">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm text-slate-400">Promedio diario</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-3xl font-bold">{dashboard.summary.avgDailyInRange.toFixed(1)}</div>
                     </CardContent>
                   </Card>
                 </div>
@@ -184,7 +268,7 @@ export default function AdminPage() {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <BarChart3 className="h-4 w-4" />
-                      Leads creados por día (últimos 30 días)
+                      Leads creados por día
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -196,12 +280,10 @@ export default function AdminPage() {
                         <div key={item.date} className="group relative flex flex-col items-center justify-end h-full">
                           <div
                             className="w-full rounded-t bg-[#E65C37]/80 hover:bg-[#E65C37] transition-colors"
-                            style={{
-                              height: `${Math.max(6, (item.count / maxLeadsPerDay) * 100)}%`,
-                            }}
+                            style={{ height: `${Math.max(6, (item.count / maxLeadsPerDay) * 100)}%` }}
                           />
-                          <span className="absolute -top-6 text-[10px] px-1 py-0.5 rounded bg-slate-900 text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                            {item.count}
+                          <span className="absolute -top-6 text-[10px] px-1 py-0.5 rounded bg-slate-900 text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                            {formatDateLabel(item.date)}: {item.count}
                           </span>
                         </div>
                       ))}
@@ -276,4 +358,4 @@ export default function AdminPage() {
       </div>
     </div>
   )
-} 
+}

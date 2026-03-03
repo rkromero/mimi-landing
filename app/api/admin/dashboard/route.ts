@@ -26,23 +26,40 @@ const parseLostReason = (notes?: string | null): LostReasonKey => {
   return 'sin-motivo'
 }
 
+const parseDateParam = (param: string | null, fallback: Date): Date => {
+  if (!param) return fallback
+  const d = new Date(param + 'T00:00:00.000Z')
+  return isNaN(d.getTime()) ? fallback : d
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { error } = await requireAuth(request, [CrmRole.ADMIN])
     if (error) return error
 
+    const { searchParams } = new URL(request.url)
+
+    const defaultTo = new Date()
+    defaultTo.setHours(23, 59, 59, 999)
+    const defaultFrom = new Date()
+    defaultFrom.setDate(defaultFrom.getDate() - 6)
+    defaultFrom.setHours(0, 0, 0, 0)
+
+    const dateFrom = parseDateParam(searchParams.get('dateFrom'), defaultFrom)
+    const dateTo = parseDateParam(searchParams.get('dateTo'), defaultTo)
+    dateTo.setHours(23, 59, 59, 999)
+
     const [sellers, leads] = await Promise.all([
       prisma.crmUser.findMany({
         where: { role: CrmRole.VENDEDOR },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-        },
+        select: { id: true, name: true, email: true },
         orderBy: { name: 'asc' },
       }),
       prisma.contactForm.findMany({
-        where: { esBajoVolumen: false },
+        where: {
+          esBajoVolumen: false,
+          createdAt: { gte: dateFrom, lte: dateTo },
+        },
         select: {
           id: true,
           assignedToId: true,
@@ -54,21 +71,25 @@ export async function GET(request: NextRequest) {
       }),
     ])
 
+    // Build leadsByDay covering the full selected range
+    const msPerDay = 24 * 60 * 60 * 1000
+    const fromMidnight = new Date(dateFrom)
+    fromMidnight.setUTCHours(0, 0, 0, 0)
+    const toMidnight = new Date(dateTo)
+    toMidnight.setUTCHours(0, 0, 0, 0)
+    const totalDays = Math.round((toMidnight.getTime() - fromMidnight.getTime()) / msPerDay) + 1
+
     const leadsByDayMap = new Map<string, number>()
     for (const lead of leads) {
       const key = lead.createdAt.toISOString().slice(0, 10)
       leadsByDayMap.set(key, (leadsByDayMap.get(key) ?? 0) + 1)
     }
 
-    const last30Days = Array.from({ length: 30 }).map((_, index) => {
-      const date = new Date()
-      date.setHours(0, 0, 0, 0)
-      date.setDate(date.getDate() - (29 - index))
-      const key = date.toISOString().slice(0, 10)
-      return {
-        date: key,
-        count: leadsByDayMap.get(key) ?? 0,
-      }
+    const leadsByDay = Array.from({ length: totalDays }).map((_, index) => {
+      const d = new Date(fromMidnight)
+      d.setUTCDate(d.getUTCDate() + index)
+      const key = d.toISOString().slice(0, 10)
+      return { date: key, count: leadsByDayMap.get(key) ?? 0 }
     })
 
     const sellersMetrics = sellers.map((seller) => {
@@ -85,7 +106,6 @@ export async function GET(request: NextRequest) {
         'pago-anticipado': 0,
         'sin-motivo': 0,
       }
-
       for (const lead of perdidosLeads) {
         reasonsCount[parseLostReason(lead.notas)] += 1
       }
@@ -117,21 +137,21 @@ export async function GET(request: NextRequest) {
         conversionRate: total > 0 ? (ganados / total) * 100 : 0,
         lostRate: total > 0 ? (perdidos / total) * 100 : 0,
         lostReasonPercentages: reasonPercentages,
-        averageHoursToFirstTouch: averageMsToFirstTouch !== null ? averageMsToFirstTouch / 1000 / 60 / 60 : null,
+        averageHoursToFirstTouch:
+          averageMsToFirstTouch !== null ? averageMsToFirstTouch / 1000 / 60 / 60 : null,
       }
     })
 
-    const leadsToday = last30Days[last30Days.length - 1]?.count ?? 0
-    const leadsLast7Days = last30Days.slice(-7).reduce((sum, day) => sum + day.count, 0)
-    const avgDailyLast7Days = leadsLast7Days / 7
+    const avgDailyInRange = totalDays > 0 ? leads.length / totalDays : 0
 
     return NextResponse.json({
       summary: {
         totalLeads: leads.length,
-        leadsToday,
-        avgDailyLast7Days,
+        avgDailyInRange,
+        dateFrom: dateFrom.toISOString().slice(0, 10),
+        dateTo: dateTo.toISOString().slice(0, 10),
       },
-      leadsByDay: last30Days,
+      leadsByDay,
       sellersMetrics,
       lostReasonLabels: LOST_REASON_LABELS,
       notes: {
@@ -141,9 +161,6 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error construyendo dashboard admin:', error)
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }
