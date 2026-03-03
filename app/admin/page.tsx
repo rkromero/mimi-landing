@@ -8,20 +8,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { BarChart3, TrendingDown, TrendingUp, Clock3, KanbanSquare, ShieldCheck, LogOut, RefreshCw } from 'lucide-react'
 
-interface ContactForm {
-  id: string
-  nombre: string
-  negocio: string
-  provincia: string
-  localidad: string
-  cantidad: string
-  etapa: string
-  whatsapp: string
-  email?: string
-  comentarios?: string
-  createdAt: string
-}
-
 interface DashboardResponse {
   summary: {
     totalLeads: number
@@ -57,7 +43,6 @@ interface DashboardResponse {
 
 export default function AdminPage() {
   const router = useRouter()
-  const [forms, setForms] = useState<ContactForm[]>([])
   const [dashboard, setDashboard] = useState<DashboardResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const handleLogout = async () => {
@@ -84,21 +69,9 @@ export default function AdminPage() {
         router.replace('/crm')
         return
       }
-      await Promise.all([fetchForms(), fetchDashboard()])
+      await fetchDashboard()
     } finally {
       setLoading(false)
-    }
-  }
-
-  const fetchForms = async () => {
-    try {
-      const response = await fetch('/api/contact')
-      if (response.ok) {
-        const data = await response.json()
-        setForms(data)
-      }
-    } catch (error) {
-      console.error('Error al cargar formularios:', error)
     }
   }
 
@@ -110,57 +83,6 @@ export default function AdminPage() {
       setDashboard(data)
     } catch (error) {
       console.error('Error al cargar dashboard:', error)
-    }
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('es-AR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
-  const getEtapaColor = (etapa: string) => {
-    switch (etapa) {
-      case 'listo-primer-pedido':
-        return 'bg-green-500/15 text-green-300 border border-green-500/20'
-      case 'empezar-pronto':
-        return 'bg-yellow-500/15 text-yellow-300 border border-yellow-500/20'
-      case 'busco-mejor-proveedor':
-        return 'bg-blue-500/15 text-blue-300 border border-blue-500/20'
-      default:
-        return 'bg-slate-500/15 text-slate-300 border border-slate-500/20'
-    }
-  }
-
-  const getEtapaText = (etapa: string) => {
-    switch (etapa) {
-      case 'buscando-opciones':
-        return 'Buscando opciones'
-      case 'empezar-pronto':
-        return 'Empezar pronto'
-      case 'listo-primer-pedido':
-        return 'Listo para pedido'
-      case 'busco-mejor-proveedor':
-        return 'Busca mejor proveedor'
-      default:
-        return etapa
-    }
-  }
-
-  const getCantidadText = (cantidad?: string) => {
-    switch (cantidad) {
-      case 'menos-24':
-        return 'Menos de 24 docenas'
-      case '24-100':
-        return '24-100 docenas'
-      case 'mas-100':
-        return 'Más de 100 docenas'
-      default:
-        return 'No especificado'
     }
   }
 
@@ -229,12 +151,6 @@ export default function AdminPage() {
           </div>
 
           <div className="flex-1 overflow-y-auto crm-scrollbar px-4 md:px-6 py-4">
-            <div className="mb-4">
-              <p className="text-sm text-slate-400">
-                Total de formularios: <span className="font-semibold text-slate-100">{forms.length}</span>
-              </p>
-            </div>
-
             {dashboard ? (
               <div className="grid gap-6 mb-8">
                 <div className="grid md:grid-cols-3 gap-4">
@@ -355,84 +271,6 @@ export default function AdminPage() {
                 </Card>
               </div>
             ) : null}
-
-            <div className="grid gap-4">
-              {forms.length === 0 ? (
-                <Card className="bg-[#0b1328] border-white/10 text-slate-100">
-                  <CardContent className="p-8 text-center">
-                    <p className="text-slate-500">No hay formularios enviados aún.</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                forms.map((form) => (
-                  <Card key={form.id} className="bg-[#0b1328] border-white/10 text-slate-100">
-                    <CardHeader className="pb-4">
-                      <div className="flex justify-between items-start">
-                        <CardTitle className="text-xl text-[#E65C37]">
-                          {form.nombre} - {form.negocio}
-                        </CardTitle>
-                        <Badge className={getEtapaColor(form.etapa)}>
-                          {getEtapaText(form.etapa)}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-slate-500">
-                        Enviado el {formatDate(form.createdAt)}
-                      </p>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                          <h4 className="font-semibold text-slate-300">Ubicación</h4>
-                          <p className="text-slate-400">{form.provincia}, {form.localidad}</p>
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-slate-300">Cantidad estimada</h4>
-                          <p className="text-slate-400">{getCantidadText(form.cantidad)}</p>
-                        </div>
-                      </div>
-
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                          <h4 className="font-semibold text-slate-300">WhatsApp</h4>
-                          <p className="text-slate-400">
-                            <a
-                              href={`https://wa.me/${form.whatsapp.replace(/\D/g, '')}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-[#E65C37] hover:underline"
-                            >
-                              {form.whatsapp}
-                            </a>
-                          </p>
-                        </div>
-                        {form.email ? (
-                          <div>
-                            <h4 className="font-semibold text-slate-300">Email</h4>
-                            <p className="text-slate-400">
-                              <a
-                                href={`mailto:${form.email}`}
-                                className="text-[#E65C37] hover:underline"
-                              >
-                                {form.email}
-                              </a>
-                            </p>
-                          </div>
-                        ) : null}
-                      </div>
-
-                      {form.comentarios ? (
-                        <div>
-                          <h4 className="font-semibold text-slate-300">Comentarios</h4>
-                          <p className="text-slate-300 bg-[#0f1a34] border border-white/10 p-3 rounded-lg">
-                            {form.comentarios}
-                          </p>
-                        </div>
-                      ) : null}
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </div>
           </div>
         </main>
       </div>

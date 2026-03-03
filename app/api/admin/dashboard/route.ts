@@ -26,9 +26,6 @@ const parseLostReason = (notes?: string | null): LostReasonKey => {
   return 'sin-motivo'
 }
 
-const isAfterEntranteStage = (stage: string) =>
-  stage === 'primer-llamado' || stage === 'seguimiento' || stage === 'ganado' || stage === 'perdido'
-
 export async function GET(request: NextRequest) {
   try {
     const { error } = await requireAuth(request, [CrmRole.ADMIN])
@@ -101,13 +98,13 @@ export async function GET(request: NextRequest) {
         'sin-motivo': perdidos > 0 ? (reasonsCount['sin-motivo'] / perdidos) * 100 : 0,
       }
 
-      const leadTimesMs = sellerLeads
-        .filter((lead) => isAfterEntranteStage(lead.etapaCrm))
+      const leadTimesToFirstCallMs = sellerLeads
+        .filter((lead) => lead.etapaCrm === 'primer-llamado')
         .map((lead) => Math.max(0, lead.updatedAt.getTime() - lead.createdAt.getTime()))
 
       const averageMsToFirstTouch =
-        leadTimesMs.length > 0
-          ? leadTimesMs.reduce((sum, value) => sum + value, 0) / leadTimesMs.length
+        leadTimesToFirstCallMs.length > 0
+          ? leadTimesToFirstCallMs.reduce((sum, v) => sum + v, 0) / leadTimesToFirstCallMs.length
           : null
 
       return {
@@ -139,7 +136,7 @@ export async function GET(request: NextRequest) {
       lostReasonLabels: LOST_REASON_LABELS,
       notes: {
         firstTouchTime:
-          'Tiempo aproximado en base a createdAt y updatedAt (sin historial de eventos de etapas).',
+          'Promedio del tiempo desde entrante hasta primer llamado (solo leads actualmente en primer-llamado).',
       },
     })
   } catch (error) {
