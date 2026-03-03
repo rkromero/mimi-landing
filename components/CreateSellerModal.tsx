@@ -2,17 +2,20 @@
 
 import { FormEvent, useState } from 'react'
 import { Plus } from 'lucide-react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from '@/hooks/use-toast'
+import { cn } from '@/lib/utils'
 
 interface CreateSellerModalProps {
   onSellerCreated: () => void
+  compact?: boolean
+  triggerClassName?: string
 }
 
-export function CreateSellerModal({ onSellerCreated }: CreateSellerModalProps) {
+export function CreateSellerModal({ onSellerCreated, compact = false, triggerClassName }: CreateSellerModalProps) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [name, setName] = useState('')
@@ -82,19 +85,19 @@ export function CreateSellerModal({ onSellerCreated }: CreateSellerModalProps) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline">
-          <Plus className="h-4 w-4 mr-2" />
-          Crear vendedor
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button variant="outline" className={cn(triggerClassName)}>
+          <Plus className={cn("h-4 w-4", compact ? "" : "mr-2")} />
+          {compact ? null : 'Crear vendedor'}
         </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Nuevo vendedor</DialogTitle>
-        </DialogHeader>
+      </SheetTrigger>
+      <SheetContent side="right" className="w-full sm:max-w-md">
+        <SheetHeader>
+          <SheetTitle>Nuevo vendedor</SheetTitle>
+        </SheetHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="space-y-2">
             <Label htmlFor="seller-name">Nombre</Label>
             <Input
@@ -136,7 +139,7 @@ export function CreateSellerModal({ onSellerCreated }: CreateSellerModalProps) {
             </Button>
           </div>
         </form>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   )
 }

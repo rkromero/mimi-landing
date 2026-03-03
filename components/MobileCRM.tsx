@@ -260,10 +260,10 @@ export function MobileCRM({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-[#070b16] flex items-center justify-center">
         <div className="text-center">
-          <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2" />
-          <p>Cargando CRM...</p>
+          <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2 text-indigo-300" />
+          <p className="text-slate-300">Cargando CRM...</p>
         </div>
       </div>
     )
@@ -274,9 +274,9 @@ export function MobileCRM({
     const currentEtapaInfo = getEtapaInfo(selectedLead.etapaCrm)
     
     return (
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-[#070b16] text-slate-100">
         {/* Header del detalle */}
-        <div className="bg-white shadow-sm border-b sticky top-0 z-10">
+        <div className="bg-[#0b1020] border-b border-white/10 sticky top-0 z-10">
           <div className="px-4 py-3">
             <div className="flex items-center gap-3">
               <Button
@@ -288,8 +288,8 @@ export function MobileCRM({
                 <ChevronLeft className="h-5 w-5" />
               </Button>
               <div className="flex-1">
-                <h1 className="text-lg font-bold text-gray-900 truncate">{selectedLead.nombre}</h1>
-                <p className="text-sm text-gray-600 truncate">{selectedLead.negocio}</p>
+                <h1 className="text-lg font-bold text-slate-100 truncate">{selectedLead.nombre}</h1>
+                <p className="text-sm text-slate-400 truncate">{selectedLead.negocio}</p>
               </div>
               {/* Botón Eliminar en el header */}
               {isAdmin ? (
@@ -298,18 +298,18 @@ export function MobileCRM({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10"
                     >
                       <Trash2 className="h-5 w-5" />
                     </Button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent className="mx-4">
+                  <AlertDialogContent className="mx-4 bg-[#10182b] border-white/10 text-slate-100">
                     <AlertDialogHeader>
                       <AlertDialogTitle className="flex items-center gap-2 text-red-600">
                         <Trash2 className="h-5 w-5" />
                         Eliminar Lead
                       </AlertDialogTitle>
-                      <AlertDialogDescription className="text-gray-600">
+                      <AlertDialogDescription className="text-slate-300">
                         ¿Estás seguro de que querés eliminar el lead de <span className="font-semibold">{selectedLead.nombre}</span>? 
                         <br /><br />
                         Esta acción no se puede deshacer y se perderán todos los datos del lead.
@@ -346,7 +346,7 @@ export function MobileCRM({
 
         {/* Mensaje de actualización */}
         {updateMessage && (
-          <div className="bg-white border-b">
+          <div className="bg-[#0b1020] border-b border-white/10">
             <div className="px-4 py-3">
               <div className={`text-sm text-center p-2 rounded ${
                 !updateMessage.startsWith('Error')
@@ -362,7 +362,7 @@ export function MobileCRM({
         {/* Contenido del detalle */}
         <div className="p-4 space-y-4">
           {/* Cambiar Etapa - Sección Principal */}
-          <Card className="border-2 border-orange-200 bg-orange-50">
+          <Card className="border border-orange-400/30 bg-orange-500/10 text-slate-100">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
                 <ArrowRight className="h-5 w-5 text-orange-600" />
@@ -372,8 +372,8 @@ export function MobileCRM({
             <CardContent className="space-y-4">
               {/* Estado Actual */}
               <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">Estado Actual:</p>
-                <div className="flex items-center gap-2 p-3 bg-white rounded-lg border">
+                <p className="text-sm font-medium text-slate-300 mb-2">Estado Actual:</p>
+                <div className="flex items-center gap-2 p-3 bg-[#10182b] rounded-lg border border-white/10">
                   {currentEtapaInfo?.icon ? (
                     <currentEtapaInfo.icon className="h-5 w-5" aria-hidden="true" />
                   ) : null}
@@ -383,12 +383,12 @@ export function MobileCRM({
 
               {/* Selector de Nueva Etapa */}
               <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">Mover a:</p>
+                <p className="text-sm font-medium text-slate-300 mb-2">Mover a:</p>
                 <Select onValueChange={handleEtapaChange} disabled={updatingLead || deletingLead}>
-                  <SelectTrigger className="w-full h-12 text-left bg-white">
+                  <SelectTrigger className="w-full h-12 text-left bg-[#10182b] border-white/10 text-slate-100">
                     <SelectValue placeholder="Seleccionar nueva etapa..." />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-[#10182b] border-white/10 text-slate-100">
                     {ETAPAS
                       .filter(etapa => etapa.id !== selectedLead.etapaCrm)
                       .map((etapa) => (
@@ -405,16 +405,16 @@ export function MobileCRM({
 
               {isAdmin ? (
                 <div>
-                  <p className="text-sm font-medium text-gray-700 mb-2">Vendedor asignado:</p>
+                  <p className="text-sm font-medium text-slate-300 mb-2">Vendedor asignado:</p>
                   <Select
                     value={selectedLead.assignedToId ?? UNASSIGNED_OPTION}
                     onValueChange={handleAssignSeller}
                     disabled={updatingLead || deletingLead}
                   >
-                    <SelectTrigger className="w-full h-12 text-left bg-white">
+                    <SelectTrigger className="w-full h-12 text-left bg-[#10182b] border-white/10 text-slate-100">
                       <SelectValue placeholder="Seleccionar vendedor..." />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-[#10182b] border-white/10 text-slate-100">
                       <SelectItem value={UNASSIGNED_OPTION}>Sin asignar</SelectItem>
                       {sellers.map((seller) => (
                         <SelectItem key={seller.id} value={seller.id}>
@@ -436,14 +436,14 @@ export function MobileCRM({
           </Card>
 
           {/* Información principal */}
-          <Card>
+          <Card className="bg-[#10182b] border-white/10 text-slate-100">
             <CardContent className="p-4 space-y-3">
               <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-gray-500" />
+                <MapPin className="h-4 w-4 text-slate-400" />
                 <span className="text-sm">{selectedLead.provincia}, {selectedLead.localidad}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Package className="h-4 w-4 text-gray-500" />
+                <Package className="h-4 w-4 text-slate-400" />
                 <span className="text-sm">{getCantidadText(selectedLead.cantidad)}</span>
               </div>
               {selectedLead.valor && (
@@ -455,14 +455,14 @@ export function MobileCRM({
                 </div>
               )}
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-gray-500" />
+                <Calendar className="h-4 w-4 text-slate-400" />
                 <span className="text-sm">{formatDate(selectedLead.createdAt)}</span>
               </div>
             </CardContent>
           </Card>
 
           {/* Etapa */}
-          <Card>
+          <Card className="bg-[#10182b] border-white/10 text-slate-100">
             <CardContent className="p-4">
               <h3 className="font-medium mb-2">Etapa Original</h3>
               <Badge variant="secondary" className={getEtapaColor(selectedLead.etapa)}>
@@ -476,10 +476,10 @@ export function MobileCRM({
 
           {/* Comentarios */}
           {selectedLead.comentarios && (
-            <Card>
+            <Card className="bg-[#10182b] border-white/10 text-slate-100">
               <CardContent className="p-4">
                 <h3 className="font-medium mb-2">Comentarios del Cliente</h3>
-                <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
+                <p className="text-sm text-slate-200 bg-white/5 p-3 rounded border border-white/10">
                   "{selectedLead.comentarios}"
                 </p>
               </CardContent>
@@ -488,10 +488,10 @@ export function MobileCRM({
 
           {/* Notas CRM */}
           {selectedLead.notas && (
-            <Card>
+            <Card className="bg-[#10182b] border-white/10 text-slate-100">
               <CardContent className="p-4">
                 <h3 className="font-medium mb-2">Notas del CRM</h3>
-                <p className="text-sm text-blue-600 bg-blue-50 p-3 rounded">
+                <p className="text-sm text-blue-200 bg-blue-500/10 p-3 rounded border border-blue-400/20">
                   {selectedLead.notas}
                 </p>
               </CardContent>
@@ -592,22 +592,32 @@ export function MobileCRM({
 
   // Vista principal con tabs
   return (
-    <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-[#070b16] text-slate-100">
       {/* Header compacto */}
-      <div className="bg-white shadow-sm border-b sticky top-0 z-10">
+      <div className="bg-[#0b1020] border-b border-white/10 sticky top-0 z-20">
         <div className="px-4 py-3">
-          <div className="flex items-center justify-between">
+          <div className="space-y-3">
             <div>
-              <h1 className="text-xl font-bold text-gray-900">CRM MIMI</h1>
-              <p className="text-sm text-gray-600">Gestión de Leads</p>
+              <h1 className="text-xl font-bold text-slate-100">CRM MIMI</h1>
+              <p className="text-sm text-slate-400">Gestión de Leads</p>
             </div>
-            <div className="flex items-center space-x-2">
-              {isAdmin ? <CreateSellerModal onSellerCreated={onSellerCreated} /> : null}
-              <CreateLeadModal onLeadCreated={onRefresh} />
-              <Button onClick={onRefresh} variant="outline" size="sm">
+            <div className="flex items-center gap-2">
+              {isAdmin ? (
+                <CreateSellerModal
+                  onSellerCreated={onSellerCreated}
+                  compact
+                  triggerClassName="h-9 w-9 p-0 border-white/20 bg-white/5 text-slate-100 hover:bg-white/10"
+                />
+              ) : null}
+              <CreateLeadModal
+                onLeadCreated={onRefresh}
+                compact
+                triggerClassName="h-9 w-9 p-0 bg-green-600 hover:bg-green-700"
+              />
+              <Button onClick={onRefresh} variant="outline" size="sm" className="h-9 w-9 p-0 border-white/20 bg-white/5 text-slate-100 hover:bg-white/10">
                 <RefreshCw className="h-4 w-4" />
               </Button>
-              <Button onClick={onLogout} variant="outline" size="sm">
+              <Button onClick={onLogout} variant="outline" size="sm" className="h-9 w-9 p-0 border-white/20 bg-white/5 text-slate-100 hover:bg-white/10">
                 <LogOut className="h-4 w-4" />
               </Button>
             </div>
@@ -616,13 +626,13 @@ export function MobileCRM({
       </div>
 
       {isAdmin ? (
-        <div className="bg-white border-b">
+        <div className="bg-[#0b1020] border-b border-white/10">
           <div className="px-4 py-3">
             <Select value={sellerFilter} onValueChange={setSellerFilter}>
-              <SelectTrigger className="w-full bg-white">
+              <SelectTrigger className="w-full bg-[#10182b] border-white/10 text-slate-100">
                 <SelectValue placeholder="Filtrar por vendedor" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-[#10182b] border-white/10 text-slate-100">
                 <SelectItem value="all">Todos los vendedores</SelectItem>
                 <SelectItem value={UNASSIGNED_OPTION}>Sin asignar</SelectItem>
                 {sellers.map((seller) => (
@@ -637,37 +647,37 @@ export function MobileCRM({
       ) : null}
 
       {/* Estadísticas compactas */}
-      <div className="bg-white border-b">
+      <div className="bg-[#0b1020] border-b border-white/10">
         <div className="px-4 py-3">
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
-              <div className="text-lg font-bold text-gray-900">{totalLeads}</div>
-              <div className="text-xs text-gray-600">Leads</div>
+              <div className="text-lg font-bold text-slate-100">{totalLeads}</div>
+              <div className="text-xs text-slate-400">Leads</div>
             </div>
             <div>
               <div className="text-lg font-bold text-green-600">${totalValue.toLocaleString()}</div>
-              <div className="text-xs text-gray-600">Valor</div>
+              <div className="text-xs text-slate-400">Valor</div>
             </div>
             <div>
               <div className="text-lg font-bold text-blue-600">{conversionRate}%</div>
-              <div className="text-xs text-gray-600">Conversión</div>
+              <div className="text-xs text-slate-400">Conversión</div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Tabs de etapas */}
-      <Tabs defaultValue="entrante" className="flex flex-col h-[calc(100vh-140px)]">
-        <TabsList className="grid w-full grid-cols-5 bg-white border-b rounded-none h-auto">
+      <Tabs defaultValue="entrante" className="flex flex-col h-[calc(100vh-208px)]">
+        <TabsList className="grid w-full grid-cols-5 bg-[#0b1020] border-b border-white/10 rounded-none h-auto">
           {ETAPAS.map((etapa) => (
             <TabsTrigger
               key={etapa.id}
               value={etapa.id}
-              className="flex flex-col gap-1 py-3 px-2 data-[state=active]:bg-gray-100"
+              className="flex flex-col gap-1 py-3 px-1 data-[state=active]:bg-[#10182b] data-[state=active]:text-slate-100 text-slate-300"
             >
               <etapa.icon className="h-4 w-4" aria-hidden="true" />
               <span className="text-xs font-medium truncate">{etapa.title}</span>
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-xs bg-white/10 text-slate-200">
                 {visibleLeads[etapa.id as keyof LeadsPorEtapa].length}
               </Badge>
             </TabsTrigger>
@@ -683,21 +693,21 @@ export function MobileCRM({
             <div className="p-4 space-y-3">
               {visibleLeads[etapa.id as keyof LeadsPorEtapa].length === 0 ? (
                 <div className="text-center py-12">
-                  <etapa.icon className="h-10 w-10 mx-auto mb-3 text-gray-400" aria-hidden="true" />
-                  <p className="text-gray-500">No hay leads en esta etapa</p>
+                  <etapa.icon className="h-10 w-10 mx-auto mb-3 text-slate-500" aria-hidden="true" />
+                  <p className="text-slate-500">No hay leads en esta etapa</p>
                 </div>
               ) : (
                 visibleLeads[etapa.id as keyof LeadsPorEtapa].map((lead) => (
                   <Card
                     key={lead.id}
-                    className="cursor-pointer hover:shadow-md transition-shadow border-l-4 border-l-orange-400"
+                    className="cursor-pointer transition-colors border border-white/10 bg-[#10182b] hover:bg-[#16213a] border-l-4 border-l-orange-400"
                     onClick={() => setSelectedLead(lead)}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-gray-900 truncate">{lead.nombre}</h3>
-                          <p className="text-sm text-gray-600 truncate">{lead.negocio}</p>
+                          <h3 className="font-semibold text-slate-100 truncate">{lead.nombre}</h3>
+                          <p className="text-sm text-slate-400 truncate">{lead.negocio}</p>
                         </div>
                         <div className="flex items-center gap-2 ml-2">
                           {lead.valor && (
@@ -727,7 +737,7 @@ export function MobileCRM({
                           {lead.etapa === 'buscando-opciones' && 'Explora'}
                         </Badge>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-slate-500">
                             {formatDate(lead.createdAt)}
                           </span>
                           <div className="text-orange-600">

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea'
 import { Plus } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
+import { cn } from '@/lib/utils'
 
 const provinciasArgentina = [
   'Buenos Aires', 'CABA', 'Catamarca', 'Chaco', 'Chubut', 'Córdoba', 'Corrientes',
@@ -19,9 +20,11 @@ const provinciasArgentina = [
 
 interface CreateLeadModalProps {
   onLeadCreated: () => void
+  compact?: boolean
+  triggerClassName?: string
 }
 
-export function CreateLeadModal({ onLeadCreated }: CreateLeadModalProps) {
+export function CreateLeadModal({ onLeadCreated, compact = false, triggerClassName }: CreateLeadModalProps) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -112,19 +115,19 @@ export function CreateLeadModal({ onLeadCreated }: CreateLeadModalProps) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="bg-green-600 hover:bg-green-700 text-white">
-          <Plus className="h-4 w-4 mr-2" />
-          Crear Nuevo Lead
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button className={cn("bg-green-600 hover:bg-green-700 text-white", triggerClassName)}>
+          <Plus className={cn("h-4 w-4", compact ? "" : "mr-2")} />
+          {compact ? null : 'Crear Nuevo Lead'}
         </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Crear Nuevo Lead</DialogTitle>
-        </DialogHeader>
+      </SheetTrigger>
+      <SheetContent side="right" className="w-full sm:max-w-xl overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle>Crear Nuevo Lead</SheetTitle>
+        </SheetHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6 mt-4">
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="nombre">Nombre *</Label>
@@ -247,7 +250,7 @@ export function CreateLeadModal({ onLeadCreated }: CreateLeadModalProps) {
             </Button>
           </div>
         </form>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   )
 } 

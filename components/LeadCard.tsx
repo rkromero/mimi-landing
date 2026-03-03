@@ -2,13 +2,13 @@
 
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Phone, MessageCircle, Mail, MapPin, Package, Calendar, DollarSign, User, Building, X, Clock, MessageSquare, FileText } from 'lucide-react'
+import { Phone, MessageCircle, Mail, MapPin, Package, Calendar, DollarSign, User, Building, Clock, MessageSquare, FileText, ArrowRight } from 'lucide-react'
 import { useState } from 'react'
 import { Lead } from '@/types/lead'
 import { CrmSeller } from '@/types/auth'
@@ -139,204 +139,67 @@ export function LeadCard({
           <div className="w-full h-1 bg-white/10 rounded-full mb-2"></div>
         </div>
         <CardContent className="p-3">
-          {/* Header con nombre y valor */}
           <div className="flex items-start justify-between mb-2">
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-sm text-slate-100 truncate">{lead.nombre}</h3>
               <p className="text-xs text-slate-400 truncate">{lead.negocio}</p>
             </div>
-            <div className="flex items-center gap-2">
-              {lead.valor && (
-                <div className="flex items-center gap-1 text-green-600">
-                  <DollarSign className="h-3 w-3" />
-                  <span className="text-xs font-medium">
-                    ${lead.valor.toLocaleString()}
-                  </span>
-                </div>
-              )}
-              <div 
-                className="text-xs text-slate-500 hover:text-indigo-300 transition-colors cursor-pointer"
-                title="Haz clic para ver detalles completos"
-                onClick={handleDetailsClick}
-              >
-                <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center hover:bg-indigo-500/30 hover:text-indigo-100 transition-colors">
-                  <FileText className="h-3 w-3" aria-hidden="true" />
-                </div>
-              </div>
+            <div className="text-[11px] text-slate-300 bg-white/10 px-2 py-0.5 rounded">
+              {lead.valor ? `$${lead.valor.toLocaleString()}` : 'Sin valor'}
             </div>
           </div>
 
-          {/* Info compacta */}
-          <div className="space-y-1 mb-2">
-            <div className="flex items-center gap-2 text-xs text-slate-400">
-              <MapPin className="h-3 w-3 flex-shrink-0" />
-                              <span className="truncate">{lead.provincia}, {lead.localidad}</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-slate-400">
-              <Package className="h-3 w-3 flex-shrink-0" />
-              <span>{getCantidadText(lead.cantidad)}</span>
-            </div>
+          <div className="flex items-center gap-2 text-xs text-slate-400 mb-2">
+            <MapPin className="h-3 w-3 flex-shrink-0" />
+            <span className="truncate">{lead.provincia}, {lead.localidad}</span>
           </div>
 
-          {lead.assignedToName ? (
-            <div className="text-xs text-slate-400 mb-2">
-              Asignado a: <span className="font-medium text-slate-200">{lead.assignedToName}</span>
-            </div>
-          ) : null}
-
-          {/* Etapa original */}
-          <Badge variant="secondary" className={`text-xs mb-2 ${getEtapaColor(lead.etapa)}`}>
+          <Badge variant="secondary" className={`text-xs mb-3 ${getEtapaColor(lead.etapa)}`}>
             {lead.etapa === 'listo-primer-pedido' && 'Listo'}
             {lead.etapa === 'empezar-pronto' && 'Pronto'}
             {lead.etapa === 'busco-mejor-proveedor' && 'Busca'}
             {lead.etapa === 'buscando-opciones' && 'Explora'}
           </Badge>
 
-          {/* Comentarios compactos - clickeable */}
-          {lead.comentarios && (
-            <div
-              className="text-xs text-slate-300 bg-white/5 p-2 rounded mb-2 line-clamp-2 cursor-pointer hover:bg-white/10 transition-colors border border-white/10 hover:border-indigo-400/50"
-              onClick={handleDetailsClick}
-              title="Haz clic para ver detalles completos"
-            >
-              <div className="flex items-start gap-2">
-                <MessageSquare className="h-3 w-3 mt-0.5 text-indigo-300" aria-hidden="true" />
-                <span className="flex-1">
-                  "{lead.comentarios.length > 50 ? lead.comentarios.substring(0, 50) + '...' : lead.comentarios}"
-                </span>
-              </div>
-              <div className="text-[10px] text-indigo-300 mt-1 font-medium">
-                Haz clic para ver completo →
-              </div>
-            </div>
-          )}
-
-          {/* Notas del CRM compactas - clickeable */}
-          {lead.notas && (
-            <div
-              className="text-xs text-blue-200 bg-blue-500/10 p-2 rounded mb-2 line-clamp-1 cursor-pointer hover:bg-blue-500/15 transition-colors border border-blue-400/20 hover:border-blue-300/40"
-              onClick={handleDetailsClick}
-              title="Haz clic para ver detalles completos"
-            >
-              <div className="flex items-start gap-2">
-                <MessageSquare className="h-3 w-3 mt-0.5 text-blue-300" aria-hidden="true" />
-                <span className="flex-1">
-                  {lead.notas.length > 30 ? lead.notas.substring(0, 30) + '...' : lead.notas}
-                </span>
-              </div>
-              <div className="text-[10px] text-blue-300 mt-1 font-medium">
-                Haz clic para ver completo →
-              </div>
-            </div>
-          )}
-
-          {/* Fecha compacta */}
           <div className="flex items-center gap-1 text-xs text-slate-500 mb-2">
             <Calendar className="h-3 w-3" />
             <span>{formatDate(lead.createdAt)}</span>
           </div>
 
-          {/* Botones de acción compactos */}
-          <div className="grid grid-cols-2 gap-1">
-            <Button
-              size="sm"
-              variant="outline"
-              className="text-xs h-7 px-2 border-white/10 bg-white/5 text-slate-100 hover:bg-blue-500/20 hover:text-blue-100 hover:border-blue-300/40 transition-colors"
-              onClick={(e) => {
-                e.stopPropagation()
-                e.preventDefault()
-                if (onCall) {
-                  onCall(lead)
-                }
-              }}
-              title={`Llamar a ${lead.nombre}`}
-            >
-              <Phone className="h-3 w-3 mr-1" />
-              Llamar
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="text-xs h-7 px-2 border-white/10 bg-white/5 text-green-300 hover:text-green-200 hover:bg-green-500/20 hover:border-green-300/40 transition-colors"
-              onClick={(e) => {
-                e.stopPropagation()
-                e.preventDefault()
-                onWhatsApp?.(lead)
-              }}
-              title={`WhatsApp a ${lead.nombre}`}
-            >
-              <MessageCircle className="h-3 w-3 mr-1" />
-              WhatsApp
-            </Button>
-          </div>
-          
-          {/* Email button si existe */}
-          {lead.email && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="w-full text-xs h-7 px-2 border-white/10 bg-white/5 text-blue-300 hover:text-blue-100 hover:bg-blue-500/20 hover:border-blue-300/40 mt-1 transition-colors"
-              onClick={(e) => {
-                e.stopPropagation()
-                e.preventDefault()
-                onEmail?.(lead)
-              }}
-              title={`Email a ${lead.email}`}
-            >
-              <Mail className="h-3 w-3 mr-1" />
-              Email
-            </Button>
-          )}
-
-          {/* Botón para ver detalles */}
           <Button
             size="sm"
             variant="outline"
-            className="w-full text-xs h-7 px-2 border-white/10 bg-white/5 text-indigo-300 hover:text-indigo-100 hover:bg-indigo-500/20 hover:border-indigo-300/40 mt-2 transition-colors"
+            className="w-full text-xs h-8 px-2 border-white/10 bg-white/5 text-indigo-300 hover:text-indigo-100 hover:bg-indigo-500/20 hover:border-indigo-300/40 transition-colors"
             onClick={handleDetailsClick}
           >
-            <FileText className="h-3 w-3 mr-1" aria-hidden="true" />
-            Ver detalles completos
+            Ver lead
+            <ArrowRight className="h-3 w-3 ml-1" aria-hidden="true" />
           </Button>
         </CardContent>
       </Card>
 
-      {/* Modal de detalles completos */}
-      <Dialog open={showDetails} onOpenChange={setShowDetails}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-          <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b border-gray-200">
-            <DialogTitle className="flex items-center gap-3 text-xl">
+      <Sheet open={showDetails} onOpenChange={setShowDetails}>
+        <SheetContent
+          side="right"
+          className="w-full sm:max-w-2xl max-h-screen overflow-y-auto border-white/10 bg-[#0b1020] text-slate-100"
+        >
+          <SheetHeader className="pb-4 border-b border-white/10">
+            <SheetTitle className="flex items-center gap-3 text-xl text-slate-100">
               <div className="w-10 h-10 bg-gradient-to-r from-[#E65C37] to-orange-500 rounded-full flex items-center justify-center">
                 <User className="h-5 w-5 text-white" />
               </div>
               <div>
-                <div className="font-bold text-gray-900">{lead.nombre}</div>
-                <div className="text-sm text-gray-600 font-normal">{lead.negocio}</div>
+                <div className="font-bold text-slate-100">{lead.nombre}</div>
+                <div className="text-sm text-slate-400 font-normal">{lead.negocio}</div>
               </div>
-            </DialogTitle>
-            <div className="flex items-center gap-3">
-              {lead.valor && (
-                <div className="flex items-center gap-1 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
-                  <DollarSign className="h-4 w-4" />
-                  ${lead.valor.toLocaleString()}
-                </div>
-              )}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowDetails(false)}
-                className="h-8 w-8 p-0 hover:bg-gray-100"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          </DialogHeader>
+            </SheetTitle>
+          </SheetHeader>
           
           <div className="space-y-6 py-4">
             {isAdmin && onAssignSeller ? (
-              <div className="bg-white border border-gray-200 rounded-xl p-6">
+              <div className="bg-white/5 border border-white/10 rounded-xl p-5">
                 <div className="space-y-2">
-                  <Label>Vendedor asignado</Label>
+                  <Label className="text-slate-300">Vendedor asignado</Label>
                   <Select
                     value={lead.assignedToId ?? UNASSIGNED_OPTION}
                     onValueChange={async (value) => {
@@ -350,10 +213,10 @@ export function LeadCard({
                     }}
                     disabled={assigningSeller}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-[#10182b] border-white/10 text-slate-100">
                       <SelectValue placeholder="Seleccionar vendedor" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-[#10182b] border-white/10 text-slate-100">
                       <SelectItem value={UNASSIGNED_OPTION}>Sin asignar</SelectItem>
                       {sellers.map((seller) => (
                         <SelectItem key={seller.id} value={seller.id}>
@@ -366,7 +229,6 @@ export function LeadCard({
               </div>
             ) : null}
 
-            {/* Información principal con gradiente */}
             <div className="bg-gradient-to-r from-[#E65C37] to-orange-500 text-white rounded-xl p-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-3">
@@ -412,85 +274,81 @@ export function LeadCard({
               </div>
             </div>
 
-            {/* Información de contacto */}
-            <div className="bg-white border border-gray-200 rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Phone className="h-3 w-3 text-blue-600" />
+            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
+                <div className="w-6 h-6 bg-blue-500/20 rounded-full flex items-center justify-center">
+                  <Phone className="h-3 w-3 text-blue-300" />
                 </div>
                 Información de contacto
               </h3>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                    <MessageCircle className="h-5 w-5 text-green-600" />
+                  <div className="flex items-center gap-3 p-3 bg-green-500/10 rounded-lg border border-green-400/20">
+                    <MessageCircle className="h-5 w-5 text-green-300" />
                     <div>
-                      <div className="text-sm text-gray-600">WhatsApp</div>
-                      <div className="font-medium text-gray-900">{lead.whatsapp}</div>
+                      <div className="text-sm text-slate-400">WhatsApp</div>
+                      <div className="font-medium text-slate-100">{lead.whatsapp}</div>
                     </div>
                   </div>
                   {lead.email && (
-                    <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                      <Mail className="h-5 w-5 text-blue-600" />
+                    <div className="flex items-center gap-3 p-3 bg-blue-500/10 rounded-lg border border-blue-400/20">
+                      <Mail className="h-5 w-5 text-blue-300" />
                       <div>
-                        <div className="text-sm text-gray-600">Email</div>
-                        <div className="font-medium text-gray-900">{lead.email}</div>
+                        <div className="text-sm text-slate-400">Email</div>
+                        <div className="font-medium text-slate-100">{lead.email}</div>
                       </div>
                     </div>
                   )}
                 </div>
                 <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <Building className="h-5 w-5 text-gray-600" />
+                  <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg border border-white/10">
+                    <Building className="h-5 w-5 text-slate-400" />
                     <div>
-                      <div className="text-sm text-gray-600">Negocio</div>
-                      <div className="font-medium text-gray-900">{lead.negocio}</div>
+                      <div className="text-sm text-slate-400">Negocio</div>
+                      <div className="font-medium text-slate-100">{lead.negocio}</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <MapPin className="h-5 w-5 text-gray-600" />
+                  <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg border border-white/10">
+                    <MapPin className="h-5 w-5 text-slate-400" />
                     <div>
-                      <div className="text-sm text-gray-600">Ubicación</div>
-                      <div className="font-medium text-gray-900">{lead.provincia}, {lead.localidad}</div>
+                      <div className="text-sm text-slate-400">Ubicación</div>
+                      <div className="font-medium text-slate-100">{lead.provincia}, {lead.localidad}</div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Comentarios del cliente */}
             {lead.comentarios && (
-              <div className="bg-white border border-gray-200 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
-                    <MessageSquare className="h-3 w-3 text-orange-600" />
+              <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
+                  <div className="w-6 h-6 bg-orange-500/20 rounded-full flex items-center justify-center">
+                    <MessageSquare className="h-3 w-3 text-orange-300" />
                   </div>
                   Comentarios del cliente
                 </h3>
-                <div className="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-lg">
-                  <p className="text-gray-800 italic leading-relaxed">"{lead.comentarios}"</p>
+                <div className="bg-orange-500/10 border-l-4 border-orange-400 p-4 rounded-lg">
+                  <p className="text-slate-100 italic leading-relaxed">"{lead.comentarios}"</p>
                 </div>
               </div>
             )}
 
-            {/* Notas del equipo */}
             {lead.notas && (
-              <div className="bg-white border border-gray-200 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
-                    <MessageSquare className="h-3 w-3 text-purple-600" />
+              <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+                <h3 className="text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
+                  <div className="w-6 h-6 bg-purple-500/20 rounded-full flex items-center justify-center">
+                    <MessageSquare className="h-3 w-3 text-purple-300" />
                   </div>
                   Notas del equipo
                 </h3>
-                <div className="bg-purple-50 border-l-4 border-purple-400 p-4 rounded-lg">
-                  <p className="text-gray-800 leading-relaxed">{lead.notas}</p>
+                <div className="bg-purple-500/10 border-l-4 border-purple-400 p-4 rounded-lg">
+                  <p className="text-slate-100 leading-relaxed">{lead.notas}</p>
                 </div>
               </div>
             )}
 
-            {/* Botones de acción */}
-            <div className="bg-white border border-gray-200 rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Acciones rápidas</h3>
+            <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-slate-100 mb-4">Acciones rápidas</h3>
               <div className="flex flex-wrap gap-3">
                 <Button
                   onClick={() => onCall?.(lead)}
@@ -518,8 +376,8 @@ export function LeadCard({
               </div>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </>
   )
 } 
