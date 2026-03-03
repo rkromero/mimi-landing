@@ -233,10 +233,11 @@ export function LeadCard({
           {...attributes}
           {...listeners}
           className="cursor-grab active:cursor-grabbing p-2 flex justify-center"
+          onClick={(e) => e.stopPropagation()}
         >
           <div className="w-8 h-1 bg-white/10 rounded-full group-hover:bg-brand-orange/40 transition-colors"></div>
         </div>
-        <CardContent className="p-3">
+        <CardContent className="p-3 cursor-pointer" onClick={handleDetailsClick}>
           <div className="flex items-start justify-between mb-2">
             <div className="flex-1 min-w-0">
               <h3 className="font-bold text-sm text-white group-hover:text-brand-orange transition-colors truncate">{lead.nombre}</h3>
@@ -250,6 +251,7 @@ export function LeadCard({
                       type="button"
                       aria-label={`Eliminar lead ${lead.nombre}`}
                       className="h-6 w-6 rounded-md border border-red-400/30 bg-red-500/10 text-red-300 hover:bg-red-500/20 hover:text-red-200 transition-all flex items-center justify-center"
+                      onClick={(e) => e.stopPropagation()}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
