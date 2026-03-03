@@ -348,15 +348,18 @@ export function LeadCard({
             </SheetTitle>
           </SheetHeader>
 
-          <div className="space-y-6 py-4">
-            <div className="bg-[#0f1a34] border border-white/10 rounded-xl p-5">
-              <h3 className="text-base font-semibold text-slate-100 mb-4">Gestión del lead</h3>
+          <div className="space-y-4 py-3">
+            <div className="bg-[#0f1a34]/40 border border-white/5 rounded-xl p-4 backdrop-blur-sm shadow-xl">
+              <h3 className="text-[10px] font-black text-brand-orange uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
+                <Save className="h-3 w-3" />
+                Gestión
+              </h3>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-slate-300">Etapa CRM</Label>
                   <Select value={crmStage} onValueChange={setCrmStage}>
-                    <SelectTrigger className="h-11 bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400">
-                      <SelectValue placeholder="Seleccionar etapa" />
+                    <SelectTrigger className="h-9 bg-[#0b1328] border-white/10 text-slate-100 text-xs focus-visible:ring-indigo-400">
+                      <SelectValue placeholder="Etapa" />
                     </SelectTrigger>
                     <SelectContent className="bg-[#0b1328] border-white/10 text-slate-100">
                       {CRM_STAGE_OPTIONS.map((option) => (
@@ -369,11 +372,11 @@ export function LeadCard({
                 </div>
 
                 {crmStage === 'perdido' ? (
-                  <div className="space-y-2">
-                    <Label className="text-slate-300">Motivo de perdido *</Label>
+                  <div className="space-y-1">
+                    <Label className="text-[10px] text-slate-400 uppercase font-black">Motivo *</Label>
                     <Select value={lostReason} onValueChange={setLostReason}>
-                      <SelectTrigger className="h-11 bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400">
-                        <SelectValue placeholder="Seleccionar motivo" />
+                      <SelectTrigger className="h-9 bg-[#0b1328] border-white/10 text-slate-100 text-xs focus-visible:ring-indigo-400">
+                        <SelectValue placeholder="Motivo" />
                       </SelectTrigger>
                       <SelectContent className="bg-[#0b1328] border-white/10 text-slate-100">
                         {LOST_REASON_OPTIONS.map((option) => (
@@ -389,9 +392,9 @@ export function LeadCard({
             </div>
 
             {isAdmin && onAssignSeller ? (
-              <div className="bg-[#0f1a34] border border-white/10 rounded-xl p-5">
-                <div className="space-y-2">
-                  <Label className="text-slate-300">Vendedor asignado</Label>
+              <div className="bg-[#0f1a34]/40 border border-white/5 rounded-xl p-4">
+                <div className="space-y-1">
+                  <Label className="text-[10px] text-slate-400 uppercase font-black">Vendedor</Label>
                   <Select
                     value={lead.assignedToId ?? UNASSIGNED_OPTION}
                     onValueChange={async (value) => {
@@ -405,8 +408,8 @@ export function LeadCard({
                     }}
                     disabled={assigningSeller}
                   >
-                    <SelectTrigger className="h-11 bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400">
-                      <SelectValue placeholder="Seleccionar vendedor" />
+                    <SelectTrigger className="h-9 bg-[#0b1328] border-white/10 text-slate-100 text-xs focus-visible:ring-indigo-400">
+                      <SelectValue placeholder="Vendedor" />
                     </SelectTrigger>
                     <SelectContent className="bg-[#0b1328] border-white/10 text-slate-100">
                       <SelectItem value={UNASSIGNED_OPTION}>Sin asignar</SelectItem>
@@ -421,87 +424,90 @@ export function LeadCard({
               </div>
             ) : null}
 
-            <div className="bg-gradient-to-r from-[#1a2550] to-[#1a2f5f] text-white rounded-xl p-5 border border-indigo-400/20">
+            <div className="bg-gradient-to-r from-[#1a2550]/40 to-[#1a2f5f]/40 text-white rounded-xl p-4 border border-white/5 backdrop-blur-sm">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs opacity-90">Lead desde</p>
-                  <p className="font-semibold">{formatDate(lead.createdAt)}</p>
+                  <p className="text-[10px] text-slate-500 uppercase font-black">Lead desde</p>
+                  <p className="text-xs font-bold text-white tracking-tight">{formatDate(lead.createdAt)}</p>
                 </div>
                 <div>
-                  <p className="text-xs opacity-90">Etapa actual</p>
-                  <p className="font-semibold capitalize">{crmStage.replace('-', ' ')}</p>
+                  <p className="text-[10px] text-slate-500 uppercase font-black">Etapa actual</p>
+                  <p className="text-xs font-bold text-brand-teal uppercase italic tracking-tighter">{crmStage.replace('-', ' ')}</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-[#0f1a34] border border-white/10 rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-slate-100 mb-4">Editar contacto</h3>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor={`lead-nombre-${lead.id}`}>Nombre *</Label>
+            <div className="bg-[#0f1a34]/40 border border-white/5 rounded-xl p-4 backdrop-blur-sm">
+              <h3 className="text-[10px] font-black text-brand-orange uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
+                <User className="h-3 w-3" />
+                Contacto
+              </h3>
+              <div className="grid md:grid-cols-2 gap-x-4 gap-y-3">
+                <div className="space-y-1">
+                  <Label htmlFor={`lead-nombre-${lead.id}`} className="text-[10px] text-slate-500 uppercase font-black">Nombre *</Label>
                   <Input
                     id={`lead-nombre-${lead.id}`}
                     value={formData.nombre}
                     onChange={(event) => setFormData((prev) => ({ ...prev, nombre: event.target.value }))}
-                    className="h-11 bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400"
+                    className="h-9 bg-[#0b1328] border-white/10 text-slate-100 text-xs focus-visible:ring-indigo-400"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`lead-negocio-${lead.id}`}>Negocio *</Label>
+                <div className="space-y-1">
+                  <Label htmlFor={`lead-negocio-${lead.id}`} className="text-[10px] text-slate-500 uppercase font-black">Negocio *</Label>
                   <Input
                     id={`lead-negocio-${lead.id}`}
                     value={formData.negocio}
                     onChange={(event) => setFormData((prev) => ({ ...prev, negocio: event.target.value }))}
-                    className="h-11 bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400"
+                    className="h-9 bg-[#0b1328] border-white/10 text-slate-100 text-xs focus-visible:ring-indigo-400"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor={`lead-whatsapp-${lead.id}`}>WhatsApp *</Label>
+                <div className="space-y-1">
+                  <Label htmlFor={`lead-whatsapp-${lead.id}`} className="text-[10px] text-slate-500 uppercase font-black">WhatsApp *</Label>
                   <Input
                     id={`lead-whatsapp-${lead.id}`}
                     value={formData.whatsapp}
                     onChange={(event) => setFormData((prev) => ({ ...prev, whatsapp: event.target.value }))}
-                    className="h-11 bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400"
+                    className="h-9 bg-[#0b1328] border-white/10 text-slate-100 text-xs focus-visible:ring-indigo-400"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`lead-email-${lead.id}`}>Email</Label>
+                <div className="space-y-1">
+                  <Label htmlFor={`lead-email-${lead.id}`} className="text-[10px] text-slate-500 uppercase font-black">Email</Label>
                   <Input
                     id={`lead-email-${lead.id}`}
                     type="email"
                     value={formData.email}
                     onChange={(event) => setFormData((prev) => ({ ...prev, email: event.target.value }))}
-                    className="h-11 bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400"
+                    className="h-9 bg-[#0b1328] border-white/10 text-slate-100 text-xs focus-visible:ring-indigo-400"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor={`lead-provincia-${lead.id}`}>Provincia *</Label>
+                <div className="space-y-1">
+                  <Label htmlFor={`lead-provincia-${lead.id}`} className="text-[10px] text-slate-500 uppercase font-black">Provincia *</Label>
                   <Input
                     id={`lead-provincia-${lead.id}`}
                     value={formData.provincia}
                     onChange={(event) => setFormData((prev) => ({ ...prev, provincia: event.target.value }))}
-                    className="h-11 bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400"
+                    className="h-9 bg-[#0b1328] border-white/10 text-slate-100 text-xs focus-visible:ring-indigo-400"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`lead-localidad-${lead.id}`}>Localidad *</Label>
+                <div className="space-y-1">
+                  <Label htmlFor={`lead-localidad-${lead.id}`} className="text-[10px] text-slate-500 uppercase font-black">Localidad *</Label>
                   <Input
                     id={`lead-localidad-${lead.id}`}
                     value={formData.localidad}
                     onChange={(event) => setFormData((prev) => ({ ...prev, localidad: event.target.value }))}
-                    className="h-11 bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400"
+                    className="h-9 bg-[#0b1328] border-white/10 text-slate-100 text-xs focus-visible:ring-indigo-400"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Volumen estimado *</Label>
+                <div className="space-y-1">
+                  <Label className="text-[10px] text-slate-500 uppercase font-black">Volumen *</Label>
                   <Select value={formData.cantidad} onValueChange={(value) => setFormData((prev) => ({ ...prev, cantidad: value }))}>
-                    <SelectTrigger className="h-11 bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400">
-                      <SelectValue placeholder="Seleccionar volumen" />
+                    <SelectTrigger className="h-9 bg-[#0b1328] border-white/10 text-slate-100 text-xs focus-visible:ring-indigo-400">
+                      <SelectValue placeholder="Volumen" />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#0b1328] border-white/10 text-slate-100">
+                    <SelectContent className="bg-[#0b1328] border-white/10 text-slate-100 text-xs">
                       {VOLUME_OPTIONS.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
                           {option.label}
@@ -511,13 +517,13 @@ export function LeadCard({
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Etapa de compra *</Label>
+                <div className="space-y-1">
+                  <Label className="text-[10px] text-slate-500 uppercase font-black">Etapa *</Label>
                   <Select value={formData.etapa} onValueChange={(value) => setFormData((prev) => ({ ...prev, etapa: value }))}>
-                    <SelectTrigger className="h-11 bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400">
-                      <SelectValue placeholder="Seleccionar etapa de compra" />
+                    <SelectTrigger className="h-9 bg-[#0b1328] border-white/10 text-slate-100 text-xs focus-visible:ring-indigo-400">
+                      <SelectValue placeholder="Etapa compra" />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#0b1328] border-white/10 text-slate-100">
+                    <SelectContent className="bg-[#0b1328] border-white/10 text-slate-100 text-xs">
                       {PURCHASE_STAGE_OPTIONS.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
                           {option.label}
@@ -528,45 +534,45 @@ export function LeadCard({
                 </div>
               </div>
 
-              <div className="mt-4 space-y-2">
-                <Label htmlFor={`lead-comentarios-${lead.id}`}>Comentarios del cliente</Label>
+              <div className="mt-3 space-y-1">
+                <Label htmlFor={`lead-comentarios-${lead.id}`} className="text-[10px] text-slate-500 uppercase font-black">Comentarios</Label>
                 <Textarea
                   id={`lead-comentarios-${lead.id}`}
                   value={formData.comentarios}
                   onChange={(event) => setFormData((prev) => ({ ...prev, comentarios: event.target.value }))}
-                  className="min-h-[96px] bg-[#0b1328] border-white/10 text-slate-100 focus-visible:ring-indigo-400"
+                  className="min-h-[60px] max-h-[80px] bg-[#0b1328] border-white/10 text-slate-100 text-xs focus-visible:ring-indigo-400"
                 />
               </div>
             </div>
 
-            <div className="bg-[#0f1a34] border border-white/10 rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-slate-100 mb-4">Acciones rápidas</h3>
-              <div className="flex flex-wrap gap-3">
-                <Button onClick={() => onCall?.(lead)} className="bg-green-600 hover:bg-green-700 text-white px-6 py-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 p-1">
+              <div className="flex gap-2">
+                <Button onClick={() => onCall?.(lead)} size="sm" className="bg-green-600 hover:bg-green-700 text-white font-black italic rounded-xl px-4">
                   <Phone className="h-4 w-4 mr-2" />
                   Llamar
                 </Button>
-                <Button onClick={() => onWhatsApp?.(lead)} className="bg-green-500 hover:bg-green-600 text-white px-6 py-3">
+                <Button onClick={() => onWhatsApp?.(lead)} size="sm" className="bg-green-500 hover:bg-green-600 text-white font-black italic rounded-xl px-4">
                   <MessageCircle className="h-4 w-4 mr-2" />
-                  WhatsApp
+                  WSP
                 </Button>
                 {lead.email ? (
-                  <Button onClick={() => onEmail?.(lead)} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3">
+                  <Button onClick={() => onEmail?.(lead)} size="sm" className="bg-blue-600 hover:bg-blue-700 text-white font-black italic rounded-xl px-4">
                     <Mail className="h-4 w-4 mr-2" />
                     Email
                   </Button>
                 ) : null}
-                {onUpdateLead ? (
-                  <Button
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="ml-auto bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3"
-                  >
-                    <Save className="h-4 w-4 mr-2" />
-                    {saving ? 'Guardando...' : 'Guardar cambios'}
-                  </Button>
-                ) : null}
               </div>
+              {onUpdateLead ? (
+                <Button
+                  onClick={handleSave}
+                  disabled={saving}
+                  size="sm"
+                  className="bg-brand-orange hover:bg-brand-orange/90 text-white font-black italic rounded-xl px-6 shadow-lg shadow-brand-orange/20"
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  {saving ? '...' : 'GUARDAR'}
+                </Button>
+              ) : null}
             </div>
           </div>
         </SheetContent>
