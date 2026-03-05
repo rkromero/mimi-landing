@@ -119,8 +119,8 @@ export default function CRMPage() {
   const [loading, setLoading] = useState(true)
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 3 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 100, tolerance: 5 } })
+    useSensor(PointerSensor, { activationConstraint: { distance: 0.5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 40, tolerance: 8 } })
   )
 
   const isAdmin = currentUser?.role === 'ADMIN'
@@ -664,7 +664,7 @@ Equipo MIMI`)
                 </div>
               </div>
 
-              <DragOverlay dropAnimation={null}>
+              <DragOverlay dropAnimation={null} adjustScale={false}>
                 {activeId ? (() => {
                   const activeLead = getActiveLead()
                   if (!activeLead) return null
