@@ -29,6 +29,8 @@ model CrmUser {
   assignedLeads ContactForm[] @relation("LeadAssignee")
   updatedLeads ContactForm[] @relation("LeadUpdater")
   sessions     CrmSession[]
+
+  @@index([role])
 }
 
 model CrmSession {
@@ -39,6 +41,9 @@ model CrmSession {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      CrmUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model ContactForm {
@@ -65,5 +70,13 @@ model ContactForm {
   assignedTo        CrmUser? @relation("LeadAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
   updatedByUser     CrmUser? @relation("LeadUpdater", fields: [updatedByUserId], references: [id], onDelete: SetNull)
 
+  @@index([esBajoVolumen])
+  @@index([etapaCrm])
+  @@index([assignedToId])
+  @@index([createdAt])
+  @@index([updatedAt])
+  @@index([updatedByUserId])
+  @@index([esBajoVolumen, etapaCrm])
+  @@index([esBajoVolumen, createdAt])
   @@map("contact_forms")
 }

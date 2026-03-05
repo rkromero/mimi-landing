@@ -39,7 +39,23 @@ export async function GET(request: NextRequest) {
       orderBy: {
         updatedAt: 'desc'
       },
-      include: {
+      select: {
+        id: true,
+        nombre: true,
+        negocio: true,
+        provincia: true,
+        localidad: true,
+        cantidad: true,
+        etapa: true,
+        etapaCrm: true,
+        whatsapp: true,
+        email: true,
+        comentarios: true,
+        notas: true,
+        valor: true,
+        assignedToId: true,
+        createdAt: true,
+        updatedAt: true,
         assignedTo: {
           select: {
             id: true,

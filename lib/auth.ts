@@ -84,7 +84,9 @@ export const getAuthUserFromRequest = async (request: NextRequest) => {
 
   const session = await prisma.crmSession.findUnique({
     where: { token },
-    include: {
+    select: {
+      id: true,
+      expiresAt: true,
       user: {
         select: {
           id: true,
