@@ -143,6 +143,19 @@ export async function GET(request: NextRequest) {
     const forms = await prisma.contactForm.findMany({
       orderBy: {
         createdAt: 'desc'
+      },
+      select: {
+        id: true,
+        nombre: true,
+        negocio: true,
+        provincia: true,
+        localidad: true,
+        whatsapp: true,
+        email: true,
+        etapa: true,
+        etapaCrm: true,
+        createdAt: true,
+        esBajoVolumen: true,
       }
     })
 
