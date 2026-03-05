@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, closestCorners, useSensor, useSensors } from '@dnd-kit/core'
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, TouchSensor, pointerWithin, useSensor, useSensors } from '@dnd-kit/core'
 import { KanbanColumn } from '@/components/KanbanColumn'
 import { LeadCard } from '@/components/LeadCard'
 import { MobileCRM } from '@/components/MobileCRM'
@@ -119,10 +119,8 @@ export default function CRMPage() {
   const [loading, setLoading] = useState(true)
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      // El drag se activa al mover 3px — instantáneo en la práctica
-      activationConstraint: { distance: 3 },
-    })
+    useSensor(PointerSensor, { activationConstraint: { distance: 1 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 80, tolerance: 8 } })
   )
 
   const isAdmin = currentUser?.role === 'ADMIN'
@@ -506,40 +504,51 @@ Equipo MIMI`)
   return (
     <div className="h-screen overflow-hidden bg-gradient-to-b from-[#050814] to-[#070d1f] text-slate-100">
       <div className="flex h-full">
-        <aside className="hidden lg:flex w-64 flex-col border-r border-white/10 bg-[#080c1a]">
-          <div className="h-14 px-4 border-b border-white/10 flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-indigo-400" />
-            <span className="text-sm font-semibold tracking-wide">MIMI CRM</span>
-          </div>
-          <div className="px-4 py-4 border-b border-white/10">
-            <p className="text-xs text-slate-400">Usuario</p>
-            <p className="text-sm font-medium text-slate-100 truncate">{currentUser?.email}</p>
-          </div>
+        <aside className="hidden lg:flex w-72 flex-col p-4">
+          <div className="flex flex-col h-full rounded-2xl border border-white/10 bg-[#080c1a]/60 backdrop-blur-xl shadow-2xl overflow-hidden">
+            <div className="h-16 px-6 flex items-center gap-3 border-b border-white/5 bg-white/5">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-orange to-brand-orange/60 flex items-center justify-center shadow-lg shadow-brand-orange/20">
+                <span className="text-white font-black text-sm tracking-tighter">M</span>
+              </div>
+              <span className="text-sm font-bold tracking-tight uppercase">Mimi CRM</span>
+            </div>
 
-          <nav className="px-3 py-4 space-y-1">
-            <Link
-              href="/crm"
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-md bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 text-sm"
-            >
-              <KanbanSquare className="h-4 w-4" />
-              CRM
-            </Link>
-            {isAdmin ? (
-              <Link
-                href="/admin"
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-slate-300 hover:bg-white/5 border border-transparent hover:border-white/10 text-sm transition-colors"
-              >
-                <ShieldCheck className="h-4 w-4" />
-                Admin
-              </Link>
-            ) : null}
-          </nav>
+            <div className="flex-1 flex flex-col px-3 py-6">
+              <div className="px-4 mb-8">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Usuario</p>
+                <p className="text-sm font-semibold text-slate-100 truncate">{currentUser?.email}</p>
+              </div>
 
-          <div className="mt-auto p-3 border-t border-white/10">
-            <Button onClick={handleLogout} variant="ghost" className="w-full justify-start text-slate-300 hover:text-white hover:bg-white/5">
-              <LogOut className="h-4 w-4 mr-2" />
-              Cerrar sesión
-            </Button>
+              <nav className="space-y-1.5">
+                <Link
+                  href="/crm"
+                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl bg-brand-orange/10 text-brand-orange border border-brand-orange/20 text-sm font-medium transition-all"
+                >
+                  <KanbanSquare className="h-4 w-4" />
+                  Tablero CRM
+                </Link>
+                {isAdmin ? (
+                  <Link
+                    href="/admin"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:bg-white/5 border border-transparent hover:border-white/5 text-sm font-medium transition-all"
+                  >
+                    <ShieldCheck className="h-4 w-4" />
+                    Panel Admin
+                  </Link>
+                ) : null}
+              </nav>
+
+              <div className="mt-auto px-1">
+                <Button
+                  onClick={handleLogout}
+                  variant="ghost"
+                  className="w-full justify-start text-slate-400 hover:text-white hover:bg-white/5 rounded-xl h-11 transition-all"
+                >
+                  <LogOut className="h-4 w-4 mr-3" />
+                  <span className="text-sm font-medium">Cerrar sesión</span>
+                </Button>
+              </div>
+            </div>
           </div>
         </aside>
 
@@ -628,7 +637,7 @@ Equipo MIMI`)
 
             <DndContext
               sensors={sensors}
-              collisionDetection={closestCorners}
+              collisionDetection={pointerWithin}
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
             >
@@ -660,12 +669,10 @@ Equipo MIMI`)
                   const activeLead = getActiveLead()
                   if (!activeLead) return null
                   return (
-                    <div className="rotate-1 scale-[1.03] shadow-2xl shadow-black/60 opacity-95 w-full">
-                      <div className="rounded-xl border border-brand-orange/40 bg-[#0f172a] text-slate-100 px-4 py-3">
-                        <p className="font-bold text-sm text-white">{activeLead.nombre}</p>
-                        <p className="text-[11px] text-slate-400 uppercase tracking-wider mb-2">{activeLead.negocio}</p>
-                        <p className="text-xs text-slate-500">{activeLead.provincia}, {activeLead.localidad}</p>
-                      </div>
+                    <div className="rounded-xl border-2 border-brand-orange/60 bg-[#0f172a] text-slate-100 px-4 py-3 shadow-xl cursor-grabbing w-full max-w-[280px]">
+                      <p className="font-bold text-sm text-white">{activeLead.nombre}</p>
+                      <p className="text-[11px] text-slate-400 uppercase tracking-wider">{activeLead.negocio}</p>
+                      <p className="text-xs text-slate-500">{activeLead.provincia}, {activeLead.localidad}</p>
                     </div>
                   )
                 })() : null}

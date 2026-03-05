@@ -62,21 +62,20 @@ export function KanbanColumn({
   const totalValue = leads.reduce((sum, lead) => sum + (lead.valor || 0), 0)
 
   return (
-    <div className="flex flex-col h-full min-h-0 rounded-xl border border-slate-800/80 bg-[#0b1328] overflow-hidden shadow-[0_8px_24px_rgba(0,0,0,0.24)]">
+    <div className="flex flex-col h-full min-h-0 rounded-[1.5rem] border border-white/5 bg-[#0b1328]/40 backdrop-blur-sm overflow-hidden shadow-2xl">
       {/* Header de la columna */}
-      <div className="p-3 text-white border-b border-slate-800/80 bg-[#0a1020]">
+      <div className="p-4 text-white border-b border-white/5 bg-white/5">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className={`w-2.5 h-2.5 rounded-full ring-2 ring-white/10 ${color}`} />
-            <Icon className="h-4 w-4 text-slate-300 group-hover:text-brand-orange transition-colors" aria-hidden="true" />
-            <h3 className="font-bold text-xs tracking-wider text-slate-200 uppercase">{title}</h3>
+          <div className="flex items-center gap-3">
+            <span className={`w-2 h-2 rounded-full ring-4 ring-white/5 ${color}`} />
+            <h3 className="font-bold text-[11px] tracking-[0.1em] text-slate-100 uppercase font-outfit">{title}</h3>
           </div>
-          <Badge variant="secondary" className="bg-slate-700/30 text-slate-200 border border-slate-700/60 text-[10px]">
+          <Badge variant="secondary" className="bg-white/5 text-slate-400 border border-white/10 text-[9px] font-black rounded-lg px-2">
             {leads.length}
           </Badge>
         </div>
         {totalValue > 0 && (
-          <div className="mt-1 text-[11px] text-slate-400">
+          <div className="mt-1.5 text-[10px] font-bold text-brand-orange uppercase tracking-widest opacity-80">
             ${totalValue.toLocaleString()}
           </div>
         )}
@@ -85,8 +84,7 @@ export function KanbanColumn({
       {/* Área de drop */}
       <div
         ref={setNodeRef}
-        className={`flex-1 min-h-0 p-3 overflow-y-auto crm-scrollbar transition-all duration-300 ${isOver ? 'bg-indigo-500/5' : 'bg-[#0b1328]/50'
-          }`}
+        className={`flex-1 min-h-0 p-3 overflow-y-auto crm-scrollbar transition-colors duration-100 ${isOver ? 'bg-indigo-500/8' : 'bg-[#0b1328]/50'}`}
       >
         <SortableContext items={leads.map(lead => lead.id)} strategy={verticalListSortingStrategy}>
           {leads.length === 0 ? (

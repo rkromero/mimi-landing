@@ -1,6 +1,19 @@
 import type { Metadata } from 'next'
 import Script from 'next/script'
+import { Inter, Outfit } from 'next/font/google'
 import './globals.css'
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+})
+
+const outfit = Outfit({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-outfit',
+})
 
 export const metadata: Metadata = {
   title: 'MIMI Alfajores - Distribuidores Premium Argentinos',
@@ -55,13 +68,13 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es">
+    <html lang="es" className={`${inter.variable} ${outfit.variable}`}>
       <head>
         {/* Favicon */}
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="icon" href="/favicon.png" type="image/png" />
         <link rel="shortcut icon" href="/favicon.png" />
-        
+
         {/* PWA Manifest */}
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#E65C37" />
@@ -70,7 +83,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="MIMI Distribuidores" />
         <link rel="apple-touch-icon" href="/images/mimi-logo-new.png" />
-        
+
         {/* Preload de recursos críticos */}
         <link rel="preload" href="/images/mimi-logo-new.png" as="image" />
         <link rel="preconnect" href="https://www.googletagmanager.com" />
@@ -79,7 +92,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://www.google-analytics.com" />
         <link rel="dns-prefetch" href="https://connect.facebook.net" />
-        
+
         {/* Google tag (gtag.js) - Google Ads */}
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`}
@@ -93,7 +106,7 @@ export default function RootLayout({
             gtag('config', '${GOOGLE_ADS_ID}');
           `}
         </Script>
-        
+
         {/* Google Analytics 4 */}
         {GA_MEASUREMENT_ID && (
           <>
@@ -115,7 +128,7 @@ export default function RootLayout({
             </Script>
           </>
         )}
-        
+
         {/* Meta Pixel Code */}
         <Script id="meta-pixel" strategy="afterInteractive">
           {`
@@ -131,7 +144,7 @@ export default function RootLayout({
             fbq('track', 'PageView');
           `}
         </Script>
-        
+
         {/* Hotjar o similar (opcional) */}
         {process.env.NEXT_PUBLIC_HOTJAR_ID && (
           <Script id="hotjar-config" strategy="afterInteractive">
@@ -148,15 +161,15 @@ export default function RootLayout({
           </Script>
         )}
       </head>
-      <body suppressHydrationWarning={true}>
+      <body suppressHydrationWarning={true} className="font-sans">
         {children}
-        
+
         {/* End Meta Pixel Code */}
         <noscript>
-          <img 
-            height="1" 
-            width="1" 
-            style={{display: 'none'}}
+          <img
+            height="1"
+            width="1"
+            style={{ display: 'none' }}
             src="https://www.facebook.com/tr?id=998834822204439&ev=PageView&noscript=1"
           />
         </noscript>

@@ -120,10 +120,10 @@ export function LeadCard({
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    // Deshabilitar transition durante drag para máxima performance
     transition: isDragging ? 'none' : transition,
-    opacity: isDragging ? 0.35 : 1,
-    willChange: isDragging ? 'transform' : 'auto',
+    opacity: isDragging ? 0.4 : 1,
+    willChange: isDragging ? 'transform' : undefined,
+    touchAction: 'none' as const,
   }
 
   const formatDate = (dateString: string) => {
@@ -229,18 +229,27 @@ export function LeadCard({
         style={style}
         {...attributes}
         {...listeners}
-        className={`mb-3 border-white/5 bg-[#0f172a]/40 backdrop-blur-sm text-slate-100 hover:border-brand-orange/30 hover:bg-[#1e293b]/60 transition-all duration-300 group cursor-grab active:cursor-grabbing ${isDragging ? 'shadow-2xl ring-2 ring-brand-orange/50 scale-[1.02] z-50 cursor-grabbing' : 'shadow-md hover:shadow-brand-orange/10'
-          }`}
+        className={`mb-3 border-white/5 bg-[#0b1328]/50 backdrop-blur-md text-slate-100 hover:border-brand-orange/40 hover:bg-[#162345]/80 transition-all duration-300 group cursor-grab active:cursor-grabbing select-none rounded-[1.25rem] overflow-hidden ${isDragging ? 'ring-2 ring-brand-orange/50 z-50 cursor-grabbing opacity-80' : 'shadow-xl hover:shadow-brand-orange/5'}`}
       >
-        {/* Indicador visual de drag */}
-        <div className="pt-2 pb-0 flex justify-center">
-          <div className="w-8 h-1 bg-white/10 rounded-full group-hover:bg-brand-orange/40 transition-colors"></div>
-        </div>
-        <CardContent className="p-3 cursor-pointer" onClick={handleDetailsClick}>
-          <div className="flex items-start justify-between mb-2">
-            <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-sm text-white group-hover:text-brand-orange transition-colors truncate">{lead.nombre}</h3>
-              <p className="text-[11px] text-slate-400 font-medium truncate uppercase tracking-wider">{lead.negocio}</p>
+        <CardContent className="p-4 cursor-pointer" onClick={handleDetailsClick}>
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex-1 min-w-0 pr-2">
+              <h3 className="font-bold text-[13px] text-white group-hover:text-brand-orange transition-colors truncate tracking-tight mb-0.5">{lead.nombre}</h3>
+              <p className="text-[10px] text-slate-500 font-black truncate uppercase tracking-[0.15em] shrink-0">{lead.negocio}</p>
+            </div>
+            <Badge variant="outline" className="shrink-0 bg-white/5 border-white/10 text-slate-400 text-[9px] font-black tracking-widest px-2 py-0.5 rounded-lg group-hover:border-brand-orange/20 group-hover:text-brand-orange/70 transition-all uppercase">
+              {lead.provincia}
+            </Badge>
+          </div>
+
+          <div className="flex items-center justify-between mt-auto">
+            <div className="flex items-center gap-2">
+              <div className="flex -space-x-2">
+                <div className="w-5 h-5 rounded-full border border-[#0b1328] bg-slate-800 flex items-center justify-center text-[8px] font-bold text-slate-400">
+                  {lead.nombre[0]}
+                </div>
+              </div>
+              <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{lead.localidad}</span>
             </div>
             <div className="flex items-center gap-1.5">
               {isAdmin && onDeleteLead ? (
