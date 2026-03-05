@@ -22,7 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Phone, MessageCircle, Mail, MapPin, Calendar, User, ArrowRight, Save, Trash2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, memo } from 'react'
 import { Lead } from '@/types/lead'
 import { CrmSeller } from '@/types/auth'
 import { toast } from '@/hooks/use-toast'
@@ -80,7 +80,7 @@ const VOLUME_OPTIONS = [
   { value: 'mas-100', label: 'Más de 100 docenas' },
 ] as const
 
-export function LeadCard({
+export const LeadCard = memo(function LeadCard({
   lead,
   onCall,
   onWhatsApp,
@@ -119,7 +119,7 @@ export function LeadCard({
   } = useSortable({ id: lead.id })
 
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: CSS.Translate.toString(transform),
     transition: isDragging ? 'none' : transition,
     opacity: isDragging ? 0.4 : 1,
     willChange: isDragging ? 'transform' : undefined,
@@ -589,4 +589,4 @@ export function LeadCard({
       </Sheet>
     </>
   )
-} 
+}) 

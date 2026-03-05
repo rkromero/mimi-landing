@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, TouchSensor, pointerWithin, useSensor, useSensors } from '@dnd-kit/core'
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, TouchSensor, rectIntersection, useSensor, useSensors } from '@dnd-kit/core'
 import { KanbanColumn } from '@/components/KanbanColumn'
 import { LeadCard } from '@/components/LeadCard'
 import { MobileCRM } from '@/components/MobileCRM'
@@ -119,8 +119,8 @@ export default function CRMPage() {
   const [loading, setLoading] = useState(true)
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 1 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 80, tolerance: 8 } })
+    useSensor(PointerSensor, { activationConstraint: { distance: 3 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 100, tolerance: 5 } })
   )
 
   const isAdmin = currentUser?.role === 'ADMIN'
@@ -637,7 +637,7 @@ Equipo MIMI`)
 
             <DndContext
               sensors={sensors}
-              collisionDetection={pointerWithin}
+              collisionDetection={rectIntersection}
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
             >
