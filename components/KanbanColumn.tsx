@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Lead } from '@/types/lead'
 import { LucideIcon, Inbox } from 'lucide-react'
 import { CrmSeller } from '@/types/auth'
+import { memo } from 'react'
 
 interface KanbanColumnProps {
   id: string
@@ -39,7 +40,7 @@ interface KanbanColumnProps {
   ) => Promise<void>
 }
 
-export function KanbanColumn({
+export const KanbanColumn = memo(function KanbanColumn({
   id,
   title,
   leads,
@@ -112,4 +113,11 @@ export function KanbanColumn({
       </div>
     </div>
   )
-} 
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.id === nextProps.id &&
+    prevProps.leads === nextProps.leads &&
+    prevProps.isAdmin === nextProps.isAdmin &&
+    prevProps.sellers === nextProps.sellers
+  )
+})

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, TouchSensor, rectIntersection, useSensor, useSensors } from '@dnd-kit/core'
@@ -215,7 +215,7 @@ export default function CRMPage() {
     await refreshData()
   }
 
-  const handleAssignSeller = async (leadId: string, sellerId: string | null) => {
+  const handleAssignSeller = useCallback(async (leadId: string, sellerId: string | null) => {
     const response = await fetch('/api/crm', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -231,9 +231,9 @@ export default function CRMPage() {
     }
 
     await cargarLeads()
-  }
+  }, [])
 
-  const handleUpdateLead = async (
+  const handleUpdateLead = useCallback(async (
     leadId: string,
     payload: {
       nuevaEtapa?: string
@@ -264,9 +264,9 @@ export default function CRMPage() {
     }
 
     await cargarLeads()
-  }
+  }, [])
 
-  const handleDeleteLead = async (leadId: string) => {
+  const handleDeleteLead = useCallback(async (leadId: string) => {
     const response = await fetch('/api/crm', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
@@ -279,15 +279,15 @@ export default function CRMPage() {
     }
 
     await cargarLeads()
-  }
+  }, [])
 
   // Manejar inicio de drag
-  const handleDragStart = (event: DragStartEvent) => {
+  const handleDragStart = useCallback((event: DragStartEvent) => {
     setActiveId(event.active.id as string)
-  }
+  }, [])
 
   // Manejar fin de drag
-  const handleDragEnd = async (event: DragEndEvent) => {
+  const handleDragEnd = useCallback(async (event: DragEndEvent) => {
     const { active, over } = event
 
     if (!over) {
@@ -391,7 +391,7 @@ export default function CRMPage() {
     }
 
     setActiveId(null)
-  }
+  }, [leads])
 
   // Obtener el lead activo para el overlay
   const getActiveLead = (): Lead | null => {
@@ -405,7 +405,7 @@ export default function CRMPage() {
   }
 
   // Manejar acciones de contacto
-  const handleCall = (lead: Lead) => {
+  const handleCall = useCallback((lead: Lead) => {
     const fullNumber = normalizePhone(lead.whatsapp)
     if (!fullNumber) {
       toast({
@@ -417,9 +417,9 @@ export default function CRMPage() {
     }
 
     window.location.href = `tel:+${fullNumber}`
-  }
+  }, [])
 
-  const handleWhatsApp = (lead: Lead) => {
+  const handleWhatsApp = useCallback((lead: Lead) => {
     const fullNumber = normalizePhone(lead.whatsapp)
     if (!fullNumber) {
       toast({
@@ -433,9 +433,9 @@ export default function CRMPage() {
     const message = `Hola ${lead.nombre}! Te contacto desde MIMI Alfajores respecto a tu consulta sobre distribucion. Un representante de la empresa se estara contactando con vos en breve!`
     const encodedMessage = encodeURIComponent(message)
     window.open(`https://wa.me/${fullNumber}?text=${encodedMessage}`, '_blank', 'noopener,noreferrer')
-  }
+  }, [])
 
-  const handleEmail = (lead: Lead) => {
+  const handleEmail = useCallback((lead: Lead) => {
     if (!lead.email) {
       toast({
         title: 'Email no disponible',
@@ -463,7 +463,7 @@ Saludos,
 Equipo MIMI`)
 
     window.open(`mailto:${lead.email}?subject=${subject}&body=${body}`)
-  }
+  }, [])
 
   // Calcular estadísticas
   const totalLeads = Object.values(visibleLeads).reduce((sum, columnLeads) => sum + columnLeads.length, 0)

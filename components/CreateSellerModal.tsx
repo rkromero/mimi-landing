@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from 'react'
 import { Plus } from 'lucide-react'
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -86,12 +86,15 @@ export function CreateSellerModal({ onSellerCreated, compact = false, triggerCla
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button variant="outline" className={cn(triggerClassName)}>
-          <Plus className={cn("h-4 w-4", compact ? "" : "mr-2")} />
-          {compact ? null : 'Crear vendedor'}
-        </Button>
-      </SheetTrigger>
+      <Button
+        type="button"
+        variant="outline"
+        className={cn(triggerClassName)}
+        onClick={() => setOpen(true)}
+      >
+        <Plus className={cn("h-4 w-4", compact ? "" : "mr-2")} />
+        {compact ? null : 'Crear vendedor'}
+      </Button>
       <SheetContent side="right" className="w-full sm:max-w-md">
         <SheetHeader>
           <SheetTitle>Nuevo vendedor</SheetTitle>
