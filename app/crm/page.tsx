@@ -19,7 +19,6 @@ import {
   Users,
   TrendingUp,
   LogOut,
-  ShieldCheck,
   KanbanSquare,
   Inbox,
   PhoneCall,
@@ -527,15 +526,6 @@ Equipo MIMI`)
                   <KanbanSquare className="h-4 w-4" />
                   Tablero CRM
                 </Link>
-                {isAdmin ? (
-                  <Link
-                    href="/admin"
-                    className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:bg-white/5 border border-transparent hover:border-white/5 text-sm font-medium transition-all"
-                  >
-                    <ShieldCheck className="h-4 w-4" />
-                    Panel Admin
-                  </Link>
-                ) : null}
               </nav>
 
               <div className="mt-auto px-1">

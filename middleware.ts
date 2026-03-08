@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { SESSION_COOKIE_NAME } from '@/lib/auth-constants'
 
-const PROTECTED_PAGE_PREFIXES = ['/crm', '/admin']
+const PROTECTED_PAGE_PREFIXES = ['/crm']
 const PROTECTED_API_PREFIXES = ['/api/crm', '/api/users']
 const PUBLIC_ROUTES = ['/crm/login', '/api/auth/login']
 
@@ -39,5 +39,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/crm/:path*', '/admin/:path*', '/api/crm/:path*', '/api/users/:path*'],
+  matcher: ['/crm/:path*', '/api/crm/:path*', '/api/users/:path*'],
 }

@@ -104,7 +104,6 @@ export const conversionConfig = {
   // URLs importantes
   urls: {
     base: process.env.NEXT_PUBLIC_BASE_URL || 'https://www.mimialfajor.com.ar',
-    admin: '/admin',
     crm: '/crm',
     api: {
       contact: '/api/contact',
