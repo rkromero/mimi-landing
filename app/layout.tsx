@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Script from 'next/script'
-import { Inter, Outfit } from 'next/font/google'
+import { Cormorant_Garamond, Inter, Outfit } from 'next/font/google'
 import './globals.css'
 
 const inter = Inter({
@@ -13,6 +13,12 @@ const outfit = Outfit({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-outfit',
+})
+
+const cormorantGaramond = Cormorant_Garamond({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-cormorant-garamond',
 })
 
 export const metadata: Metadata = {
@@ -68,7 +74,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className={`${inter.variable} ${outfit.variable}`}>
+    <html lang="es" className={`${inter.variable} ${outfit.variable} ${cormorantGaramond.variable}`}>
       <head>
         {/* Favicon */}
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />

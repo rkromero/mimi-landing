@@ -468,24 +468,27 @@ Equipo MIMI`)
   const totalLeads = Object.values(visibleLeads).reduce((sum, columnLeads) => sum + columnLeads.length, 0)
   const totalValue = Object.values(visibleLeads).flat().reduce((sum, lead) => sum + (lead.valor || 0), 0)
   const conversionRate = totalLeads > 0 ? ((visibleLeads.ganado.length / totalLeads) * 100).toFixed(1) : '0'
+  const crmFontClass = 'font-[family-name:var(--font-cormorant-garamond)]'
 
   // Renderizado condicional: móvil vs desktop
   if (isMobile) {
     return (
-      <MobileCRM
-        leads={visibleLeads}
-        onCall={handleCall}
-        onWhatsApp={handleWhatsApp}
-        onEmail={handleEmail}
-        onRefresh={refreshData}
-        onLogout={handleLogout}
-        onSellerCreated={handleSellerCreated}
-        onAssignSeller={handleAssignSeller}
-        onUpdateLead={handleUpdateLead}
-        currentUserRole={currentUser?.role || 'VENDEDOR'}
-        sellers={sellers}
-        loading={loading}
-      />
+      <div className={crmFontClass}>
+        <MobileCRM
+          leads={visibleLeads}
+          onCall={handleCall}
+          onWhatsApp={handleWhatsApp}
+          onEmail={handleEmail}
+          onRefresh={refreshData}
+          onLogout={handleLogout}
+          onSellerCreated={handleSellerCreated}
+          onAssignSeller={handleAssignSeller}
+          onUpdateLead={handleUpdateLead}
+          currentUserRole={currentUser?.role || 'VENDEDOR'}
+          sellers={sellers}
+          loading={loading}
+        />
+      </div>
     )
   }
 
@@ -501,7 +504,7 @@ Equipo MIMI`)
   }
 
   return (
-    <div className="h-screen overflow-hidden bg-gradient-to-b from-[#050814] to-[#070d1f] text-slate-100">
+    <div className={`h-screen overflow-hidden bg-gradient-to-b from-[#050814] to-[#070d1f] text-slate-100 ${crmFontClass}`}>
       <div className="flex h-full">
         <aside className="hidden lg:flex w-72 flex-col p-4">
           <div className="flex flex-col h-full rounded-2xl border border-white/10 bg-[#080c1a]/60 backdrop-blur-xl shadow-2xl overflow-hidden">
