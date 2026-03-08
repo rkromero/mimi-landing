@@ -468,7 +468,7 @@ Equipo MIMI`)
   const totalLeads = Object.values(visibleLeads).reduce((sum, columnLeads) => sum + columnLeads.length, 0)
   const totalValue = Object.values(visibleLeads).flat().reduce((sum, lead) => sum + (lead.valor || 0), 0)
   const conversionRate = totalLeads > 0 ? ((visibleLeads.ganado.length / totalLeads) * 100).toFixed(1) : '0'
-  const crmFontClass = 'font-[family-name:var(--font-cormorant-garamond)]'
+  const crmFontClass = 'crm-premium-typography'
 
   // Renderizado condicional: móvil vs desktop
   if (isMobile) {
@@ -600,7 +600,7 @@ Equipo MIMI`)
                   <Users className="h-4 w-4 text-slate-500 group-hover:text-brand-orange transition-colors" />
                 </CardHeader>
                 <CardContent className="pt-2">
-                  <div className="text-3xl font-black italic tracking-tighter text-white">{totalLeads}</div>
+                  <div className="text-3xl font-black tracking-tighter text-white">{totalLeads}</div>
                   <p className="text-[10px] text-slate-500 font-medium uppercase mt-1">leads activos en sistema</p>
                 </CardContent>
               </Card>
@@ -611,7 +611,7 @@ Equipo MIMI`)
                   <BarChart3 className="h-4 w-4 text-slate-500 group-hover:text-brand-teal transition-colors" />
                 </CardHeader>
                 <CardContent className="pt-2">
-                  <div className="text-3xl font-black italic tracking-tighter text-brand-teal">${totalValue.toLocaleString()}</div>
+                  <div className="text-3xl font-black tracking-tighter text-brand-teal">${totalValue.toLocaleString()}</div>
                   <p className="text-[10px] text-slate-500 font-medium uppercase mt-1">valor proyectado de ventas</p>
                 </CardContent>
               </Card>
@@ -622,7 +622,7 @@ Equipo MIMI`)
                   <TrendingUp className="h-4 w-4 text-slate-500 group-hover:text-brand-orange transition-colors" />
                 </CardHeader>
                 <CardContent className="pt-2">
-                  <div className="text-3xl font-black italic tracking-tighter text-white">{conversionRate}%</div>
+                  <div className="text-3xl font-black tracking-tighter text-white">{conversionRate}%</div>
                   <p className="text-[10px] text-slate-500 font-medium uppercase mt-1">tasa de cierre exitoso</p>
                 </CardContent>
               </Card>

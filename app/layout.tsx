@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Script from 'next/script'
-import { Cormorant_Garamond, Inter, Outfit } from 'next/font/google'
+import { Inter, Manrope, Outfit } from 'next/font/google'
 import './globals.css'
 
 const inter = Inter({
@@ -15,10 +15,10 @@ const outfit = Outfit({
   variable: '--font-outfit',
 })
 
-const cormorantGaramond = Cormorant_Garamond({
+const manrope = Manrope({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-cormorant-garamond',
+  variable: '--font-manrope',
 })
 
 export const metadata: Metadata = {
@@ -74,7 +74,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className={`${inter.variable} ${outfit.variable} ${cormorantGaramond.variable}`}>
+    <html lang="es" className={`${inter.variable} ${outfit.variable} ${manrope.variable}`}>
       <head>
         {/* Favicon */}
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />

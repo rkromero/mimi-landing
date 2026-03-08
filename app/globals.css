@@ -142,3 +142,22 @@ body {
   background: rgba(148, 163, 184, 0.45);
   background-clip: padding-box;
 }
+
+/* Tipografia premium exclusiva para CRM */
+.crm-premium-typography {
+  font-family: var(--font-manrope), var(--font-inter), "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+}
+
+.crm-premium-typography * {
+  font-style: normal !important;
+}
+
+@media (min-width: 768px) {
+  .crm-premium-typography {
+    font-size: 16px;
+    line-height: 1.55;
+  }
+}
