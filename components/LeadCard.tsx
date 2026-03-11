@@ -232,7 +232,7 @@ export const LeadCard = memo(function LeadCard({
         {...listeners}
         className={`mb-3 border-white/5 text-slate-100 select-none rounded-[1.25rem] overflow-hidden ${isDragging
             ? 'ring-2 ring-brand-orange/50 cursor-grabbing bg-[#0b1328] shadow-2xl scale-[1.02]'
-            : 'bg-[#0b1328]/50 backdrop-blur-md hover:border-brand-orange/40 hover:bg-[#162345]/80 transition-all duration-300 cursor-grab active:cursor-grabbing shadow-xl hover:shadow-brand-orange/5'
+            : 'bg-[#0f1932] hover:border-brand-orange/40 hover:bg-[#162345] transition-colors duration-150 cursor-grab active:cursor-grabbing shadow-xl'
           }`}
       >
         <CardContent className="p-4 cursor-pointer" onClick={handleDetailsClick}>

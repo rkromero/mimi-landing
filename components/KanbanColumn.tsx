@@ -63,7 +63,7 @@ export const KanbanColumn = memo(function KanbanColumn({
   const totalValue = leads.reduce((sum, lead) => sum + (lead.valor || 0), 0)
 
   return (
-    <div className="flex flex-col h-full min-h-0 rounded-[1.5rem] border border-white/5 bg-[#0b1328]/40 backdrop-blur-sm overflow-hidden shadow-2xl">
+    <div className="flex flex-col h-full min-h-0 rounded-[1.5rem] border border-white/5 bg-[#0b1328] overflow-hidden shadow-2xl">
       {/* Header de la columna */}
       <div className="p-4 text-white border-b border-white/5 bg-white/5">
         <div className="flex items-center justify-between">
@@ -85,7 +85,7 @@ export const KanbanColumn = memo(function KanbanColumn({
       {/* Área de drop */}
       <div
         ref={setNodeRef}
-        className={`flex-1 min-h-0 p-3 overflow-y-auto crm-scrollbar transition-colors duration-100 ${isOver ? 'bg-indigo-500/8' : 'bg-[#0b1328]/50'}`}
+        className={`flex-1 min-h-0 p-3 overflow-y-auto crm-scrollbar transition-colors duration-100 ${isOver ? 'bg-indigo-500/10' : ''}`}
       >
         <SortableContext items={leads.map(lead => lead.id)} strategy={verticalListSortingStrategy}>
           {leads.length === 0 ? (

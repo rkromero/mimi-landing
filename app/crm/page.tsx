@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState, useCallback } from 'react'
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, TouchSensor, rectIntersection, useSensor, useSensors } from '@dnd-kit/core'
@@ -125,11 +125,14 @@ export default function CRMPage() {
   const [leads, setLeads] = useState<LeadsPorEtapa>(emptyLeads())
   const [activeId, setActiveId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const leadsRef = useRef(leads)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 0.5 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 40, tolerance: 8 } })
   )
+
+  useEffect(() => { leadsRef.current = leads }, [leads])
 
   const isAdmin = currentUser?.role === 'ADMIN'
   const visibleLeads = useMemo(
@@ -305,12 +308,13 @@ export default function CRMPage() {
 
     const activeId = active.id as string
     const overId = over.id as string
+    const currentLeads = leadsRef.current
 
     // Encontrar el lead que se está moviendo
     let leadToMove: Lead | null = null
     let fromColumn = ''
 
-    for (const [columnId, columnLeads] of Object.entries(leads)) {
+    for (const [columnId, columnLeads] of Object.entries(currentLeads)) {
       const lead = columnLeads.find((l: Lead) => l.id === activeId)
       if (lead) {
         leadToMove = lead
@@ -328,7 +332,7 @@ export default function CRMPage() {
     let toColumn = overId
     if (!COLUMNAS.find(col => col.id === overId)) {
       // Si se soltó sobre otro lead, encontrar su columna
-      for (const [columnId, columnLeads] of Object.entries(leads)) {
+      for (const [columnId, columnLeads] of Object.entries(currentLeads)) {
         if (columnLeads.find((l: Lead) => l.id === overId)) {
           toColumn = columnId
           break
@@ -399,13 +403,13 @@ export default function CRMPage() {
     }
 
     setActiveId(null)
-  }, [leads])
+  }, [])
 
   // Obtener el lead activo para el overlay
   const getActiveLead = (): Lead | null => {
     if (!activeId) return null
 
-    for (const columnLeads of Object.values(leads)) {
+    for (const columnLeads of Object.values(leadsRef.current)) {
       const lead = columnLeads.find((l: Lead) => l.id === activeId)
       if (lead) return lead
     }
