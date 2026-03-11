@@ -242,7 +242,7 @@ export const LeadCard = memo(function LeadCard({
               <p className="text-[10px] text-slate-500 font-black truncate uppercase tracking-[0.15em] shrink-0">{lead.negocio}</p>
             </div>
             <Badge variant="outline" className="shrink-0 bg-white/5 border-white/10 text-slate-400 text-[9px] font-black tracking-widest px-2 py-0.5 rounded-lg group-hover:border-brand-orange/20 group-hover:text-brand-orange/70 transition-all uppercase">
-              {lead.provincia}
+              {lead.provincia === 'Ciudad Autónoma de Buenos Aires' ? 'CABA' : lead.provincia}
             </Badge>
           </div>
 
@@ -318,7 +318,7 @@ export const LeadCard = memo(function LeadCard({
 
           <div className="flex items-center gap-2 text-xs text-slate-400 mb-2">
             <MapPin className="h-3 w-3 flex-shrink-0" />
-            <span className="truncate">{lead.provincia}, {lead.localidad}</span>
+            <span className="truncate">{lead.provincia === 'Ciudad Autónoma de Buenos Aires' ? 'CABA' : lead.provincia}, {lead.localidad}</span>
           </div>
 
           <Badge variant="secondary" className={`text-xs mb-3 ${getEtapaColor(lead.etapa)}`}>

@@ -131,3 +131,19 @@ Analytics scripts are injected in `app/layout.tsx`. The `useGoogleAds` hook expo
 ### No Tests
 
 There is no test suite. `npm run lint` (ESLint) is the only automated check. The `precommit` script runs `lint` + `optimize`.
+
+### Adding Shadcn/UI Components
+
+```bash
+npx shadcn@latest add <component-name>
+```
+
+Never edit `components/ui/` files manually.
+
+### Prisma Schema Changes
+
+After modifying `prisma/schema.prisma`, always run:
+```bash
+npx prisma generate   # Update the client
+npx prisma db push    # Apply to DB (no migration files are used)
+```

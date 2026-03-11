@@ -45,7 +45,7 @@ const COLUMNAS = [
   },
   {
     id: 'primer-llamado',
-    title: 'PRIMER LLAMADO REALIZADO',
+    title: 'PRIMER LLAMADO',
     color: 'bg-yellow-600',
     icon: PhoneCall,
   },
