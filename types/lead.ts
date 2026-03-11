@@ -23,6 +23,7 @@ export interface LeadsPorEtapa {
   entrante: Lead[]
   'primer-llamado': Lead[]
   seguimiento: Lead[]
+  'muestra-enviada': Lead[]
   ganado: Lead[]
   perdido: Lead[]
 } 

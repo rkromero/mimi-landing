@@ -25,6 +25,7 @@ import {
   RefreshCcw,
   CircleCheck,
   CircleX,
+  PackageCheck,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Lead, LeadsPorEtapa } from '@/types/lead'
@@ -53,6 +54,12 @@ const COLUMNAS = [
     title: 'HACER SEGUIMIENTO',
     color: 'bg-purple-600',
     icon: RefreshCcw,
+  },
+  {
+    id: 'muestra-enviada',
+    title: 'MUESTRA ENVIADA',
+    color: 'bg-orange-500',
+    icon: PackageCheck,
   },
   {
     id: 'ganado',
@@ -85,6 +92,7 @@ const emptyLeads = (): LeadsPorEtapa => ({
   entrante: [],
   'primer-llamado': [],
   seguimiento: [],
+  'muestra-enviada': [],
   ganado: [],
   perdido: [],
 })
@@ -102,6 +110,7 @@ const filterLeadsBySeller = (leads: LeadsPorEtapa, sellerFilter: string): LeadsP
     entrante: filterColumn(leads.entrante),
     'primer-llamado': filterColumn(leads['primer-llamado']),
     seguimiento: filterColumn(leads.seguimiento),
+    'muestra-enviada': filterColumn(leads['muestra-enviada']),
     ganado: filterColumn(leads.ganado),
     perdido: filterColumn(leads.perdido),
   }
@@ -635,7 +644,7 @@ Equipo MIMI`)
               onDragEnd={handleDragEnd}
             >
               <div className="flex-1 min-h-0 overflow-x-auto overflow-y-hidden pb-4 crm-scrollbar">
-                <div className="flex gap-4 h-full min-w-max xl:min-w-0 xl:grid xl:grid-cols-5">
+                <div className="flex gap-4 h-full min-w-max xl:min-w-0 xl:grid xl:grid-cols-6">
                   {COLUMNAS.map((columna) => (
                     <KanbanColumn
                       key={columna.id}

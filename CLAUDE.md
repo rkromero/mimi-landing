@@ -25,9 +25,14 @@ npm run lint
 npx prisma generate               # Regenerate Prisma client after schema changes
 npx prisma db push                # Apply schema changes to DB (no migrations)
 npx prisma studio                 # GUI for browsing the database
+
+# Scripts
+ADMIN_EMAIL=... ADMIN_PASSWORD=... ADMIN_NAME=... npm run seed:admin   # Create initial admin user
+npm run optimize                  # Conversion audit
 ```
 
 > **Note**: Always use `--legacy-peer-deps` when installing packages.
+> **Deployment**: Railway uses `start.sh` (runs `prisma db push` then `next start`). Config in `railway.json`.
 
 ## Environment Variables
 
@@ -84,8 +89,16 @@ lib/
 hooks/
   use-google-ads.ts   # trackLeadSubmission(), trackFormInteraction(), etc.
 components/
+  KanbanColumn.tsx    # CRM Kanban column (uses dnd-kit)
+  LeadCard.tsx        # Lead card in Kanban
+  MobileCRM.tsx       # Mobile-specific CRM view
+  CreateLeadModal.tsx # Manual lead creation
+  CreateSellerModal.tsx
   OptimizedLogo.tsx
   ui/                 # Shadcn/UI components (do not edit manually)
+types/
+  lead.ts             # Lead & LeadsPorEtapa interfaces
+  auth.ts
 ```
 
 ### Database Models (Prisma + PostgreSQL)
@@ -114,3 +127,7 @@ Analytics scripts are injected in `app/layout.tsx`. The `useGoogleAds` hook expo
 ### Shadcn/UI Configuration
 
 `components.json` configures Shadcn. UI components live in `components/ui/` and should not be modified manually — use the Shadcn CLI to add/update components.
+
+### No Tests
+
+There is no test suite. `npm run lint` (ESLint) is the only automated check. The `precommit` script runs `lint` + `optimize`.

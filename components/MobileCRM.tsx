@@ -7,13 +7,13 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
-import { 
-  Phone, 
-  MessageCircle, 
-  Mail, 
-  MapPin, 
-  Package, 
-  DollarSign, 
+import {
+  Phone,
+  MessageCircle,
+  Mail,
+  MapPin,
+  Package,
+  DollarSign,
   Calendar,
   Users,
   BarChart3,
@@ -30,7 +30,8 @@ import {
   RefreshCcw,
   CircleCheck,
   CircleX,
-  LogOut
+  LogOut,
+  PackageCheck,
 } from 'lucide-react'
 import { Lead, LeadsPorEtapa } from '@/types/lead'
 import { CreateLeadModal } from '@/components/CreateLeadModal'
@@ -72,6 +73,7 @@ const ETAPAS = [
   { id: 'entrante', title: 'Entrante', icon: Inbox, color: 'bg-blue-500' },
   { id: 'primer-llamado', title: 'Primer Llamado', icon: PhoneCall, color: 'bg-yellow-500' },
   { id: 'seguimiento', title: 'Seguimiento', icon: RefreshCcw, color: 'bg-purple-500' },
+  { id: 'muestra-enviada', title: 'Muestra Enviada', icon: PackageCheck, color: 'bg-orange-500' },
   { id: 'ganado', title: 'Ganado', icon: CircleCheck, color: 'bg-green-500' },
   { id: 'perdido', title: 'Perdido', icon: CircleX, color: 'bg-red-500' }
 ] as const satisfies ReadonlyArray<{
@@ -96,6 +98,7 @@ const filterLeadsBySeller = (leads: LeadsPorEtapa, sellerFilter: string) => {
     entrante: filterColumn(leads.entrante),
     'primer-llamado': filterColumn(leads['primer-llamado']),
     seguimiento: filterColumn(leads.seguimiento),
+    'muestra-enviada': filterColumn(leads['muestra-enviada']),
     ganado: filterColumn(leads.ganado),
     perdido: filterColumn(leads.perdido),
   }
