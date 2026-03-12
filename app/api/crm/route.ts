@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
     const leads = await prisma.contactForm.findMany({
       where: {
         esBajoVolumen: false, // Excluir leads de bajo volumen del CRM
+        etapaCrm: { not: 'perdido' }, // No cargar perdidos en el tablero (se guardan en BD)
         ...(auth.user.role === CrmRole.VENDEDOR && { assignedToId: auth.user.id }),
       },
       orderBy: {
