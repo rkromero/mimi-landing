@@ -184,6 +184,14 @@ export default function MimiLanding() {
     }
   }
 
+  // Siempre cargar en el top al llegar desde un link externo (ej: Facebook Ads con #hash)
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    if (window.location.hash) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    }
+  }, [])
+
   // Configurar el scroll suave para todos los enlaces internos
   useEffect(() => {
     const internalLinks = document.querySelectorAll('a[href^="#"]')
