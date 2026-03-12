@@ -53,7 +53,7 @@ export default function GraciasPage() {
   }, [trackSectionView])
 
   const handleWhatsAppClick = () => {
-    const phoneNumber = "5491173639684"
+    const phoneNumber = "541173639684"
     const message = "¡Hola! Acabo de completar el formulario para ser distribuidor de MIMI. ¿Cuándo podemos hablar?"
     const encodedMessage = encodeURIComponent(message)
     
@@ -64,8 +64,8 @@ export default function GraciasPage() {
   }
   
   const handlePhoneClick = () => {
-    trackPhoneClick("+5491173639684")
-    window.open('tel:+5491173639684')
+    trackPhoneClick("+541173639684")
+    window.open('tel:+541173639684')
   }
   
   const handleEmailClick = () => {

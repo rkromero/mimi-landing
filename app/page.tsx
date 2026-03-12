@@ -1257,7 +1257,7 @@ export default function MimiLanding() {
 
         {/* WhatsApp Float Button */}
         <Link
-          href="https://wa.me/5491173639684"
+          href="https://wa.me/541173639684"
           className="fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 z-50"
         >
           <MessageCircle className="h-6 w-6" />
