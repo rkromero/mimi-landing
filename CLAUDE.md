@@ -147,3 +147,14 @@ After modifying `prisma/schema.prisma`, always run:
 npx prisma generate   # Update the client
 npx prisma db push    # Apply to DB (no migration files are used)
 ```
+
+### CRM Pipeline Stages
+
+`etapaCrm` field values in order: `entrante` → `primer-llamado` → `seguimiento` → `2do-seguimiento` → `muestra-enviada` → `ganado` | `perdido`.
+When a lead is moved to `perdido`, a reason is required: `precio`, `minorista`, `en-otro-momento`, or `pago-anticipado`.
+
+### ADMIN vs VENDEDOR Differences
+
+- `ADMIN` can see all leads, all sellers, create users, and access `GET /api/contact`.
+- `VENDEDOR` only sees leads assigned to them (`assignedToId === user.id`).
+- Role is enforced both in middleware (`middleware.ts`) and inside each API route via `requireAuth(request, [CrmRole.ADMIN])`.

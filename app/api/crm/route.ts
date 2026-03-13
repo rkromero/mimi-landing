@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { CrmRole, Prisma } from '@prisma/client'
 import { requireAuth } from '@/lib/auth'
 
-const CRM_ETAPAS = ['entrante', 'primer-llamado', 'seguimiento', 'muestra-enviada', 'ganado', 'perdido'] as const
+const CRM_ETAPAS = ['entrante', 'primer-llamado', 'seguimiento', '2do-seguimiento', 'muestra-enviada', 'ganado', 'perdido'] as const
 const LOST_REASONS = ['precio', 'minorista', 'en-otro-momento', 'pago-anticipado'] as const
 const LOST_REASON_LABELS: Record<(typeof LOST_REASONS)[number], string> = {
   precio: 'Precio',
@@ -95,6 +95,7 @@ export async function GET(request: NextRequest) {
       entrante: [] as ReturnType<typeof transformLead>[],
       'primer-llamado': [] as ReturnType<typeof transformLead>[],
       seguimiento: [] as ReturnType<typeof transformLead>[],
+      '2do-seguimiento': [] as ReturnType<typeof transformLead>[],
       'muestra-enviada': [] as ReturnType<typeof transformLead>[],
       ganado: [] as ReturnType<typeof transformLead>[],
       perdido: [] as ReturnType<typeof transformLead>[],

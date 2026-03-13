@@ -28,6 +28,7 @@ import {
   Inbox,
   PhoneCall,
   RefreshCcw,
+  Repeat2,
   CircleCheck,
   CircleX,
   LogOut,
@@ -71,9 +72,10 @@ interface MobileCRMProps {
 
 const ETAPAS = [
   { id: 'entrante', title: 'Entrante', icon: Inbox, color: 'bg-blue-500' },
-  { id: 'primer-llamado', title: 'Primer Llamado', icon: PhoneCall, color: 'bg-yellow-500' },
+  { id: 'primer-llamado', title: '1er Llamado', icon: PhoneCall, color: 'bg-yellow-500' },
   { id: 'seguimiento', title: 'Seguimiento', icon: RefreshCcw, color: 'bg-purple-500' },
-  { id: 'muestra-enviada', title: 'Muestra Enviada', icon: PackageCheck, color: 'bg-orange-500' },
+  { id: '2do-seguimiento', title: '2do Seg.', icon: Repeat2, color: 'bg-cyan-500' },
+  { id: 'muestra-enviada', title: 'Muestra', icon: PackageCheck, color: 'bg-orange-500' },
   { id: 'ganado', title: 'Ganado', icon: CircleCheck, color: 'bg-green-500' },
   { id: 'perdido', title: 'Perdido', icon: CircleX, color: 'bg-red-500' }
 ] as const satisfies ReadonlyArray<{
@@ -98,6 +100,7 @@ const filterLeadsBySeller = (leads: LeadsPorEtapa, sellerFilter: string) => {
     entrante: filterColumn(leads.entrante),
     'primer-llamado': filterColumn(leads['primer-llamado']),
     seguimiento: filterColumn(leads.seguimiento),
+    '2do-seguimiento': filterColumn(leads['2do-seguimiento']),
     'muestra-enviada': filterColumn(leads['muestra-enviada']),
     ganado: filterColumn(leads.ganado),
     perdido: filterColumn(leads.perdido),
@@ -718,21 +721,23 @@ export function MobileCRM({
 
       {/* Tabs de etapas */}
       <Tabs defaultValue="entrante" className="flex flex-col h-[calc(100vh-208px)]">
-        <TabsList className="grid w-full grid-cols-5 bg-[#0b1020] border-b border-white/10 rounded-none h-auto">
-          {ETAPAS.map((etapa) => (
-            <TabsTrigger
-              key={etapa.id}
-              value={etapa.id}
-              className="flex flex-col gap-1 py-3 px-1 data-[state=active]:bg-[#10182b] data-[state=active]:text-slate-100 text-slate-300"
-            >
-              <etapa.icon className="h-4 w-4" aria-hidden="true" />
-              <span className="text-xs font-medium truncate">{etapa.title}</span>
-              <Badge variant="secondary" className="text-xs bg-white/10 text-slate-200">
-                {visibleLeads[etapa.id as keyof LeadsPorEtapa].length}
-              </Badge>
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <div className="overflow-x-auto bg-[#0b1020] border-b border-white/10 shrink-0 crm-scrollbar">
+          <TabsList className="flex w-max bg-transparent rounded-none h-auto p-0">
+            {ETAPAS.map((etapa) => (
+              <TabsTrigger
+                key={etapa.id}
+                value={etapa.id}
+                className="flex flex-col gap-1 py-3 px-4 min-w-[68px] rounded-none data-[state=active]:bg-[#10182b] data-[state=active]:text-slate-100 data-[state=active]:shadow-none text-slate-400"
+              >
+                <etapa.icon className="h-4 w-4" aria-hidden="true" />
+                <span className="text-[10px] font-medium whitespace-nowrap">{etapa.title}</span>
+                <Badge variant="secondary" className="text-[9px] px-1.5 py-0 bg-white/10 text-slate-200 leading-tight">
+                  {visibleLeads[etapa.id as keyof LeadsPorEtapa].length}
+                </Badge>
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
 
         {ETAPAS.map((etapa) => (
           <TabsContent

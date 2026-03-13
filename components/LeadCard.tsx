@@ -65,6 +65,8 @@ const CRM_STAGE_OPTIONS = [
   { value: 'entrante', label: 'Entrante' },
   { value: 'primer-llamado', label: 'Primer llamado' },
   { value: 'seguimiento', label: 'Seguimiento' },
+  { value: '2do-seguimiento', label: '2do Seguimiento' },
+  { value: 'muestra-enviada', label: 'Muestra enviada' },
   { value: 'ganado', label: 'Ganado' },
   { value: 'perdido', label: 'Perdido' },
 ] as const

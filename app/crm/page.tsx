@@ -23,6 +23,7 @@ import {
   Inbox,
   PhoneCall,
   RefreshCcw,
+  Repeat2,
   CircleCheck,
   CircleX,
   PackageCheck,
@@ -54,6 +55,12 @@ const COLUMNAS = [
     title: 'HACER SEGUIMIENTO',
     color: 'bg-purple-600',
     icon: RefreshCcw,
+  },
+  {
+    id: '2do-seguimiento',
+    title: '2DO SEGUIMIENTO',
+    color: 'bg-cyan-600',
+    icon: Repeat2,
   },
   {
     id: 'muestra-enviada',
@@ -92,6 +99,7 @@ const emptyLeads = (): LeadsPorEtapa => ({
   entrante: [],
   'primer-llamado': [],
   seguimiento: [],
+  '2do-seguimiento': [],
   'muestra-enviada': [],
   ganado: [],
   perdido: [],
@@ -110,6 +118,7 @@ const filterLeadsBySeller = (leads: LeadsPorEtapa, sellerFilter: string): LeadsP
     entrante: filterColumn(leads.entrante),
     'primer-llamado': filterColumn(leads['primer-llamado']),
     seguimiento: filterColumn(leads.seguimiento),
+    '2do-seguimiento': filterColumn(leads['2do-seguimiento']),
     'muestra-enviada': filterColumn(leads['muestra-enviada']),
     ganado: filterColumn(leads.ganado),
     perdido: filterColumn(leads.perdido),
@@ -648,7 +657,7 @@ Equipo MIMI`)
               onDragEnd={handleDragEnd}
             >
               <div className="flex-1 min-h-0 overflow-x-auto overflow-y-hidden pb-4 crm-scrollbar">
-                <div className="flex gap-4 h-full min-w-max xl:min-w-0 xl:grid xl:grid-cols-6">
+                <div className="flex gap-3 h-full min-w-max 2xl:min-w-0 2xl:grid 2xl:grid-cols-7">
                   {COLUMNAS.map((columna) => (
                     <KanbanColumn
                       key={columna.id}
