@@ -20,6 +20,7 @@ import {
   TrendingUp,
   LogOut,
   KanbanSquare,
+  Settings,
   Inbox,
   PhoneCall,
   RefreshCcw,
@@ -551,6 +552,15 @@ Equipo MIMI`)
                   <KanbanSquare className="h-4 w-4" />
                   Tablero CRM
                 </Link>
+                {isAdmin && (
+                  <Link
+                    href="/crm/configuracion"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-white/5 text-sm font-medium transition-all"
+                  >
+                    <Settings className="h-4 w-4" />
+                    Configuración
+                  </Link>
+                )}
               </nav>
 
               <div className="mt-auto px-1">

@@ -7,6 +7,27 @@ import { createEmailTemplate } from '@/lib/email-template'
 
 const ASSIGNMENT_WINDOW_DAYS = 30
 
+/**
+ * Lee la configuración de derivación desde CrmSettings y devuelve el ID
+ * del vendedor al que se debe asignar el lead.
+ * - mode "fixed":    siempre al mismo vendedor configurado
+ * - mode "balanced": round-robin entre todos los vendedores activos
+ */
+const resolveAssignedSellerId = async (tx: Prisma.TransactionClient): Promise<string | null> => {
+  const settings = await tx.crmSettings.findUnique({ where: { id: 'singleton' } })
+
+  if (settings?.assignmentMode === 'fixed' && settings.fixedAssigneeId) {
+    return settings.fixedAssigneeId
+  }
+
+  // Fallback: round-robin balanceado entre todos los vendedores
+  const sellers = await tx.crmUser.findMany({
+    where: { role: CrmRole.VENDEDOR },
+    select: { id: true },
+  })
+  return pickBalancedSellerId(tx, sellers.map((s) => s.id))
+}
+
 const pickBalancedSellerId = async (
   tx: Prisma.TransactionClient,
   sellerIds: string[]
@@ -58,12 +79,7 @@ export async function POST(request: NextRequest) {
     const auth = await getAuthUserFromRequest(request)
 
     const contactForm = await prisma.$transaction(async (tx) => {
-      const sellers = await tx.crmUser.findMany({
-        where: { role: CrmRole.VENDEDOR },
-        select: { id: true },
-      })
-      const sellerIds = sellers.map((seller) => seller.id)
-      const assignedToId = await pickBalancedSellerId(tx, sellerIds)
+      const assignedToId = await resolveAssignedSellerId(tx)
 
       return tx.contactForm.create({
         data: {

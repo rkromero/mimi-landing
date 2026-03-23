@@ -29,8 +29,19 @@ model CrmUser {
   assignedLeads ContactForm[] @relation("LeadAssignee")
   updatedLeads ContactForm[] @relation("LeadUpdater")
   sessions     CrmSession[]
+  assigneeSettings CrmSettings[] @relation("SettingsFixedAssignee")
 
   @@index([role])
+}
+
+// Configuración global del CRM (singleton — siempre id = "singleton")
+model CrmSettings {
+  id              String   @id @default("singleton")
+  // "balanced" = round-robin automático | "fixed" = siempre al mismo vendedor
+  assignmentMode  String   @default("balanced")
+  fixedAssigneeId String?
+  fixedAssignee   CrmUser? @relation("SettingsFixedAssignee", fields: [fixedAssigneeId], references: [id], onDelete: SetNull)
+  updatedAt       DateTime @updatedAt
 }
 
 model CrmSession {

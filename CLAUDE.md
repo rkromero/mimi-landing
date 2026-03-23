@@ -29,6 +29,7 @@ npx prisma studio                 # GUI for browsing the database
 # Scripts
 ADMIN_EMAIL=... ADMIN_PASSWORD=... ADMIN_NAME=... npm run seed:admin   # Create initial admin user
 npm run optimize                  # Conversion audit
+node scripts/update-existing-records.js  # Backfill null provincia/localidad/cantidad fields
 ```
 
 > **Note**: Always use `--legacy-peer-deps` when installing packages.
@@ -103,7 +104,7 @@ types/
 
 ### Database Models (Prisma + PostgreSQL)
 
-- **`ContactForm`** (`contact_forms` table): Lead data captured from the landing form. Fields include `etapa` (original form stage), `etapaCrm` (CRM pipeline stage: `entrante → primer-llamado → seguimiento → ganado/perdido`), `esBajoVolumen` (cantidad = `menos-24`), `assignedToId`, `notas`, `valor`.
+- **`ContactForm`** (`contact_forms` table): Lead data captured from the landing form. Fields include `etapa` (original form stage), `etapaCrm` (CRM pipeline stage: `entrante → primer-llamado → seguimiento → ganado/perdido`), `esBajoVolumen` (cantidad = `menos-24`), `assignedToId`, `notas`, `valor`, `primerLlamadoAt` (timestamp set when lead moves from `entrante` → `primer-llamado`, used for response-time metrics), `cuit` (optional).
 - **`CrmUser`**: Internal CRM users with `CrmRole` enum (`ADMIN` | `VENDEDOR`). Passwords hashed with bcrypt (cost 12).
 - **`CrmSession`**: HTTP-only cookie sessions stored in DB.
 
@@ -114,6 +115,7 @@ On each new form submission (`POST /api/contact`), leads are automatically assig
 ### Auth Flow
 
 - Cookie name: `crm_session` (httpOnly, secure in production, SameSite=lax)
+- **Two-layer auth**: `middleware.ts` only checks cookie presence (fast edge check); `requireAuth()` inside each API route does the full DB session lookup + expiry validation. Don't rely on middleware alone for authorization.
 - `requireAuth(request, [CrmRole.ADMIN])` used in API routes for authorization
 - The CRM UI at `/crm` is accessible to both `ADMIN` and `VENDEDOR` roles
 
@@ -158,3 +160,11 @@ When a lead is moved to `perdido`, a reason is required: `precio`, `minorista`, 
 - `ADMIN` can see all leads, all sellers, create users, and access `GET /api/contact`.
 - `VENDEDOR` only sees leads assigned to them (`assignedToId === user.id`).
 - Role is enforced both in middleware (`middleware.ts`) and inside each API route via `requireAuth(request, [CrmRole.ADMIN])`.
+
+### Lead Assignment (Round-Robin)
+
+`POST /api/contact` assigns each new lead to the `VENDEDOR` with the fewest leads in the last 30 days (`ASSIGNMENT_WINDOW_DAYS`). The count uses a DB `groupBy` inside the same transaction as the insert, so assignment is race-condition-safe.
+
+### ruflo / Claude Code Integration
+
+`ruflo init` generated `.claude/` (99 agents, 30 skills, 10 commands) and `.claude-flow/` (runtime config). These are tooling artifacts — do not edit them manually. The `settings.json` there configures hooks for Claude Code.
