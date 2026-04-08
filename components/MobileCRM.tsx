@@ -27,7 +27,6 @@ import {
   Trash2,
   Inbox,
   PhoneCall,
-  Phone,
   RefreshCcw,
   Repeat2,
   CircleCheck,
