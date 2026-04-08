@@ -27,6 +27,7 @@ import {
   Trash2,
   Inbox,
   PhoneCall,
+  Phone,
   RefreshCcw,
   Repeat2,
   CircleCheck,
@@ -74,6 +75,7 @@ const ETAPAS = [
   { id: 'entrante', title: 'Entrante', icon: Inbox, color: 'bg-blue-500' },
   { id: 'primer-llamado', title: '1er Llamado', icon: PhoneCall, color: 'bg-yellow-500' },
   { id: 'seguimiento', title: 'Seguimiento', icon: RefreshCcw, color: 'bg-purple-500' },
+  { id: 'llamado-final', title: 'Llamado Final', icon: Phone, color: 'bg-teal-500' },
   { id: '2do-seguimiento', title: '2do Seg.', icon: Repeat2, color: 'bg-cyan-500' },
   { id: 'muestra-enviada', title: 'Muestra', icon: PackageCheck, color: 'bg-orange-500' },
   { id: 'ganado', title: 'Ganado', icon: CircleCheck, color: 'bg-green-500' },
@@ -100,6 +102,7 @@ const filterLeadsBySeller = (leads: LeadsPorEtapa, sellerFilter: string) => {
     entrante: filterColumn(leads.entrante),
     'primer-llamado': filterColumn(leads['primer-llamado']),
     seguimiento: filterColumn(leads.seguimiento),
+    'llamado-final': filterColumn(leads['llamado-final']),
     '2do-seguimiento': filterColumn(leads['2do-seguimiento']),
     'muestra-enviada': filterColumn(leads['muestra-enviada']),
     ganado: filterColumn(leads.ganado),
@@ -201,15 +204,12 @@ export function MobileCRM({
           nuevaEtapa,
           motivoPerdido,
         })
-        setUpdateMessage(`Lead movido a ${getEtapaInfo(nuevaEtapa)?.title}`)
         setSelectedLead({
           ...selectedLead,
           etapaCrm: nuevaEtapa
         })
-        setTimeout(() => {
-          onRefresh()
-          setUpdateMessage(null)
-        }, 1500)
+        setUpdateMessage(`Lead movido a ${getEtapaInfo(nuevaEtapa)?.title}`)
+        setTimeout(() => setUpdateMessage(null), 2000)
       } else {
         const response = await fetch('/api/crm', {
           method: 'PUT',
@@ -434,26 +434,25 @@ export function MobileCRM({
                 </div>
               </div>
 
-              {/* Selector de Nueva Etapa */}
+              {/* Botones de Nueva Etapa */}
               <div>
                 <p className="text-sm font-medium text-slate-300 mb-2">Mover a:</p>
-                <Select onValueChange={handleEtapaChange} disabled={updatingLead || deletingLead}>
-                  <SelectTrigger className="w-full h-12 text-left bg-[#10182b] border-white/10 text-slate-100">
-                    <SelectValue placeholder="Seleccionar nueva etapa..." />
-                  </SelectTrigger>
-                  <SelectContent className="bg-[#10182b] border-white/10 text-slate-100">
-                    {ETAPAS
-                      .filter(etapa => etapa.id !== selectedLead.etapaCrm)
-                      .map((etapa) => (
-                        <SelectItem key={etapa.id} value={etapa.id}>
-                          <div className="flex items-center gap-3">
-                            <etapa.icon className="h-4 w-4" aria-hidden="true" />
-                            <span className="font-medium">{etapa.title}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
+                <div className="grid grid-cols-2 gap-2">
+                  {ETAPAS
+                    .filter(etapa => etapa.id !== selectedLead.etapaCrm)
+                    .map((etapa) => (
+                      <button
+                        key={etapa.id}
+                        type="button"
+                        disabled={updatingLead || deletingLead}
+                        onClick={() => handleEtapaChange(etapa.id)}
+                        className={`flex items-center gap-2 px-3 py-3 rounded-lg border border-white/10 bg-[#10182b] text-slate-100 text-sm font-medium transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/10 ${etapa.color.replace('bg-', 'hover:border-').replace('-500', '-400')}`}
+                      >
+                        <etapa.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                        <span>{etapa.title}</span>
+                      </button>
+                    ))}
+                </div>
               </div>
 
               {isAdmin ? (

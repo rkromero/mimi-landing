@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { CrmRole, Prisma } from '@prisma/client'
 import { requireAuth } from '@/lib/auth'
 
-const CRM_ETAPAS = ['entrante', 'primer-llamado', 'seguimiento', '2do-seguimiento', 'muestra-enviada', 'ganado', 'perdido'] as const
+const CRM_ETAPAS = ['entrante', 'primer-llamado', 'seguimiento', 'llamado-final', '2do-seguimiento', 'muestra-enviada', 'ganado', 'perdido'] as const
 const LOST_REASONS = ['precio', 'minorista', 'en-otro-momento', 'pago-anticipado'] as const
 const LOST_REASON_LABELS: Record<(typeof LOST_REASONS)[number], string> = {
   precio: 'Precio',
@@ -31,46 +31,45 @@ export async function GET(request: NextRequest) {
     const { auth, error } = await requireAuth(request, [CrmRole.ADMIN, CrmRole.VENDEDOR])
     if (error) return error
 
-    const leads = await prisma.contactForm.findMany({
-      where: {
-        esBajoVolumen: false, // Excluir leads de bajo volumen del CRM
-        etapaCrm: { not: 'perdido' }, // No cargar perdidos en el tablero (se guardan en BD)
-        ...(auth.user.role === CrmRole.VENDEDOR && { assignedToId: auth.user.id }),
-      },
-      orderBy: {
-        updatedAt: 'desc'
-      },
-      select: {
-        id: true,
-        nombre: true,
-        negocio: true,
-        provincia: true,
-        localidad: true,
-        cantidad: true,
-        etapa: true,
-        etapaCrm: true,
-        whatsapp: true,
-        email: true,
-        comentarios: true,
-        notas: true,
-        valor: true,
-        assignedToId: true,
-        createdAt: true,
-        updatedAt: true,
-        assignedTo: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
+    const baseWhere = {
+      esBajoVolumen: false,
+      ...(auth.user.role === CrmRole.VENDEDOR && { assignedToId: auth.user.id }),
+    }
+
+    const [leads, totalPerdidos] = await Promise.all([
+      prisma.contactForm.findMany({
+        where: { ...baseWhere, etapaCrm: { not: 'perdido' } },
+        orderBy: { updatedAt: 'desc' },
+        select: {
+          id: true,
+          nombre: true,
+          negocio: true,
+          provincia: true,
+          localidad: true,
+          cantidad: true,
+          etapa: true,
+          etapaCrm: true,
+          whatsapp: true,
+          email: true,
+          comentarios: true,
+          notas: true,
+          valor: true,
+          assignedToId: true,
+          createdAt: true,
+          updatedAt: true,
+          assignedTo: {
+            select: { id: true, name: true, email: true },
           },
         },
-      },
-    })
+      }),
+      // Conteo de perdidos para calcular tasa de conversión real en el frontend
+      prisma.contactForm.count({
+        where: { ...baseWhere, etapaCrm: 'perdido' },
+      }),
+    ])
 
     // Transformar y organizar leads por etapa
-    const transformLead = (
-      lead: typeof leads[number]
-    ) => ({
+    const transformLead = (lead: typeof leads[number]) => ({
       id: lead.id,
       nombre: lead.nombre,
       negocio: lead.negocio,
@@ -88,13 +87,14 @@ export async function GET(request: NextRequest) {
       assignedToName: lead.assignedTo?.name ?? null,
       assignedToEmail: lead.assignedTo?.email ?? null,
       createdAt: lead.createdAt.toISOString(),
-      updatedAt: lead.updatedAt.toISOString()
+      updatedAt: lead.updatedAt.toISOString(),
     })
 
     const leadsPorEtapa = {
       entrante: [] as ReturnType<typeof transformLead>[],
       'primer-llamado': [] as ReturnType<typeof transformLead>[],
       seguimiento: [] as ReturnType<typeof transformLead>[],
+      'llamado-final': [] as ReturnType<typeof transformLead>[],
       '2do-seguimiento': [] as ReturnType<typeof transformLead>[],
       'muestra-enviada': [] as ReturnType<typeof transformLead>[],
       ganado: [] as ReturnType<typeof transformLead>[],
@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
       leadsPorEtapa[etapa].push(transformLead(lead))
     }
 
-    return NextResponse.json(leadsPorEtapa)
+    return NextResponse.json({ ...leadsPorEtapa, _totalPerdidos: totalPerdidos })
   } catch (error) {
     console.error('Error al obtener leads del CRM:', error)
     return NextResponse.json(

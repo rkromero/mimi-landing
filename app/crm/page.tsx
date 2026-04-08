@@ -23,6 +23,7 @@ import {
   Settings,
   Inbox,
   PhoneCall,
+  Phone,
   RefreshCcw,
   Repeat2,
   CircleCheck,
@@ -56,6 +57,12 @@ const COLUMNAS = [
     title: 'HACER SEGUIMIENTO',
     color: 'bg-purple-600',
     icon: RefreshCcw,
+  },
+  {
+    id: 'llamado-final',
+    title: 'LLAMADO FINAL',
+    color: 'bg-teal-600',
+    icon: Phone,
   },
   {
     id: '2do-seguimiento',
@@ -100,6 +107,7 @@ const emptyLeads = (): LeadsPorEtapa => ({
   entrante: [],
   'primer-llamado': [],
   seguimiento: [],
+  'llamado-final': [],
   '2do-seguimiento': [],
   'muestra-enviada': [],
   ganado: [],
@@ -119,6 +127,7 @@ const filterLeadsBySeller = (leads: LeadsPorEtapa, sellerFilter: string): LeadsP
     entrante: filterColumn(leads.entrante),
     'primer-llamado': filterColumn(leads['primer-llamado']),
     seguimiento: filterColumn(leads.seguimiento),
+    'llamado-final': filterColumn(leads['llamado-final']),
     '2do-seguimiento': filterColumn(leads['2do-seguimiento']),
     'muestra-enviada': filterColumn(leads['muestra-enviada']),
     ganado: filterColumn(leads.ganado),
@@ -133,6 +142,7 @@ export default function CRMPage() {
   const [sellers, setSellers] = useState<CrmSeller[]>([])
   const [sellerFilter, setSellerFilter] = useState('all')
   const [leads, setLeads] = useState<LeadsPorEtapa>(emptyLeads())
+  const [totalPerdidos, setTotalPerdidos] = useState(0)
   const [activeId, setActiveId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const leadsRef = useRef(leads)
@@ -156,7 +166,9 @@ export default function CRMPage() {
       throw new Error('No se pudo cargar el CRM')
     }
     const data = await response.json()
-    setLeads(data)
+    const { _totalPerdidos, ...leadsData } = data
+    setLeads(leadsData)
+    setTotalPerdidos(_totalPerdidos ?? 0)
   }
 
   const cargarVendedores = async () => {
@@ -490,7 +502,11 @@ Equipo MIMI`)
   // Calcular estadísticas
   const totalLeads = Object.values(visibleLeads).reduce((sum, columnLeads) => sum + columnLeads.length, 0)
   const totalValue = Object.values(visibleLeads).flat().reduce((sum, lead) => sum + (lead.valor || 0), 0)
-  const conversionRate = totalLeads > 0 ? ((visibleLeads.ganado.length / totalLeads) * 100).toFixed(1) : '0'
+  // Denominador real: activos visibles + perdidos (aunque no se muestren en el tablero)
+  const totalConDenominador = totalLeads + totalPerdidos
+  const conversionRate = totalConDenominador > 0
+    ? ((visibleLeads.ganado.length / totalConDenominador) * 100).toFixed(1)
+    : '0'
   const crmFontClass = 'crm-premium-typography'
 
   // Renderizado condicional: móvil vs desktop
@@ -667,7 +683,7 @@ Equipo MIMI`)
               onDragEnd={handleDragEnd}
             >
               <div className="flex-1 min-h-0 overflow-x-auto overflow-y-hidden pb-4 crm-scrollbar">
-                <div className="flex gap-3 h-full min-w-max 2xl:min-w-0 2xl:grid 2xl:grid-cols-7">
+                <div className="flex gap-3 h-full min-w-max 2xl:min-w-0 2xl:grid 2xl:grid-cols-8">
                   {COLUMNAS.map((columna) => (
                     <KanbanColumn
                       key={columna.id}
