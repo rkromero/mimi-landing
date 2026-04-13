@@ -29,6 +29,7 @@ import {
   CircleCheck,
   CircleX,
   PackageCheck,
+  Download,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Lead, LeadsPorEtapa } from '@/types/lead'
@@ -145,6 +146,7 @@ export default function CRMPage() {
   const [totalPerdidos, setTotalPerdidos] = useState(0)
   const [activeId, setActiveId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [exportLoading, setExportLoading] = useState(false)
   const leadsRef = useRef(leads)
 
   const sensors = useSensors(
@@ -213,6 +215,36 @@ export default function CRMPage() {
 
     void bootstrap()
   }, [router])
+
+  const handleExportExcel = async () => {
+    try {
+      setExportLoading(true)
+      const response = await fetch('/api/crm/export')
+      if (!response.ok) throw new Error('No se pudo generar el archivo')
+
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      // Tomar el nombre del header Content-Disposition si viene, o usar uno por defecto
+      const disposition = response.headers.get('Content-Disposition')
+      const match = disposition?.match(/filename="([^"]+)"/)
+      a.download = match?.[1] ?? `mimi-clientes-${new Date().toISOString().slice(0, 10)}.xlsx`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Error exportando Excel:', error)
+      toast({
+        title: 'No se pudo exportar',
+        description: 'Hubo un error al generar el archivo Excel.',
+        variant: 'destructive',
+      })
+    } finally {
+      setExportLoading(false)
+    }
+  }
 
   const refreshData = async () => {
     try {
@@ -629,6 +661,18 @@ Equipo MIMI`)
                 onLeadCreated={refreshData}
                 triggerClassName="h-9 bg-[#0ea56b] hover:bg-[#0b8a59] text-white"
               />
+              <Button
+                onClick={handleExportExcel}
+                disabled={exportLoading}
+                variant="outline"
+                className="h-9 border-slate-600 bg-[#101a34] text-slate-100 hover:bg-[#162345] disabled:opacity-50"
+              >
+                {exportLoading
+                  ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  : <Download className="h-4 w-4 mr-2" />
+                }
+                Exportar Excel
+              </Button>
               <Button
                 onClick={refreshData}
                 variant="outline"
